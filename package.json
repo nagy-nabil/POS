@@ -1,0 +1,47 @@
+{
+  "name": "pos",
+  "version": "0.0.1",
+  "description": "point of sale",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "jest",
+    "dev": "tsc --watch --preserveWatchOutput",
+    "ts": "ts-node-esm src/index.ts",
+    "js": "nodemon dist/index "
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nagy-nabil/POS.git"
+  },
+  "keywords": [
+    "pos",
+    "nodejs",
+    "express",
+    "backend"
+  ],
+  "author": "nagy",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nagy-nabil/POS/issues"
+  },
+  "homepage": "https://github.com/nagy-nabil/POS#readme",
+  "devDependencies": {
+    "@types/cors": "^2.8.12",
+    "@types/express": "^4.17.13",
+    "@types/jsonwebtoken": "^8.5.8",
+    "@types/morgan": "^1.9.3",
+    "@types/node": "^18.7.8",
+    "nodemon": "^2.0.19",
+    "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "@types/mongoose": "^5.11.97",
+    "body-parser": "^1.20.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.5.2",
+    "morgan": "^1.10.0"
+  }
+}
