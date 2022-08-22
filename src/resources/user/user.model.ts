@@ -14,7 +14,18 @@ const UserSchema = new mongoose.Schema({
     password: {type:String,
         required:true},
     level: { type: String, default: "normal" },
-    created: { type: Date, default: Date.now }
+    created: { type: Date, default: Date.now },
+    avatar:String,
+    first_name:{
+        type:String,
+        default :""
+    },
+    last_name:{
+        type:String,
+        default :""
+    },
+    phone: { type: String, default: "" },
+    address: { type: String, default: "" }
 });
 UserSchema.index({ username: 1 }, { unique: true });
 export const User = mongoose.model<UserDocument>("user",UserSchema)
