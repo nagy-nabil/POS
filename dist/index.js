@@ -30,7 +30,12 @@ app.get("/login/success", (req, res) => {
 app.use("/api/user", userRouter);
 //controllers
 app.get("/", (req, res) => {
-    res.send(`<h1>MAIN</h1>`);
+    res.send(`
+    <head><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3023447113015083"
+    crossorigin="anonymous"></script>
+    </head>
+    <body><h1>MAIN</h1></body>
+    `);
 });
 //listen
 app.listen(process.env.PORT, () => {
