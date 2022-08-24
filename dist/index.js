@@ -29,6 +29,9 @@ app.get("/login/success", (req, res) => {
 // app.use("/api",protect) //middleware
 app.use("/api/user", userRouter);
 //controllers
+app.get("/", (req, res) => {
+    res.send(`<h1>MAIN</h1>`);
+});
 //listen
 app.listen(process.env.PORT, () => {
     console.log("listening on 8000");
