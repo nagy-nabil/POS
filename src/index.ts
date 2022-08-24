@@ -32,6 +32,6 @@ app.use("/api/user",userRouter)
 //controllers
 
 //listen
-app.listen(8000,()=>{
+app.listen(process.env.PORT,()=>{
     console.log("listening on 8000")
 })
