@@ -3,7 +3,7 @@ import bp from "body-parser";
 import morgan from 'morgan';
 import cors from "cors";
 import { connect } from "./utils/db.js";
-import { register, signin, protect, activation } from "./utils/auth.js";
+import { register, signin, activation } from "./utils/auth.js";
 import userRouter from "./resources/user/user.router.js";
 import { config } from "dotenv";
 config();
@@ -26,7 +26,7 @@ app.get("/login/success", (req, res) => {
     res.send("<h1>SUCCESS</h1>");
 });
 //router
-app.use("/api", protect); //middleware
+// app.use("/api",protect) //middleware
 app.use("/api/user", userRouter);
 //controllers
 //listen
