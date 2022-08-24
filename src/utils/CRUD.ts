@@ -1,7 +1,6 @@
 import mongoose from "mongoose"
 import {Request , Response} from "express"
-import {UserDocument} from "../resources/user/user.model"
-
+import { UserDocument } from "./types.js"
 export const createOne =  (model:mongoose.Model<UserDocument>) => async (req:Request,res:Response)=>{
     try{
 

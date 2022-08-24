@@ -1,11 +1,5 @@
 import mongoose from "mongoose";
-export interface UserDocument extends mongoose.Document {
-    username:string
-    email:String
-    password:string
-    level:string
-    created:Date
-}
+import { UserDocument } from "../../utils/types.js";
 const UserSchema = new mongoose.Schema({
     username:{type:String,
             required:true},
@@ -25,7 +19,9 @@ const UserSchema = new mongoose.Schema({
         default :""
     },
     phone: { type: String, default: "" },
-    address: { type: String, default: "" }
+    address: { type: String, default: "" },
+    activated_status: { type: Boolean, default: false, required:true },
+    activated_tokken:{type:String,default:""}
 });
 UserSchema.index({ username: 1 }, { unique: true });
 export const User = mongoose.model<UserDocument>("user",UserSchema)

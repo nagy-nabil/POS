@@ -1,9 +1,13 @@
 import {NextFunction, Request,Response} from "express"
-import {User,UserDocument} from "../resources/user/user.model.js"
+import {User} from "../resources/user/user.model.js"
 import jwt from "jsonwebtoken"
-import config from "../config/main.js"
-import mongoose, { model, ObjectId } from "mongoose"
-import {UserRequest} from "./types.js"
+import configUser from "../config/main.js"
+import {UserRequest,UserDocument} from "./types.js"
+import sgMail from "@sendgrid/mail"
+import {config} from "dotenv"
+config()
+if(process.env.SENDGRID_API_KEY !== undefined)
+sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 /**
  * create tokken , send it to the user [payload is the user id]
  * user concern to save the tokken [the front end will save it in the local storage]
@@ -13,32 +17,66 @@ import {UserRequest} from "./types.js"
  * protect assign the user to the req[middleware]
  */
 
-export const newToken = (user:UserDocument) => {
-    return jwt.sign({ id: user._id,level:user.level }, config.jwt.secret, {
-        expiresIn: config.jwt.expiresin
+export const newToken = (user:UserDocument):string => {
+    return jwt.sign({ id: user._id,level:user.level }, configUser.jwt.secret, {
+        expiresIn: configUser.jwt.expiresin
     })
 }
 export const verifyToken = (token:string) =>
     new Promise((resolve, reject) => {
-    jwt.verify(token, config.jwt.secret, (err, payload) => {
+    jwt.verify(token, configUser.jwt.secret, (err, payload) => {
         if (err) return reject(err)
         resolve(payload)
     })
 })
-
+export const newactiveToken = (username:string,email:string):string => {
+    return jwt.sign({usename:username , email:email}, configUser.jwt.activeSecret, {
+        expiresIn: configUser.jwt.activeEspires
+    })
+}
+export const verifyActiveToken = (token:string) =>{
+    return new Promise((resolve, reject) => {
+        jwt.verify(token, configUser.jwt.activeSecret, (err, payload) => {
+            if (err) return reject(err)
+            resolve(payload)
+        })
+    })
+}
 //controller for sign up
 export async function register(req:Request,res:Response):Promise<Response>{
     try{
         if(!req.body.username || !req.body.email || !req.body.password )
         return res.status(400).json({result:"error",message:"required username, email and password"})
+        const acriveToken= newactiveToken(req.body.username,req.body.email);
+        req.body.activated_tokken=acriveToken
         const model:UserDocument=await User.create(req.body)
-        const tokken= newToken(model)
-        return res.status(201).json({result:"success",message:"registred successfully", tokken:tokken})
+        const flag= await sendActivateEmail(req.body.email,acriveToken)
+        if(flag){
+            return res.status(201).json({result:"warning",message:"registred successfully,and email has been sent for activation "})
+        }else{
+            await User.findByIdAndRemove({_id:model._id})
+            return res.status(400).json({result:"error",message:"error has occured"})
+        }
     }catch(err){
         if(err instanceof Error)
         return res.status(400).json({result:"error",message:err.message})
+        else 
+        return res.status(400).json({result:"error",message:err})
     }
-    return res.end()
+}
+export async function activation(req:Request,res:Response){
+    try{
+        const token= req.params.token
+        await verifyActiveToken(token)
+        await User.findOneAndUpdate({activated_tokken:token},{activated_status:true,activated_tokken:""})
+        return res.redirect("http://localhost:8000/login/success");
+    }catch(err){
+        if(err instanceof Error){
+            console.log(err.message)
+            return res.redirect("http://localhost:8000/login/error");
+        }
+    }
+    
 }
 //sign in with username password
 export async function signin (req:Request, res:Response):Promise<Response>{
@@ -46,7 +84,7 @@ export async function signin (req:Request, res:Response):Promise<Response>{
         if(!req.body.username  || !req.body.password )
             return res.status(400).json({result:"error",message:"required username and password"})
             const user = await User.findOne({ username: req.body.username })
-            .select('username password')
+            .select('username password activated_status')
             .exec()
         if (!user) {
             return res.status(401).json({result:"error",message:"no such user"})
@@ -54,13 +92,15 @@ export async function signin (req:Request, res:Response):Promise<Response>{
         if(! (req.body.password === user.password))
             return res.status(401).json({result:"error",message:"wrong username or password"})
         else{
+            console.log(user)
+            if(user.activated_status === false) throw new Error("user not activated ")
             const tokken= newToken(user)
             return res.status(200).json({result:"success",message:"singin successfully", tokken:tokken})}
     }catch(err){
         if(err instanceof Error)
         return res.status(400).json({result:"error",message:err.message})
     }
-    return res.end()
+    return res.status(500).end()
 }
 //typegurd
 interface Payload {
@@ -103,4 +143,25 @@ export const protect = async (req:UserRequest, res:Response, next:NextFunction) 
     }
     
     next()
+}
+
+async function sendActivateEmail(email:string,token:string):Promise<boolean>{
+    const msg = {
+        to: email,
+        from: 'nagynabil651@gmail.com', 
+        subject: 'Account activation link',
+        html: `
+        <h1>Please use the following link to activate your account</h1>
+        <a href="http://localhost:8000/activation/${token}">Activation Link</a>
+        <hr />
+        <p>This email may contain sensetive information</p>
+        <p>and link will  expired in 15 minutes</p>
+    `,
+    }
+    try{
+        await sgMail.send(msg)
+        return true
+    }catch(err){
+        return false;
+    }
 }
