@@ -16,6 +16,26 @@ export interface UserDocument extends mongoose.Document {
     activated_tokken:string
     resetPasswordToken:string
 }
+export interface MachineDocument extends mongoose.Document {
+    alias: string,
+    serial_number: string,
+    created: Date
+}
+export interface BranchDocument extends mongoose.Document {
+    name: string,
+    address: string,
+    tel: string,
+    frontimage: string,
+    created: Date,
+}
+export interface SupplierDocument extends mongoose.Document {
+    name: string,
+    address: string,
+    tel: string,
+    email: string,
+    vat: number,
+    created: Date,
+}
 export interface UserRequest extends Request {
     user?:mongoose.LeanDocument<UserDocument & { _id: mongoose.ObjectId; }>
 }
