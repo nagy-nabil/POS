@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { SupplierDocument } from "../../utils/types.js";
-const SupplierSchema = new mongoose.Schema({
+const SupplierSchema = new mongoose.Schema<SupplierDocument>({
     name: {type:String, required:true},
     address: {type:String,default:""},
     tel: String,

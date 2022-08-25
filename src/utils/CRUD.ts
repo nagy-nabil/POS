@@ -1,16 +1,17 @@
 import mongoose from "mongoose"
 import {Request , Response} from "express"
-import { UserDocument, MachineDocument, SupplierDocument, BranchDocument } from "./types.js"
-export const createOne =  (model:mongoose.Model<UserDocument|MachineDocument|SupplierDocument|BranchDocument>) => async (req:Request,res:Response)=>{
+import { UserDocument, MachineDocument, SupplierDocument, BranchDocument , FI } from "./types.js"
+
+export const createOne =  (model:mongoose.Model<any>) => async (req:Request,res:Response)=>{
     try{
-    const newModel= await model.create(req.body)
-    return res.status(201).json({user:newModel})
+        const newModel= await model.create(req.body)
+        return res.status(201).json({user:newModel})
     }catch(err:unknown){
         if(err instanceof Error)
         return res.status(400).json({result:"error",message:err.message})
     }
 }
-export const getOne = (model:mongoose.Model<UserDocument|MachineDocument|SupplierDocument|BranchDocument>) => async (req:Request,res:Response)=>{
+export const getOne = (model:mongoose.Model<any>) => async (req:Request,res:Response)=>{
     try{
         const doc = await model.findOne({_id:req.params.id})
         .lean()
@@ -24,7 +25,7 @@ export const getOne = (model:mongoose.Model<UserDocument|MachineDocument|Supplie
         return res.status(400).json({result:"error",message:err.message})
     }
 }
-export const getMany = (model:mongoose.Model<UserDocument|MachineDocument|SupplierDocument|BranchDocument>)=> async (req:Request,res:Response)=>{
+export const getMany = (model:mongoose.Model<any>)=> async (req:Request,res:Response)=>{
     try{
         const docs = await model.find({})
         .lean()
@@ -36,7 +37,7 @@ export const getMany = (model:mongoose.Model<UserDocument|MachineDocument|Suppli
     }
 }
 
-export const updateOne = (model:mongoose.Model<UserDocument|MachineDocument|SupplierDocument|BranchDocument>)=> async (req:Request,res:Response)=>{
+export const updateOne = (model:mongoose.Model<any>)=> async (req:Request,res:Response)=>{
     try{
         const updated = await model.findOneAndUpdate({_id:req.params.id} , req.body, {new:true})
         .lean()
@@ -51,7 +52,7 @@ export const updateOne = (model:mongoose.Model<UserDocument|MachineDocument|Supp
     }
 }
 
-export const removeOne = (model:mongoose.Model<UserDocument|MachineDocument|SupplierDocument|BranchDocument>) => async (req:Request,res:Response)=>{
+export const removeOne = (model:mongoose.Model<any>) => async (req:Request,res:Response)=>{
     try{
         const removed = await model.findOneAndRemove({
         _id: req.params.id
@@ -65,7 +66,7 @@ export const removeOne = (model:mongoose.Model<UserDocument|MachineDocument|Supp
         return res.status(400).json({result:"error",message:err.message})
     }
 }
-export const crudControllers = (model:mongoose.Model<(UserDocument|MachineDocument|SupplierDocument|BranchDocument)>)=> ({
+export const crudControllers = (model:mongoose.Model<any>)=> ({
     removeOne: removeOne(model),
     updateOne: updateOne(model),
     getMany: getMany(model),

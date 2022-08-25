@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { BranchDocument } from "../../utils/types.js";
-const BranchSchema = new mongoose.Schema({
+const BranchSchema = new mongoose.Schema<BranchDocument>({
     name: {type:String,required:true},
     address: String,
     tel: {type:String,required:true},

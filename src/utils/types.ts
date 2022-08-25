@@ -15,6 +15,7 @@ export interface UserDocument extends mongoose.Document {
     activated_status:boolean
     activated_tokken:string
     resetPasswordToken:string
+    avatar:string
 }
 export interface MachineDocument extends mongoose.Document {
     alias: string,
@@ -28,7 +29,7 @@ export interface BranchDocument extends mongoose.Document {
     frontimage: string,
     created: Date,
 }
-export interface SupplierDocument extends mongoose.Document {
+export interface SupplierDocument  extends mongoose.Document{
     name: string,
     address: string,
     tel: string,
@@ -45,3 +46,4 @@ export function FileTypeGurd(file:any):file is File[]{
         return true
     else return false
 }
+export type FI = mongoose.Model<MachineDocument>|mongoose.Model<SupplierDocument>|mongoose.Model<BranchDocument>

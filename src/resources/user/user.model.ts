@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { UserDocument } from "../../utils/types.js";
-const UserSchema = new mongoose.Schema({
+const UserSchema = new mongoose.Schema<UserDocument>({
     username:{type:String,
             required:true},
     email: {type:String,

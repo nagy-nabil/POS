@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { MachineDocument } from "../../utils/types.js";
-const MachineSchema = new mongoose.Schema({
+const MachineSchema = new mongoose.Schema<MachineDocument>({
     alias: {type:String,required:true},
     serial_number: {type:String,required:true},
     created: { type: Date, default: Date.now },
