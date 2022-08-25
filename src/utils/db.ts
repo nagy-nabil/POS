@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 export function connect(){
-    mongoose.connect('mongodb+srv://nagy-nabil:mennaallah203@cluster0.rkzoltz.mongodb.net/?retryWrites=true&w=majority') 
+    mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.rkzoltz.mongodb.net/?retryWrites=true&w=majority`) 
 
     mongoose.connection.on('connected', function () {  
       console.log('Mongoose default connection open');

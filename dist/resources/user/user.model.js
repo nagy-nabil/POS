@@ -8,7 +8,7 @@ const UserSchema = new mongoose.Schema({
         required: true },
     level: { type: String, default: "normal" },
     created: { type: Date, default: Date.now },
-    avatar: String,
+    avatar: { type: String, default: "" },
     first_name: {
         type: String,
         default: ""
@@ -20,7 +20,8 @@ const UserSchema = new mongoose.Schema({
     phone: { type: String, default: "" },
     address: { type: String, default: "" },
     activated_status: { type: Boolean, default: false, required: true },
-    activated_tokken: { type: String, default: "" }
+    activated_tokken: { type: String, default: "" },
+    resetPasswordToken: { type: String, default: "" },
 });
 UserSchema.index({ username: 1 }, { unique: true });
 export const User = mongoose.model("user", UserSchema);

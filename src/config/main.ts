@@ -3,7 +3,9 @@ export default {
         secret:"poslearnexpress",
         expiresin:'30d',
         activeSecret:"activeuserin15mins",
-        activeEspires:"15m"
+        activeEspires:"15m",
+        resetSecret:"resetpasswordin20minsoryourefucked",
+        resetEspires:"15m",
     },
     port:8000
 }

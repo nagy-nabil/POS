@@ -2,8 +2,6 @@ import { User } from "../resources/user/user.model.js";
 import jwt from "jsonwebtoken";
 import configUser from "../config/main.js";
 import sgMail from "@sendgrid/mail";
-import { config } from "dotenv";
-config();
 if (process.env.SENDGRID_API_KEY !== undefined)
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 /**
@@ -40,6 +38,20 @@ export const verifyActiveToken = (token) => {
         });
     });
 };
+export const newResetToken = (user) => {
+    return jwt.sign({ id: user._id, username: user.username, email: user.email }, configUser.jwt.resetSecret, {
+        expiresIn: configUser.jwt.resetEspires
+    });
+};
+export const verifyResetToken = (token) => {
+    return new Promise((resolve, reject) => {
+        jwt.verify(token, configUser.jwt.resetSecret, (err, payload) => {
+            if (err)
+                return reject(err);
+            resolve(payload);
+        });
+    });
+};
 //controller for sign up
 export async function register(req, res) {
     try {
@@ -68,7 +80,10 @@ export async function activation(req, res) {
     try {
         const token = req.params.token;
         await verifyActiveToken(token);
-        await User.findOneAndUpdate({ activated_tokken: token }, { activated_status: true, activated_tokken: "" });
+        const user = await User.findOneAndUpdate({ activated_tokken: token }, { activated_status: true, activated_tokken: "" }, { new: true })
+            .select("username activated_status");
+        if (!user)
+            throw new Error("couldn't find the user");
         return res.redirect("http://localhost:8000/login/success");
     }
     catch (err) {
@@ -92,7 +107,7 @@ export async function signin(req, res) {
         if (!(req.body.password === user.password))
             return res.status(401).json({ result: "error", message: "wrong username or password" });
         else {
-            console.log(user);
+            // console.log(user)
             if (user.activated_status === false)
                 throw new Error("user not activated ");
             const tokken = newToken(user);
@@ -143,6 +158,64 @@ export const protect = async (req, res, next) => {
     }
     next();
 };
+//Password Routes,[ask to reset with the username , reset with the resetpassword token as link query][/password/reset/ , /password/reset?token={token}]
+export async function AskResetPassword(req, res) {
+    try {
+        const { username } = req.body;
+        if (username === undefined)
+            throw new Error("body must contain username");
+        let user = await User.findOne({ username: username })
+            .select("username email")
+            .exec();
+        if (!user)
+            throw new Error("user not found");
+        const token = newResetToken(user);
+        user = await User.findOneAndUpdate({ username: username }, { resetPasswordToken: token }, { new: true })
+            .select("username email")
+            .exec();
+        // console.log(user)
+        if (!user)
+            throw new Error("problem with the database");
+        const flag = await sendResetPasswordEmail(user.email, token);
+        if (flag)
+            return res.status(201).json({ result: "warning", message: "email sent to reset password" });
+        else
+            throw new Error("email Error");
+    }
+    catch (err) {
+        if (err instanceof Error) {
+            console.log(err.message);
+            return res.status(400).json({ result: "error", message: err.message });
+        }
+    }
+}
+export async function resetPassword(req, res) {
+    try {
+        const token = req.query.token;
+        if (!token)
+            throw new Error("No Token");
+        const { password } = req.body;
+        if (!password)
+            throw new Error("body must contain password");
+        if (typeof token === "string") {
+            await verifyResetToken(token);
+        }
+        else
+            throw new Error("token must be string");
+        const user = await User.findOneAndUpdate({ resetPasswordToken: token }, { resetPasswordToken: "", password: password }, { new: true })
+            .select("username resetPasswordToken")
+            .exec();
+        if (!user)
+            throw new Error("coudln't save changes");
+        return res.json({ result: "success", message: "Password update succesfully your can try login again" });
+    }
+    catch (err) {
+        if (err instanceof Error) {
+            console.log(err.message);
+            return res.status(400).json({ result: "error", message: err.message });
+        }
+    }
+}
 async function sendActivateEmail(email, token) {
     const msg = {
         to: email,
@@ -151,6 +224,27 @@ async function sendActivateEmail(email, token) {
         html: `
         <h1>Please use the following link to activate your account</h1>
         <a href="http://localhost:8000/activation/${token}">Activation Link</a>
+        <hr />
+        <p>This email may contain sensetive information</p>
+        <p>and link will  expired in 15 minutes</p>
+    `,
+    };
+    try {
+        await sgMail.send(msg);
+        return true;
+    }
+    catch (err) {
+        return false;
+    }
+}
+async function sendResetPasswordEmail(email, token) {
+    const msg = {
+        to: email,
+        from: 'nagynabil651@gmail.com',
+        subject: 'Password Reset link',
+        html: `
+        <h1>Please use the following link to Reset Your Password</h1>
+        <a href="http://localhost:8000/password-reset/${token}">Reset Password Link</a>
         <hr />
         <p>This email may contain sensetive information</p>
         <p>and link will  expired in 15 minutes</p>
