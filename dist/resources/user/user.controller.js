@@ -8,11 +8,21 @@ export async function me(req, res) {
     else
         return res.status(500).json({ result: "error", message: "no user in req body" });
 }
-export function updateMe(req, res) {
+export async function updateMe(req, res) {
     try {
         if (req.user === undefined)
             throw new Error("no user");
         // console.log(req.user)
+        try {
+            await fs.access("public");
+            console.log("access");
+        }
+        catch (err) {
+            if (err instanceof Error) {
+                if (err.message.includes("no such file or directory"))
+                    fs.mkdir("public");
+            }
+        }
         const form = formidable({ multiples: true, maxFileSize: 50 * 1024 * 1024,
             uploadDir: "public" }); //max 5mb
         form.parse(req, async (err, fields, files) => {
@@ -49,6 +59,8 @@ export function updateMe(req, res) {
     catch (err) {
         if (err instanceof Error) {
             console.log(err.message);
+            if (err.message.includes("no such file or directory"))
+                return res.status(400).json({ result: "error", message: "files error" });
             return res.status(400).json({ result: "error", message: err.message });
         }
         else {
