@@ -5,6 +5,9 @@ import cors from "cors"
 import {connect} from "./utils/db.js"
 import {register,signin,protect,activation,AskResetPassword,resetPassword} from  "./utils/auth.js"
 import userRouter from "./resources/user/user.router.js"
+import machineRouter from "./resources/pos_machine/posmachine.router.js"
+import supplierRoter from "./resources/supplier/supplier.router.js"
+import branchRouter from "./resources/branch/branch.router.js"
 const app = express();
 //middlewares
 app.use(cors());
@@ -29,6 +32,9 @@ app.get("/login/success",(req,res)=>{
 //router
 app.use("/api",protect) //middleware
 app.use("/api/user",userRouter)
+app.use("/api/machine",machineRouter)
+app.use("/api/supplier",supplierRoter)
+app.use("/api/branch",branchRouter)
 //controllers
 //last middleware to catch 404 [no page]
 app.use((req,res,next)=>{

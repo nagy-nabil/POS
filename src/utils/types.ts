@@ -15,6 +15,31 @@ export interface UserDocument extends mongoose.Document {
     activated_status:boolean
     activated_tokken:string
     resetPasswordToken:string
+    avatar:string
+}
+export interface MachineDocument extends mongoose.Document {
+    alias: string,
+    serial_number: string,
+    created: Date
+    createdBy:mongoose.Types.ObjectId
+}
+export interface BranchDocument extends mongoose.Document {
+    name: string
+    address: string
+    tel: string
+    frontimage: string
+    created: Date
+    createdBy:mongoose.Types.ObjectId,
+    machines:mongoose.Types.ObjectId[]
+}
+export interface SupplierDocument  extends mongoose.Document{
+    name: string
+    address: string
+    tel: string
+    email: string
+    vat: number
+    created: Date
+    createdBy:mongoose.Types.ObjectId
 }
 export interface UserRequest extends Request {
     user?:mongoose.LeanDocument<UserDocument & { _id: mongoose.ObjectId; }>
@@ -25,3 +50,4 @@ export function FileTypeGurd(file:any):file is File[]{
         return true
     else return false
 }
+export type FI = mongoose.Model<MachineDocument>|mongoose.Model<SupplierDocument>|mongoose.Model<BranchDocument>

@@ -8,6 +8,9 @@ point of sale with nodejs
 - update user
 - reset password
 - email validation
+- machine CRUD
+- supplier CRUD
+- branch CRUD
 # todo
 - hash password
 - vaild email
