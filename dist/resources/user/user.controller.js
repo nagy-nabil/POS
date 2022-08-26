@@ -1,7 +1,7 @@
 import { User } from "./user.model.js";
-import { FileTypeGurd } from "../../utils/types.js";
 import formidable from "formidable";
 import fs from "fs/promises";
+import { saveAvatar } from "../../utils/general.js";
 export async function me(req, res) {
     if (req.user !== undefined)
         return res.status(200).json({ result: "success", user: req.user });
@@ -68,62 +68,3 @@ export async function updateMe(req, res) {
         }
     }
 }
-async function saveAvatar(file, username) {
-    try {
-        if (FileTypeGurd(file)) {
-            const len = file.length;
-            for (let i = 1; i < len; ++i) {
-                try {
-                    await fs.unlink(file[i].filepath);
-                }
-                catch (err) {
-                    if (err instanceof Error)
-                        console.log(err.message);
-                }
-            }
-            file = file[0]; //now the file always File not File[]
-        }
-        let extension;
-        if (file.originalFilename !== null) {
-            let wordsSplit = file.originalFilename.split('.').pop();
-            if (wordsSplit !== undefined) {
-                extension = wordsSplit;
-            }
-        }
-        else if (file.mimetype !== null) {
-            let wordsSplit = file.mimetype.split('/').pop();
-            if (wordsSplit !== undefined) {
-                extension = wordsSplit;
-            }
-        }
-        else {
-            extension = "jpg";
-        }
-        if (!isFileValid(extension))
-            return undefined;
-        const filePath = `public/${username}.${extension}`;
-        await fs.rename(`${file.filepath}`, filePath);
-        return filePath;
-    }
-    catch (err) {
-        if (err instanceof Error) {
-            console.log(err.message);
-            return undefined;
-        }
-        else {
-            return undefined;
-        }
-    }
-}
-function isFileValid(extension) {
-    const validTypes = {
-        "jpg": true,
-        "jpeg": true,
-        "png": true,
-    };
-    if (!validTypes[extension]) {
-        return false;
-    }
-    return true;
-}
-;

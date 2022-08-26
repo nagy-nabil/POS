@@ -1,11 +1,11 @@
 import mongoose from "mongoose"
 import {Request , Response} from "express"
-import { UserDocument, MachineDocument, SupplierDocument, BranchDocument , FI } from "./types.js"
+import { UserRequest } from "./types.js"
 
-export const createOne =  (model:mongoose.Model<any>) => async (req:Request,res:Response)=>{
+export const createOne =  (model:mongoose.Model<any>) => async (req:UserRequest,res:Response)=>{
     try{
-        const newModel= await model.create(req.body)
-        return res.status(201).json({user:newModel})
+        const newModel= await model.create({...req.body,createdBy:req.user?._id})
+        return res.status(201).json({result:"success",message:"created successfully",data:newModel})
     }catch(err:unknown){
         if(err instanceof Error)
         return res.status(400).json({result:"error",message:err.message})
@@ -17,9 +17,9 @@ export const getOne = (model:mongoose.Model<any>) => async (req:Request,res:Resp
         .lean()
         .exec()
         if(!doc){
-            throw new Error("couldn't create new one")
+            throw new Error("couldn't get data")
         }
-        return res.status(200).json({result:"success",message:"created new one successfully", data:doc})
+        return res.status(200).json({result:"success",message:"data has been sent successfully", data:doc})
     }catch(err){
         if(err instanceof Error)
         return res.status(400).json({result:"error",message:err.message})
@@ -28,6 +28,7 @@ export const getOne = (model:mongoose.Model<any>) => async (req:Request,res:Resp
 export const getMany = (model:mongoose.Model<any>)=> async (req:Request,res:Response)=>{
     try{
         const docs = await model.find({})
+        .sort({created:-1})
         .lean()
         .exec()
         return res.status(200).json({result:"success", data:docs})
@@ -60,7 +61,7 @@ export const removeOne = (model:mongoose.Model<any>) => async (req:Request,res:R
         if (!removed) {
         throw new Error("couldn't remove")
         }
-        return res.status(200).json({ data: removed })
+        return res.status(200).json({result:"success",message:"data remonved successfully", data: removed })
     }catch(err){
         if(err instanceof Error)
         return res.status(400).json({result:"error",message:err.message})

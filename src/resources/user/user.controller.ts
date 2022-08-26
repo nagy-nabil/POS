@@ -1,8 +1,9 @@
-import { NextFunction, Request,Response } from "express";
+import { Response } from "express";
 import { User } from "./user.model.js";
-import { UserRequest,FileTypeGurd } from "../../utils/types.js";
+import { UserRequest } from "../../utils/types.js";
 import formidable from "formidable"
 import fs from "fs/promises"
+import {saveAvatar} from "../../utils/general.js"
 export async function me(req:UserRequest,res:Response):Promise<Response>{
     if(req.user !== undefined)
     return res.status(200).json({result:"success",user:req.user})
@@ -59,60 +60,3 @@ export async function updateMe(req:UserRequest,res:Response):Promise<void|Respon
         }
     }
 }
-
-
-async function saveAvatar(file:formidable.File|formidable.File[] , username:string):Promise<string|undefined>{
-    try{
-    if(FileTypeGurd(file)){
-        const len = file.length;
-        for(let i=1;i<len;++i){
-            try{
-                await fs.unlink(file[i].filepath)
-            }catch(err){
-                if (err instanceof Error)
-                    console.log(err.message)
-            }
-        }
-        file=file[0] //now the file always File not File[]
-        
-    }
-    let extension!:string;
-    if(file.originalFilename !== null) {
-        let wordsSplit=file.originalFilename.split('.').pop()
-        if(wordsSplit!==undefined){
-        extension = wordsSplit}
-    }else if(file.mimetype !== null){
-        let wordsSplit=file.mimetype.split('/').pop()
-        if(wordsSplit!==undefined){
-        extension = wordsSplit}
-    }else{
-        extension="jpg";
-    }
-    if(!isFileValid(extension as string)) return undefined
-    const filePath= `public/${username}.${extension}`
-    await fs.rename(`${file.filepath}`,filePath)
-    return filePath
-    }catch(err){
-        if(err instanceof Error){
-            console.log(err.message)
-            return undefined;
-        }
-        else{
-            return undefined
-        }
-        }
-}
-function isFileValid (extension:string):boolean {
-    interface Types {
-        [k:string]:boolean
-    }
-    const validTypes:Types={
-        "jpg":true,
-        "jpeg":true,
-        "png":true,
-    }
-    if (!validTypes[extension]) {
-        return false;
-    }
-    return true;
-};
