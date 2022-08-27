@@ -14,7 +14,7 @@ export const getOne = (model) => async (req, res) => {
             .lean()
             .exec();
         if (!doc) {
-            throw new Error("couldn't get doc");
+            throw new Error("couldn't get data");
         }
         return res.status(200).json({ result: "success", message: "data has been sent successfully", data: doc });
     }

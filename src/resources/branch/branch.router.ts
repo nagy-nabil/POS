@@ -1,11 +1,11 @@
-import { Router, Request,Response,NextFunction } from "express";
-import controller , {updateOne, createOne} from "./branch.controller.js"
+import { Router} from "express";
+import controller , {updateOne, createOne, getMany,getOne} from "./branch.controller.js"
 const branchRouter = Router()
-branchRouter.route("/").
-get(controller.getMany)
+branchRouter.route("/")
+.get(getMany)
 .post(createOne)
 branchRouter.route("/:id")
-.get(controller.getOne)
+.get(getOne)
 .put(updateOne)
 .delete(controller.removeOne)
 export default branchRouter
