@@ -61,7 +61,38 @@ export const removeOne = (model:mongoose.Model<any>) => async (req:Request,res:R
         if (!removed) {
         throw new Error("couldn't remove")
         }
-        return res.status(200).json({result:"success",message:"data remonved successfully", data: removed })
+        return res.status(200).json({result:"success",message:"data remonved successfully" })
+    }catch(err){
+        if(err instanceof Error)
+        return res.status(400).json({result:"error",message:err.message})
+    }
+}
+export const updateInline = (model:mongoose.Model<any>)=> async (req:Request,res:Response)=>{
+    try{
+        //column is the property name to be updated
+        const id= req.body.id , column=req.body.column , value= req.body.value
+        const updated = await model.findOneAndUpdate({_id:id} ,{$set:{[column]:value}}, {new:true})
+        .lean()
+        .exec()
+        if(!updated){
+            throw new Error("couldn't save the changes")
+        }
+        return res.status(200).json({result:"success",message:"data updated successfully",data:updated})
+    }catch(err){
+        if(err instanceof Error)
+        return res.status(400).json({result:"error",message:err.message})
+    }
+}
+export const removeBulk = (model:mongoose.Model<any>)=> async (req:Request,res:Response)=>{
+    try{
+        const ids = req.body.id.split(",")
+        // console.log(ids)
+        const removed = await model.deleteMany({ _id: { $in: ids } })
+        // console.log(removed)
+        if(removed.deletedCount <= 0){
+            throw new Error("couldn't save the changes")
+        }
+        return res.status(200).json({result:"success",message:"data removed successfully"})
     }catch(err){
         if(err instanceof Error)
         return res.status(400).json({result:"error",message:err.message})
@@ -72,5 +103,7 @@ export const crudControllers = (model:mongoose.Model<any>)=> ({
     updateOne: updateOne(model),
     getMany: getMany(model),
     getOne: getOne(model),
-    createOne: createOne(model)
+    createOne: createOne(model),
+    updateInline:updateInline(model),
+    removeBulk:removeBulk(model),
 })
