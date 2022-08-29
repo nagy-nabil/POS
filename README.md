@@ -1,7 +1,7 @@
 # POS
 point of sale with nodejs
 
-#tech
+# tech
 - typescript
 - nodejs
 - expressjs
