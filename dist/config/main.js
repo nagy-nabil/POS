@@ -1,11 +1,10 @@
 export default {
     jwt: {
-        secret: "poslearnexpress",
-        expiresin: '30d',
-        activeSecret: "activeuserin15mins",
-        activeEspires: "15m",
-        resetSecret: "resetpasswordin20minsoryourefucked",
-        resetEspires: "15m",
+        secret: process.env.SECRET,
+        expiresin: process.env.EXPIRESIN,
+        activeSecret: process.env.ACTIVESECRET,
+        activeEspires: process.env.ACTIVEESPIRES,
+        resetSecret: process.env.RESETSECRET,
+        resetEspires: process.env.RESETESPIRES
     },
-    port: 8000
 };

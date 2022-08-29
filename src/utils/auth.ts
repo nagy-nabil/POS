@@ -16,41 +16,53 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY)
  */
 
 export const newToken = (user:UserDocument):string => {
+    if(typeof configUser.jwt.secret == "string" && typeof configUser.jwt.expiresin == 'number')
     return jwt.sign({ id: user._id,level:user.level }, configUser.jwt.secret, {
         expiresIn: configUser.jwt.expiresin
     })
+    else throw new Error("env Error")
 }
 export const verifyToken = (token:string) =>
     new Promise((resolve, reject) => {
+    if(typeof configUser.jwt.secret == "string")
     jwt.verify(token, configUser.jwt.secret, (err, payload) => {
         if (err) return reject(err)
         resolve(payload)
     })
+    else reject(new Error("env Error"))
 })
 export const newactiveToken = (username:string,email:string):string => {
+    if(typeof configUser.jwt.activeSecret == "string" && typeof configUser.jwt.activeEspires === "number")
     return jwt.sign({usename:username , email:email}, configUser.jwt.activeSecret, {
         expiresIn: configUser.jwt.activeEspires
     })
+    else throw new Error("env Error")
 }
 export const verifyActiveToken = (token:string) =>{
     return new Promise((resolve, reject) => {
+        if(typeof configUser.jwt.activeSecret == "string" )
         jwt.verify(token, configUser.jwt.activeSecret, (err, payload) => {
             if (err) return reject(err)
             resolve(payload)
         })
+        else reject(new Error("env Error"))
     })
 }
 export const newResetToken = (user:UserDocument):string => {
+    if(typeof configUser.jwt.resetSecret == "string"  && typeof configUser.jwt.resetEspires === "number")
     return jwt.sign({id:user._id,username:user.username, email:user.email}, configUser.jwt.resetSecret, {
         expiresIn: configUser.jwt.resetEspires
     })
+    else throw new Error("env Error")
 }
 export const verifyResetToken = (token:string) =>{
     return new Promise((resolve, reject) => {
+        if(typeof configUser.jwt.resetSecret == "string")
         jwt.verify(token, configUser.jwt.resetSecret, (err, payload) => {
             if (err) return reject(err)
             resolve(payload)
         })
+        else reject(new Error("env Error"))
     })
 }
 //controller for sign up

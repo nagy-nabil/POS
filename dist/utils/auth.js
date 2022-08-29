@@ -13,43 +13,61 @@ if (process.env.SENDGRID_API_KEY !== undefined)
  * protect assign the user to the req[middleware]
  */
 export const newToken = (user) => {
-    return jwt.sign({ id: user._id, level: user.level }, configUser.jwt.secret, {
-        expiresIn: configUser.jwt.expiresin
-    });
+    if (typeof configUser.jwt.secret == "string" && typeof configUser.jwt.expiresin == 'number')
+        return jwt.sign({ id: user._id, level: user.level }, configUser.jwt.secret, {
+            expiresIn: configUser.jwt.expiresin
+        });
+    else
+        throw new Error("env Error");
 };
 export const verifyToken = (token) => new Promise((resolve, reject) => {
-    jwt.verify(token, configUser.jwt.secret, (err, payload) => {
-        if (err)
-            return reject(err);
-        resolve(payload);
-    });
+    if (typeof configUser.jwt.secret == "string")
+        jwt.verify(token, configUser.jwt.secret, (err, payload) => {
+            if (err)
+                return reject(err);
+            resolve(payload);
+        });
+    else
+        reject(new Error("env Error"));
 });
 export const newactiveToken = (username, email) => {
-    return jwt.sign({ usename: username, email: email }, configUser.jwt.activeSecret, {
-        expiresIn: configUser.jwt.activeEspires
-    });
+    if (typeof configUser.jwt.activeSecret == "string" && typeof configUser.jwt.activeEspires === "number")
+        return jwt.sign({ usename: username, email: email }, configUser.jwt.activeSecret, {
+            expiresIn: configUser.jwt.activeEspires
+        });
+    else
+        throw new Error("env Error");
 };
 export const verifyActiveToken = (token) => {
     return new Promise((resolve, reject) => {
-        jwt.verify(token, configUser.jwt.activeSecret, (err, payload) => {
-            if (err)
-                return reject(err);
-            resolve(payload);
-        });
+        if (typeof configUser.jwt.activeSecret == "string")
+            jwt.verify(token, configUser.jwt.activeSecret, (err, payload) => {
+                if (err)
+                    return reject(err);
+                resolve(payload);
+            });
+        else
+            reject(new Error("env Error"));
     });
 };
 export const newResetToken = (user) => {
-    return jwt.sign({ id: user._id, username: user.username, email: user.email }, configUser.jwt.resetSecret, {
-        expiresIn: configUser.jwt.resetEspires
-    });
+    if (typeof configUser.jwt.resetSecret == "string" && typeof configUser.jwt.resetEspires === "number")
+        return jwt.sign({ id: user._id, username: user.username, email: user.email }, configUser.jwt.resetSecret, {
+            expiresIn: configUser.jwt.resetEspires
+        });
+    else
+        throw new Error("env Error");
 };
 export const verifyResetToken = (token) => {
     return new Promise((resolve, reject) => {
-        jwt.verify(token, configUser.jwt.resetSecret, (err, payload) => {
-            if (err)
-                return reject(err);
-            resolve(payload);
-        });
+        if (typeof configUser.jwt.resetSecret == "string")
+            jwt.verify(token, configUser.jwt.resetSecret, (err, payload) => {
+                if (err)
+                    return reject(err);
+                resolve(payload);
+            });
+        else
+            reject(new Error("env Error"));
     });
 };
 //controller for sign up
