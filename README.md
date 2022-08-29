@@ -30,3 +30,17 @@ point of sale with nodejs
 - remove [/login/error , /login/success]
 - type gurd for order_list 
 - documentation HAHAHAHAHAAAHHA
+
+***.env must contain :***
+```
+SENDGRID_API_KEY=
+PORT= 
+MONGO_USER = 
+MONGO_PASSWORD =
+SECRET = 
+EXPIRESIN = 
+ACTIVESECRET = 
+ACTIVEESPIRES = 
+RESETSECRET = 
+RESETESPIRES =
+```
