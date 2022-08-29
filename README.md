@@ -8,7 +8,7 @@ point of sale with nodejs
 - formidable
 - mongoose
 
-
+# features 
 - sign in 
 - register
 - get me[user] just send the tokken and the server return the user
