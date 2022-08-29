@@ -8,11 +8,13 @@ import userRouter from "./resources/user/user.router.js"
 import machineRouter from "./resources/pos_machine/posmachine.router.js"
 import supplierRoter from "./resources/supplier/supplier.router.js"
 import branchRouter from "./resources/branch/branch.router.js"
+import productRouter from "./resources/product/product.router.js"
+import orderRouter from "./resources/order/order.router.js"
 const app = express();
 //middlewares
 app.use(cors());
-app.use(bp.json());
-app.use(bp.urlencoded({extended:true}));
+app.use(express.json());
+app.use(express.urlencoded({extended:true}));
 app.use(morgan("dev"))
 app.use("/static",express.static("public"))
 //auth
@@ -35,6 +37,8 @@ app.use("/api/user",userRouter)
 app.use("/api/machine",machineRouter)
 app.use("/api/supplier",supplierRoter)
 app.use("/api/branch",branchRouter)
+app.use("/api/order",orderRouter)
+app.use("/api/product",productRouter)
 //controllers
 //last middleware to catch 404 [no page]
 app.use((req,res,next)=>{

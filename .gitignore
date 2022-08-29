@@ -103,3 +103,6 @@ typings/
 .tern-port
 
 public
+
+.vscode
+dev
