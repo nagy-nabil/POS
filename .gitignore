@@ -106,3 +106,4 @@ public
 
 .vscode
 dev
+__tests__

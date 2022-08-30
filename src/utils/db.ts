@@ -1,6 +1,9 @@
+import e from "express";
 import mongoose from "mongoose";
 export function connect(){
-    mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.rkzoltz.mongodb.net/?retryWrites=true&w=majority`) 
+  if(typeof process.env.DBURL === "string" )
+    mongoose.connect(process.env.DBURL) 
+    else throw new Error("db url must be provided [env error]")
 
     mongoose.connection.on('connected', function () {  
       console.log('Mongoose default connection open');

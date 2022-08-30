@@ -90,6 +90,9 @@ export async function updateOne(req, res) {
                 if (err) {
                     throw err;
                 }
+                let flag = isFieldsComplete(fields);
+                if (flag instanceof Error)
+                    throw flag;
                 let filePath = undefined; // undefined to not update the avatar if not supplied
                 if (files.frontimage !== undefined) { //got image
                     const file = files.frontimage;

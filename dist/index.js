@@ -11,11 +11,16 @@ import productRouter from "./resources/product/product.router.js";
 import orderRouter from "./resources/order/order.router.js";
 const app = express();
 //middlewares
-app.use(cors());
+// app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
-app.use("/static", express.static("public"));
+app.use("/static", express.static(`${process.cwd()}/public`));
+app.use(express.static(`${process.cwd()}/view/css`));
+app.use(express.static(`${process.cwd()}/view/js`));
+app.get("/", cors, (req, res) => {
+    res.sendFile(`${process.cwd()}/view/index.html`);
+});
 //auth
 app.post("/register", register);
 app.get("/login", signin);
@@ -43,7 +48,7 @@ app.use("/api/product", productRouter);
 app.use((req, res, next) => {
     console.log("404");
     res.status(404);
-    return res.type('html').send('<h1>404 NOT FOUND</h1>');
+    return res.type('html').sendFile(`${process.cwd()}/view/404.html`);
 });
 //listen
 connect();

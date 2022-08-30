@@ -13,12 +13,12 @@ if (process.env.SENDGRID_API_KEY !== undefined)
  * protect assign the user to the req[middleware]
  */
 export const newToken = (user) => {
-    if (typeof configUser.jwt.secret == "string" && typeof configUser.jwt.expiresin == 'number')
+    if (typeof configUser.jwt.secret == "string" && typeof configUser.jwt.expiresin == 'string')
         return jwt.sign({ id: user._id, level: user.level }, configUser.jwt.secret, {
             expiresIn: configUser.jwt.expiresin
         });
     else
-        throw new Error("env Error");
+        throw new Error("secret and expirein must be provided in env[env Error]");
 };
 export const verifyToken = (token) => new Promise((resolve, reject) => {
     if (typeof configUser.jwt.secret == "string")
@@ -28,15 +28,15 @@ export const verifyToken = (token) => new Promise((resolve, reject) => {
             resolve(payload);
         });
     else
-        reject(new Error("env Error"));
+        reject(new Error("secret and expirein must be provided in env[env Error]"));
 });
 export const newactiveToken = (username, email) => {
-    if (typeof configUser.jwt.activeSecret == "string" && typeof configUser.jwt.activeEspires === "number")
+    if (typeof configUser.jwt.activeSecret == "string" && typeof configUser.jwt.activeEspires === "string")
         return jwt.sign({ usename: username, email: email }, configUser.jwt.activeSecret, {
             expiresIn: configUser.jwt.activeEspires
         });
     else
-        throw new Error("env Error");
+        throw new Error("secret and expirein must be provided in env[env Error]");
 };
 export const verifyActiveToken = (token) => {
     return new Promise((resolve, reject) => {
@@ -47,16 +47,16 @@ export const verifyActiveToken = (token) => {
                 resolve(payload);
             });
         else
-            reject(new Error("env Error"));
+            reject(new Error("secret and expirein must be provided in env[env Error]"));
     });
 };
 export const newResetToken = (user) => {
-    if (typeof configUser.jwt.resetSecret == "string" && typeof configUser.jwt.resetEspires === "number")
+    if (typeof configUser.jwt.resetSecret == "string" && typeof configUser.jwt.resetEspires === "string")
         return jwt.sign({ id: user._id, username: user.username, email: user.email }, configUser.jwt.resetSecret, {
             expiresIn: configUser.jwt.resetEspires
         });
     else
-        throw new Error("env Error");
+        throw new Error("secret and expirein must be provided in env[env Error]");
 };
 export const verifyResetToken = (token) => {
     return new Promise((resolve, reject) => {
@@ -67,7 +67,7 @@ export const verifyResetToken = (token) => {
                 resolve(payload);
             });
         else
-            reject(new Error("env Error"));
+            reject(new Error("secret and expirein must be provided in env[env Error]"));
     });
 };
 //controller for sign up
@@ -129,7 +129,7 @@ export async function signin(req, res) {
             if (user.activated_status === false)
                 throw new Error("user not activated ");
             const tokken = newToken(user);
-            return res.status(200).json({ result: "success", message: "singin successfully", tokken: tokken });
+            return res.status(200).json({ result: "success", message: "singin successfully", token: tokken });
         }
     }
     catch (err) {
@@ -262,7 +262,7 @@ async function sendResetPasswordEmail(email, token) {
         subject: 'Password Reset link',
         html: `
         <h1>Please use the following link to Reset Your Password</h1>
-        <a href="http://localhost:8000/password-reset/${token}">Reset Password Link</a>
+        <a href="http://localhost:3000/password-reset/${token}">Reset Password Link</a>
         <hr />
         <p>This email may contain sensetive information</p>
         <p>and link will  expired in 15 minutes</p>
