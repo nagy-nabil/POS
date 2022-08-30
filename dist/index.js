@@ -11,14 +11,14 @@ import productRouter from "./resources/product/product.router.js";
 import orderRouter from "./resources/order/order.router.js";
 const app = express();
 //middlewares
-// app.use(cors());
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 app.use("/static", express.static(`${process.cwd()}/public`));
 app.use(express.static(`${process.cwd()}/view/css`));
 app.use(express.static(`${process.cwd()}/view/js`));
-app.get("/", cors, (req, res) => {
+app.get("/", (req, res) => {
     res.sendFile(`${process.cwd()}/view/index.html`);
 });
 //auth
