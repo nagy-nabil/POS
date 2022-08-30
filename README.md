@@ -8,6 +8,26 @@ point of sale with nodejs
 - formidable
 - mongoose
 
+***install Dependencies***
+```
+npm install
+```
+***watch typescript changes***
+```
+npm run dev
+```
+***Run  js [from dist]***
+```
+npm run start
+```
+***Run ts [from src without converting to js]***
+```
+npm run ts
+```
+***Run Tests***
+```
+npm run test
+```
 # features 
 - sign in 
 - register
@@ -23,13 +43,22 @@ point of sale with nodejs
 - products crud
 - order crud
 - relation between order and products [decrease product stock based on each order itm]
+
+# End Points 🧭
+> by default all content type is application/json 
+- /register
+    - POST
+    - required feilds [body]
+        - username
+        - password
+        - email
 # todo
-- hash password
-- vaild email
-- solve sent email as spam
-- remove [/login/error , /login/success]
-- type gurd for order_list 
-- documentation HAHAHAHAHAAAHHA
+- [ ] hash password
+- [ ] vaild email
+- [ ] solve sent email as spam
+- [ ] remove [/login/error , /login/success]
+- [ ] type gurd for order_list 
+- [ ] documentation HAHAHAHAHAAAHHA
 
 ***.env must contain :***
 ```
