@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
-import { UserDocument } from "../../utils/types.js";
-const UserSchema = new mongoose.Schema<UserDocument>({
+import { UserDocument , UserModel,UserMethods } from "../../utils/types.js";
+import bcrypt from "bcrypt"
+const UserSchema = new mongoose.Schema<UserDocument,UserModel,UserMethods>({
     username:{type:String,
             required:true},
     email: {type:String,
@@ -25,4 +26,28 @@ const UserSchema = new mongoose.Schema<UserDocument>({
     resetPasswordToken:{type:String,default:""},
 });
 UserSchema.index({ username: 1 }, { unique: true });
-export const User = mongoose.model<UserDocument>("user",UserSchema)
+UserSchema.pre('save', function(next) {
+    if (!this.isModified('password')) {
+        return next()
+    }
+
+    bcrypt.hash(this.password, 8, (err, hash) => {
+        if (err) {
+            return next(err)
+        }
+        this.password = hash
+        next()
+    })
+})
+UserSchema.methods.checkPassword = function(password:string) {
+    const passwordHash = this.password
+    return new Promise((resolve, reject) => {
+    bcrypt.compare(password, passwordHash, (err, same) => {
+        if (err) {
+            return reject(err)
+        }
+        resolve(same)
+    })
+    })
+}
+export const User = mongoose.model<UserDocument,UserModel>("user",UserSchema)

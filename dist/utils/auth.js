@@ -122,7 +122,7 @@ export async function signin(req, res) {
         if (!user) {
             return res.status(401).json({ result: "error", message: "no such user" });
         }
-        if (!(req.body.password === user.password))
+        if (!(await user.checkPassword(req.body.password)))
             return res.status(401).json({ result: "error", message: "wrong username or password" });
         else {
             // console.log(user)

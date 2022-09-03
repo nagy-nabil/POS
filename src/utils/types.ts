@@ -16,6 +16,7 @@ export interface UserDocument extends mongoose.Document {
     activated_tokken:string
     resetPasswordToken:string
     avatar:string
+    checkPassword(password:String): Promise<boolean>;
 }
 export interface MachineDocument extends mongoose.Document {
     alias: string,
@@ -61,6 +62,10 @@ export interface SupplierDocument  extends mongoose.Document{
     created: Date
     createdBy:mongoose.Types.ObjectId
 }
+export interface UserMethods {
+    checkPassword(password:String): Promise<boolean>;
+}
+export type UserModel = mongoose.Model<UserDocument, {}, UserMethods>;
 export type OrderList = {name:string,qty:number,price:number,id:mongoose.Types.ObjectId}[]
 // export function OrderListGurd(itm:any):asserts itm is OrderList{
 //     if(typeof itm === "string"){
