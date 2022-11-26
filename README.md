@@ -9,3 +9,12 @@ i already did the backend for this application when i was learing express and so
 - [ ] Daddy please edit the side bar it's so bad
 - [x] getting my hands dirty in formik/ yub
 - [ ] build sign up/in forms
+- [ ] TODO REDIRECT USER TO LOGIN PAGE AFTER SIGNUP
+
+
+## Search
+- [ ] how to use "issubmitting" with Form
+
+## BIG TODO
+- [ ] ADD ESLINT
+- [ ] ADD PRETTIER

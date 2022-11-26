@@ -1,10 +1,8 @@
-import { useFormik, Formik, Field, ErrorMessage, Form } from "formik";
-import * as yup from 'yup';
-interface Person  {
-    email: string;
-    firstName: string;
-    lastName: string
-}
+import { Formik, Field, ErrorMessage, Form } from "formik";
+import {object, ref, SchemaOf, string} from 'yup';
+import { UserData } from '../types/entities';
+import axios, { AxiosError } from "axios";
+import swal from 'sweetalert';
 // const Register: React.FC<{}> = () => {
 //     // minimum for formik is initialValues and onSubmit
 //     const formik = useFormik<Person>({
@@ -90,38 +88,57 @@ interface Person  {
 //         </form>
 //     );
 // }
-
-const validationSchema = yup.object({
-                firstName: yup.string()
-                .max(15)
-                .required(),
-                lastName: yup.string()
-                .max(20, 'Must be 20 characters or less')
-                .required('Required'),
-                email: yup.string().email('Invalid email address')
-                .required('Required'),
-            })
+type SignUpData = UserData & {confirmPassword: string}
+const signUpSchema: SchemaOf<SignUpData> = object({
+        email: string()
+        .email('invaild email')
+        .required(),
+        password: string()
+        .min(4, 'password too short min 4 chars')
+        .required('password is required'),
+        userName: string()
+        .min(2, "username is Too Short!")
+        .max(50, "username is Too Long!")
+        .required("username is Required"),
+        confirmPassword: string()
+        .oneOf([ref('password'), null], 'Both password need to be the same')
+        .required(),
+    })
+//TODO redirect user to login page after sign up success
 const Register: React.FC<{}> = () => {
     return (
-        <Formik<Person> 
-        initialValues={{email:'', firstName:'', lastName:''}} 
-        onSubmit={(values, {setSubmitting, }) => {
+        <Formik<SignUpData>
+        initialValues={{email: '', password: '', userName: '', confirmPassword: ''}} 
+        onSubmit={async (values, {setSubmitting, }) => {
             console.log(JSON.stringify(values, null, 2));
             setSubmitting(false);
+            try {
+                const res = await axios.post<any, {data: {result: string, message: string}}>(`${process.env.REACT_APP_API_URL}/register`, {...values, username: values.userName})
+                console.log(res.data);
+                swal('Success', res.data.message, 'success');
+            } catch (e) {
+                console.log(`${(e as AxiosError).message} ${JSON.stringify((e as AxiosError).response?.data)}`)
+                swal("Error!", (e as AxiosError<{message: string}>).response?.data.message as string, "error");
+            }
         }} 
-        validationSchema={validationSchema}>
-            <Form>
-            <label htmlFor="firstName">firstName</label>
-            <Field name="firstName" type="text" />
-            <ErrorMessage name="firstName" />
-
-            <label htmlFor="lastName">lastName</label>
-            <Field name="lastName" type="text" />
-            <ErrorMessage name="firstName" />
+        validationSchema={signUpSchema}
+        >
+            <Form >
+            <label htmlFor="userName">userName</label>
+            <Field name="userName" type="text" />
+            <ErrorMessage name="userName" />
 
             <label htmlFor="email">email</label>
             <Field name="email" type="email" />
-            <ErrorMessage name="firstName" />
+            <ErrorMessage name="email" />
+
+            <label htmlFor="password">password</label>
+            <Field name="password" type="password" />
+            <ErrorMessage name="password" />
+
+            <label htmlFor="confirmPassword">confirmPassword</label>
+            <Field name="confirmPassword" type="password" />
+            <ErrorMessage name="confirmPassword" />
 
             <button type="submit">submit</button>
             </Form>
