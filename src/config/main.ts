@@ -3,8 +3,8 @@ export default {
         secret:  process.env.SECRET ,
         expiresin:  process.env.EXPIRESIN ,
         activeSecret:  process.env.ACTIVESECRET ,
-        activeEspires:  process.env.ACTIVEESPIRES ,
+        activeEspires:  process.env.ACTIVEEXPIRES ,
         resetSecret:  process.env.RESETSECRET ,
-        resetEspires:  process.env.RESETESPIRES   
+        resetEspires:  process.env.RESETEXPIRES   
     },
 }

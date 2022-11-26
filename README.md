@@ -1,12 +1,17 @@
 # POS
 point of sale with nodejs
 
+# Docker
+why so sudden Docker because heroku is not free anymore and i want to take this application to be full stack and want backend in production and docker is so easy to find replacer to heroku
+
 # tech
 - typescript
 - nodejs
 - expressjs
 - formidable
 - mongoose
+
+## Get Started
 
 ***install Dependencies***
 ```
@@ -27,6 +32,20 @@ npm run ts
 ***Run Tests***
 ```
 npm run test
+```
+
+## Env Vars
+***.env must contain :***, example in [/.env.example](/.env.example)
+```
+SENDGRID_API_KEY=
+PORT= 
+DBURL =
+SECRET = 
+EXPIRESIN = 
+ACTIVESECRET = 
+ACTIVEESPIRES = 
+RESETSECRET = 
+RESETESPIRES =
 ```
 # features 
 - sign in 
@@ -293,15 +312,4 @@ npm run test
 - [ ] type gurd for order_list 
 - [ ] documentation HAHAHAHAHAAAHHA
 
-***.env must contain :***
-```
-SENDGRID_API_KEY=
-PORT= 
-DBURL =
-SECRET = 
-EXPIRESIN = 
-ACTIVESECRET = 
-ACTIVEESPIRES = 
-RESETSECRET = 
-RESETESPIRES =
-```
+
