@@ -23,7 +23,7 @@ app.get("/", (req, res) => {
 });
 //auth
 app.post("/register", register);
-app.get("/login", signin);
+app.post("/login", signin);
 app.get("/activation/:token", activation);
 app.route("/password/reset")
     .post(AskResetPassword)

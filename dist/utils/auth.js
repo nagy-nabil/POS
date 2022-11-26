@@ -13,9 +13,15 @@ if (process.env.SENDGRID_API_KEY !== undefined)
  * protect assign the user to the req[middleware]
  */
 export const newToken = (user) => {
+    const payload = {
+        id: user._id,
+        level: user.level
+    };
+    console.log(payload);
     if (typeof configUser.jwt.secret == "string" && typeof configUser.jwt.expiresin == 'string')
-        return jwt.sign({ id: user._id, level: user.level }, configUser.jwt.secret, {
-            expiresIn: configUser.jwt.expiresin
+        return jwt.sign(payload, configUser.jwt.secret, {
+            expiresIn: configUser.jwt.expiresin,
+            algorithm: "HS256"
         });
     else
         throw new Error("secret and expirein must be provided in env[env Error]");
@@ -117,7 +123,7 @@ export async function signin(req, res) {
         if (!req.body.username || !req.body.password)
             return res.status(400).json({ result: "error", message: "required username and password" });
         const user = await User.findOne({ username: req.body.username })
-            .select('username password activated_status')
+            .select('username password activated_status level')
             .exec();
         if (!user) {
             return res.status(401).json({ result: "error", message: "no such user" });

@@ -36,6 +36,11 @@ export async function updateMe(req:UserRequest,res:Response):Promise<void|Respon
                     filePath=await saveAvatar(file,req.user!.username);
                     if(filePath===undefined)throw new Error("files Error")
                 }
+                // const doc = await User.findById(req!.user!._id);
+                // if(doc !== null){
+                //     doc = ...fields
+                //     await doc.save()
+                // }
                 let updated= await User.findByIdAndUpdate({_id:req!.user!._id},{...fields,avatar:filePath},{new:true})
                 .lean()
                 .exec()

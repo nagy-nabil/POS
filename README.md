@@ -14,7 +14,7 @@ npm install
 ```
 ***watch typescript changes***
 ```
-npm run dev
+npm run build
 ```
 ***Run  js [from dist]***
 ```

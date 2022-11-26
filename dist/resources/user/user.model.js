@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema({
         required: true },
     password: { type: String,
         required: true },
-    level: { type: String, default: "normal" },
+    level: { type: String, default: "staff" },
     created: { type: Date, default: Date.now },
     avatar: { type: String, default: "" },
     first_name: {
@@ -37,6 +37,19 @@ UserSchema.pre('save', function (next) {
         next();
     });
 });
+// UserSchema.pre('find',{ document: true, query: false }, function(next) {
+//     // console.log(this)
+//     if (!this.isModified('password')) {
+//         return next()
+//     }
+//     bcrypt.hash(this.password, 8, (err, hash) => {
+//         if (err) {
+//             return next(err)
+//         }
+//         this.password = hash
+//         next()
+//     })
+// })
 UserSchema.methods.checkPassword = function (password) {
     const passwordHash = this.password;
     return new Promise((resolve, reject) => {

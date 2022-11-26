@@ -1,5 +1,4 @@
 import express, {Request,Response} from "express"
-import bp from "body-parser"
 import morgan from 'morgan'
 import cors from "cors"
 import {connect} from "./utils/db.js"
@@ -24,7 +23,7 @@ app.get("/",(req,res)=>{
 })
 //auth
 app.post("/register",register)
-app.get("/login",signin)
+app.post("/login",signin)
 app.get("/activation/:token",activation)
 app.route("/password/reset")
 .post(AskResetPassword)
