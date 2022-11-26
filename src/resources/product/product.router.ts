@@ -1,4 +1,4 @@
-import {  Router,Request,Response,NextFunction } from "express";
+import {  Router } from "express";
 import controller , {createOne, updateOne} from "./product.controller.js"
 const productRouter = Router()
 productRouter.route("/").

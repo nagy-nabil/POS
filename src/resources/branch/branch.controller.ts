@@ -122,7 +122,7 @@ export async function updateOne(req:UserRequest,res:Response):Promise<void|Respo
         }
     }
 }
-export async function getMany (req:Request,res:Response){
+export async function getMany (_req:Request,res:Response){
     try{
         const docs = await Branch.find({})
         .populate({path:'machines',select:"alias _id"})
