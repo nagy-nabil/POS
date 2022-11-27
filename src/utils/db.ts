@@ -1,4 +1,3 @@
-import e from "express";
 import mongoose from "mongoose";
 export function connect(){
   if(typeof process.env.DBURL === "string" )

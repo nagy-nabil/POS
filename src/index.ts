@@ -1,7 +1,7 @@
-import express, {Request,Response} from "express"
-import morgan from 'morgan'
-import cors from "cors"
-import {connect} from "./utils/db.js"
+import express from "express";
+import morgan from 'morgan';
+import cors from "cors";
+import {connect} from "./utils/db.js";
 import {register,signin,protect,activation,AskResetPassword,resetPassword} from  "./utils/auth.js"
 import userRouter from "./resources/user/user.router.js"
 import machineRouter from "./resources/pos_machine/posmachine.router.js"
@@ -18,7 +18,7 @@ app.use(morgan("dev"))
 app.use("/static",express.static(`${process.cwd()}/public`))
 app.use(express.static(`${process.cwd()}/view/css`))
 app.use(express.static(`${process.cwd()}/view/js`))
-app.get("/",(req,res)=>{
+app.get("/",(_req,res)=>{
     res.sendFile(`${process.cwd()}/view/index.html`)
 })
 //auth
@@ -29,10 +29,10 @@ app.route("/password/reset")
 .post(AskResetPassword)
 .put(resetPassword)
 // MUST change those to redirect the request to the front end
-app.get("/login/error",(req,res)=>{
+app.get("/login/error",(_req,res)=>{
     res.send("<h1>ERROR</h1>")
 })
-app.get("/login/success",(req,res)=>{
+app.get("/login/success",(_req,res)=>{
     res.send("<h1>SUCCESS</h1>")
 })
 //router
@@ -45,7 +45,7 @@ app.use("/api/order",orderRouter)
 app.use("/api/product",productRouter)
 //controllers
 //last middleware to catch 404 [no page]
-app.use((req,res,next)=>{
+app.use((_req,res,_next)=>{
     console.log("404")
     res.status(404)
     return res.type('html').sendFile(`${process.cwd()}/view/404.html`);

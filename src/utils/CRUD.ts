@@ -25,7 +25,7 @@ export const getOne = (model:mongoose.Model<any>) => async (req:Request,res:Resp
         return res.status(400).json({result:"error",message:err.message})
     }
 }
-export const getMany = (model:mongoose.Model<any>)=> async (req:Request,res:Response)=>{
+export const getMany = (model:mongoose.Model<any>)=> async (_req:Request,res:Response)=>{
     try{
         const docs = await model.find({})
         .sort({created:-1})

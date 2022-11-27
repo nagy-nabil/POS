@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules npx jest",
-    "build": "tsc --watch --preserveWatchOutput",
+    "build": "tsc",
+    "build:watch": "tsc --watch --preserveWatchOutput",
     "ts": "ts-node-esm src/index.ts",
     "js": "nodemon -r dotenv/config dist/index ",
     "start": "node -r dotenv/config ./dist/index.js"
@@ -58,6 +59,6 @@
     "morgan": "^1.10.0"
   },
   "engines": {
-    "node": "v16.14.0"
+    "node": "^16.17.0"
   }
 }
