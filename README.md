@@ -1,5 +1,7 @@
 # Point Of Sale
 i already did the backend for this application when i was learing express and so on, so now i'm trying to gain experience in react by building ui for application i already have
+<br />
+DADDY SEARCH FOR `TODO` IN THE CODE THERE'S A LOT TO DO
 
 ## Important Links
 - [Backend application](https://github.com/nagy-nabil/POS) 

@@ -2,20 +2,36 @@ import React from 'react';
 // import logo from './logo.svg';
 import './App.css';
 import Sidebar from './components/Sidebar';
-import MainPage from './components/Mainpage'
 import Register from './components/Register';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Login from './components/Login';
+import ErrorPage from './routes/ErrorPage';
+const router = createBrowserRouter([
+  {
+    path: '/sign-in',
+    element: <Login />
+  },
+  {
+    path: '/sign-up',
+    element: <Register />
+  },
+  {
+    path: '/',
+    element: <Sidebar />,
+    errorElement: <ErrorPage />,
+  },
+])
 function App() {
   return (
-    <BrowserRouter >
-    <Sidebar />
-    <Routes>
-      <Route path='/' element={<MainPage name={'nagy'} />} />
-      <Route path='/sign-up' element={<Register />} />
-      <Route path='/sign-in' element={<Login />} />
-    </Routes>
-    </BrowserRouter>
+    // <BrowserRouter >
+    // <Sidebar />
+    // <Routes>
+    //   <Route path='/' element={<MainPage name={'nagy'} />} />
+    //   <Route path='/sign-up' element={<Register />} />
+    //   <Route path='/sign-in' element={<Login />} />
+    // </Routes>
+    // </BrowserRouter>
+    <RouterProvider router={router} />
   );
 }
 
