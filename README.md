@@ -1,24 +1,28 @@
-# Point Of Sale
-i already did the backend for this application when i was learing express and so on, so now i'm trying to gain experience in react by building ui for application i already have
-<br />
-DADDY SEARCH FOR `TODO` IN THE CODE THERE'S A LOT TO DO
+# Create T3 App
 
-## Important Links
-- [Backend application](https://github.com/nagy-nabil/POS) 
+This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
 
-## Building what again
-- [x] i already built a placeholder sidebar but it's not in good place yet
-- [ ] Daddy please edit the side bar it's so bad
-- [x] getting my hands dirty in formik/ yub
-- [x] build sign up/in forms
-- [ ] daddy can you please do the FUCKING CSS
-- [ ] TODO REDIRECT USER TO LOGIN PAGE AFTER SIGNUP
-- [ ] redirect user to home page after sign in
+## What's next? How do I make an app with this?
 
-## Search
-- [ ] how to use "issubmitting" with Form
-- [ ] where to store the api token because it feels weird to be in localStorage
+We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
 
-## BIG TODO
-- [ ] ADD ESLINT
-- [ ] ADD PRETTIER
+If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+
+- [Next.js](https://nextjs.org)
+- [NextAuth.js](https://next-auth.js.org)
+- [Prisma](https://prisma.io)
+- [Tailwind CSS](https://tailwindcss.com)
+- [tRPC](https://trpc.io)
+
+## Learn More
+
+To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+
+- [Documentation](https://create.t3.gg/)
+- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+
+You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+
+## How do I deploy this?
+
+Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
