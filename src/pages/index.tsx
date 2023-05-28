@@ -1,12 +1,13 @@
-import {
-  type NextPage,
+import type {
+  NextPage,
   InferGetServerSidePropsType,
   GetServerSideProps,
 } from "next";
 import ItemCard from "@/components/ItemCard";
 import { useState } from "react";
 import Modal from "@/components/modal";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { type SubmitHandler, useForm } from "react-hook-form";
+import Crate, { CrateItem, type CrateProps } from "@/components/crate";
 
 type ItemMeta = {
   id: number;
@@ -52,28 +53,28 @@ export const getServerSideProps: GetServerSideProps<{
     {
       id: 5,
       imageUrl: "https://via.placeholder.com/350x350",
-      name: "fsfd",
+      name: "mmmmmmmmmmm",
       price: 32,
       quantity: 23,
     },
     {
       id: 6,
       imageUrl: "https://via.placeholder.com/350x350",
-      name: "fsfd",
+      name: "eqwoqwrrrrr",
       price: 32,
       quantity: 23,
     },
     {
       id: 7,
       imageUrl: "https://via.placeholder.com/350x350",
-      name: "fsfd",
+      name: "seventh",
       price: 32,
       quantity: 23,
     },
     {
       id: 8,
       imageUrl: "https://via.placeholder.com/350x350",
-      name: "fsfd",
+      name: "8th",
       price: 32,
       quantity: 23,
     },
@@ -90,6 +91,7 @@ const Home: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ data }) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [onCrate, setOnCrate] = useState<CrateProps["items"]>([]);
   const {
     register,
     handleSubmit,
@@ -122,6 +124,26 @@ const Home: NextPage<
               name={item.name}
               price={item.price}
               quantity={item.quantity}
+              onClick={() => {
+                console.log("here");
+                setOnCrate((prev) => {
+                  // check if the item already exist in the crate it exist increase the qunatity
+                  let newItem: CrateItem;
+                  const temp = prev.find((val) => val.id === item.id);
+                  if (temp !== undefined) {
+                    newItem = temp;
+                    newItem.quantity++;
+                  } else {
+                    newItem = {
+                      id: item.id,
+                      name: item.name,
+                      quantity: 1,
+                      price: item.price,
+                    };
+                  }
+                  return [...prev.filter((val) => val.id !== item.id), newItem];
+                });
+              }}
             />
           );
         })}
@@ -185,6 +207,9 @@ const Home: NextPage<
           <input type="submit" />
         </form>
       </Modal>
+      {onCrate.length > 0 ? (
+        <Crate items={onCrate} setItems={setOnCrate} />
+      ) : null}
     </div>
   );
 };

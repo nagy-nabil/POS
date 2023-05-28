@@ -18,18 +18,26 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         <ul className="space-y-2">
           <li>
             <a
-              href={"/sign-up"}
+              href={"/branches"}
               className="flex items-center rounded-lg p-2 text-base font-normal text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
             >
-              Sales
+              Branches
             </a>
           </li>
           <li>
             <a
-              href={"/sign-in"}
+              href={"/anal"}
               className="flex items-center rounded-lg p-2 text-base font-normal text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
             >
-              Branches
+              Analysis
+            </a>
+          </li>
+          <li>
+            <a
+              href={"/settings"}
+              className="flex items-center rounded-lg p-2 text-base font-normal text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+            >
+              Settings
             </a>
           </li>
         </ul>

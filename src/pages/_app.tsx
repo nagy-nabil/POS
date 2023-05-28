@@ -8,7 +8,7 @@ import Layout from "@/components/layout";
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
     <Layout>
-      <Component {...pageProps} />;
+      <Component {...pageProps} />
     </Layout>
   );
 };
