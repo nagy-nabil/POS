@@ -44,6 +44,7 @@ model Product {
 
 model Order {
     id          String            @id @default(cuid())
+    // guess it's suppose to be computed value
     total       Float
     paymentType PaymentType       @default(CASH)
     createdAt   DateTime          @default(now())

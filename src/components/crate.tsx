@@ -1,4 +1,6 @@
 import React, { type Dispatch, type SetStateAction } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { api } from "@/utils/api";
 
 export type CrateItem = {
   id: string;
@@ -13,6 +15,9 @@ export type CrateProps = {
 };
 
 const Crate: React.FC<CrateProps> = (props) => {
+  const queryClient = useQueryClient();
+  const orderMut = api.orders.insertOne.useMutation();
+
   if (props.items.length === 0) {
     return null;
   }
@@ -26,7 +31,7 @@ const Crate: React.FC<CrateProps> = (props) => {
           <div key={val.id} className="flex gap-1">
             <span className="">{val.name}</span>
             <span className="text-gray-500">Quantity: {val.quantity}</span>
-            <span className="text-green-400">
+            <span className="text-green-600">
               price: {val.price}$ - {price}$
             </span>
             <button
@@ -75,9 +80,36 @@ const Crate: React.FC<CrateProps> = (props) => {
         );
       })}
 
-      <span className="text-2xl text-green-400">Cash: {cash}$</span>
+      <span className="text-2xl text-green-700">Cash: {cash}$</span>
 
-      <button className="h-fit w-fit rounded-xl bg-green-400 p-4">
+      <button
+        disabled={orderMut.isLoading}
+        className="my-3 h-fit w-fit rounded-xl bg-green-500 p-4 text-white"
+        onClick={() => {
+          orderMut.mutate(
+            {
+              total: cash,
+              products: props.items.map((product) => ({
+                id: product.id,
+                quantity: product.quantity,
+              })),
+            },
+            {
+              onSuccess: () => {
+                queryClient
+                  .invalidateQueries([["orders", "getMany"], { type: "query" }])
+                  .catch((e) => {
+                    console.log(
+                      "🪵 [crate.tsx:102] ~ token ~ \x1b[0;32me\x1b[0m = ",
+                      e
+                    );
+                  });
+              },
+            }
+          );
+          props.setItems([]);
+        }}
+      >
         CheckOut
       </button>
     </div>
