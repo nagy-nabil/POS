@@ -36,6 +36,14 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           </li>
           <li>
             <Link
+              href={"/staff"}
+              className="flex items-center rounded-lg p-2 text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+            >
+              Staff
+            </Link>
+          </li>
+          <li>
+            <Link
               href={"/settings"}
               className="flex items-center rounded-lg p-2 text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
             >
