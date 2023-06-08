@@ -15,11 +15,11 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             POS
           </span>
         </a>
-        <ul className="space-y-2">
+        <ul className="space-y-2 text-2xl">
           <li>
             <a
               href={"/branches"}
-              className="flex items-center rounded-lg p-2 text-base font-normal text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+              className="flex items-center rounded-lg p-2 text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
             >
               Branches
             </a>
@@ -27,7 +27,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           <li>
             <a
               href={"/anal"}
-              className="flex items-center rounded-lg p-2 text-base font-normal text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+              className="flex items-center rounded-lg p-2 text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
             >
               Analysis
             </a>
@@ -35,7 +35,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           <li>
             <a
               href={"/settings"}
-              className="flex items-center rounded-lg p-2 text-base font-normal text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+              className="flex items-center rounded-lg p-2 text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
             >
               Settings
             </a>

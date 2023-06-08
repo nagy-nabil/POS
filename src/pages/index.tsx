@@ -1,103 +1,66 @@
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import type {
   NextPage,
   InferGetServerSidePropsType,
   GetServerSideProps,
 } from "next";
+import { useQueryClient } from "@tanstack/react-query";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import ItemCard from "@/components/ItemCard";
 import { useState } from "react";
 import Modal from "@/components/modal";
 import { type SubmitHandler, useForm } from "react-hook-form";
-import Crate, { CrateItem, type CrateProps } from "@/components/crate";
+import Crate, { type CrateItem, type CrateProps } from "@/components/crate";
+// import { prisma } from "@/server/db";
+import { type Product } from "@prisma/client";
+import { api } from "@/utils/api";
+import { productSchema } from "@/types/entities";
 
-type ItemMeta = {
-  id: number;
-  imageUrl: string;
-  name: string;
-  price: number;
-  quantity: number;
-};
+//! re-enable server-side rendereing after you discover how to work with it and reactQuery together
+// export async function getServerSideProps() {
+//   const products = await prisma.product.findMany();
+//   return {
+//     props: {
+//       products,
+//     },
+//   };
+// }
 
-export const getServerSideProps: GetServerSideProps<{
-  data: ItemMeta[];
-  // eslint-disable-next-line
-}> = async () => {
-  const data: ItemMeta[] = [
-    {
-      id: 1,
-      imageUrl: "https://via.placeholder.com/350x350",
-      name: "fsfd",
-      price: 32,
-      quantity: 23,
-    },
-    {
-      id: 2,
-      imageUrl: "https://via.placeholder.com/350x350",
-      name: "fsfd",
-      price: 32,
-      quantity: 23,
-    },
-    {
-      id: 3,
-      imageUrl: "https://via.placeholder.com/350x350",
-      name: "fsfd",
-      price: 32,
-      quantity: 23,
-    },
-    {
-      id: 4,
-      imageUrl: "https://via.placeholder.com/350x350",
-      name: "fsfd",
-      price: 32,
-      quantity: 23,
-    },
-    {
-      id: 5,
-      imageUrl: "https://via.placeholder.com/350x350",
-      name: "mmmmmmmmmmm",
-      price: 32,
-      quantity: 23,
-    },
-    {
-      id: 6,
-      imageUrl: "https://via.placeholder.com/350x350",
-      name: "eqwoqwrrrrr",
-      price: 32,
-      quantity: 23,
-    },
-    {
-      id: 7,
-      imageUrl: "https://via.placeholder.com/350x350",
-      name: "seventh",
-      price: 32,
-      quantity: 23,
-    },
-    {
-      id: 8,
-      imageUrl: "https://via.placeholder.com/350x350",
-      name: "8th",
-      price: 32,
-      quantity: 23,
-    },
-  ];
+type ProductT = z.infer<typeof productSchema>;
 
-  return {
-    props: {
-      data,
-    },
-  };
-};
+const productKeys = productSchema.keyof().options;
 
-const Home: NextPage<
-  InferGetServerSidePropsType<typeof getServerSideProps>
-> = ({ data }) => {
+const Home: NextPage = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [onCrate, setOnCrate] = useState<CrateProps["items"]>([]);
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ItemMeta>();
-  const onSubmit: SubmitHandler<ItemMeta> = (data) => console.log(data);
+  } = useForm<ProductT>({ resolver: zodResolver(productSchema) });
+  const queryClient = useQueryClient();
+
+  const productsQuery = api.products.getMany.useQuery(undefined, {
+    staleTime: 1000 * 50 * 60,
+  });
+  const productsMut = api.products.insertOne.useMutation();
+  if (productsQuery.isLoading) return <p>loading ...</p>;
+  else if (productsQuery.isError) {
+    return <p>{JSON.stringify(productsQuery.error)}</p>;
+  }
+
+  const onSubmit: SubmitHandler<ProductT> = (data) => {
+    productsMut.mutate(data, {
+      onSuccess: (data) => {
+        queryClient.setQueryData(
+          [["products", "getMany"], { type: "query" }],
+          (prev) => [...(prev as Product[]), data]
+        );
+        closeModal();
+      },
+    });
+  };
 
   function openModal() {
     setModalIsOpen(true);
@@ -108,109 +71,108 @@ const Home: NextPage<
   }
 
   return (
-    <div className="flex h-screen w-full flex-col gap-y-8 overflow-hidden pl-14">
-      <header className="flex justify-between">
-        <h1 className="text-5xl">Sales Page</h1>
-        <button onClick={openModal} className="text-3xl">
-          +
-        </button>
-      </header>
-      <div className="flex h-screen flex-wrap justify-start gap-3 overflow-auto">
-        {data.map((item) => {
-          return (
-            <ItemCard
-              key={item.id}
-              imageUrl={item.imageUrl}
-              name={item.name}
-              price={item.price}
-              quantity={item.quantity}
-              onClick={() => {
-                console.log("here");
-                setOnCrate((prev) => {
-                  // check if the item already exist in the crate it exist increase the qunatity
-                  let newItem: CrateItem;
-                  const temp = prev.find((val) => val.id === item.id);
-                  if (temp !== undefined) {
-                    newItem = temp;
-                    newItem.quantity++;
-                  } else {
-                    newItem = {
-                      id: item.id,
-                      name: item.name,
-                      quantity: 1,
-                      price: item.price,
-                    };
-                  }
-                  return [...prev.filter((val) => val.id !== item.id), newItem];
-                });
-              }}
-            />
-          );
-        })}
-      </div>
-      {/* add or update product modal */}
-      <Modal
-        isOpen={modalIsOpen}
-        onRequestClose={closeModal}
-        contentLabel="Example Modal"
-      >
-        <button onClick={closeModal}>close</button>
-        {/* /* "handleSubmit" will validate your inputs before invoking "onSubmit" */}
-        <form
-          // eslint-disable-next-line
-          onSubmit={handleSubmit(onSubmit, (e) => {
-            console.log(
-              "🪵 [index.tsx:138] ~ token ~ \x1b[0;32me\x1b[0m = ",
-              e
+    <>
+      <div className="flex h-screen w-full flex-col gap-y-8 overflow-hidden pl-14">
+        <header className="flex justify-between">
+          <h1 className="text-5xl">Sales Page</h1>
+          <button
+            onClick={openModal}
+            className="h-fit w-fit bg-green-400 p-3 text-3xl"
+          >
+            +
+          </button>
+        </header>
+        <div className="flex h-screen flex-wrap justify-start gap-3 overflow-auto">
+          {productsQuery.data.map((product) => {
+            return (
+              <ItemCard
+                key={product.id}
+                imageUrl={product.image}
+                name={product.name}
+                price={product.price}
+                quantity={product.stock}
+                onClick={() => {
+                  setOnCrate((prev) => {
+                    // check if the item already exist in the crate it exist increase the qunatity
+                    let newItem: CrateItem;
+                    const temp = prev.find((val) => val.id === product.id);
+                    if (temp !== undefined) {
+                      newItem = temp;
+                      newItem.quantity++;
+                    } else {
+                      newItem = {
+                        id: product.id,
+                        name: product.name,
+                        quantity: 1,
+                        price: product.price,
+                      };
+                    }
+                    return [
+                      ...prev.filter((val) => val.id !== product.id),
+                      newItem,
+                    ];
+                  });
+                }}
+              />
             );
           })}
+        </div>
+
+        {/* add or update product modal */}
+        <Modal
+          isOpen={modalIsOpen}
+          onRequestClose={closeModal}
+          contentLabel="Example Modal"
         >
-          {/* register your input into the hook by invoking the "register" function */}
-          <input
-            className="block w-full rounded-lg p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-            defaultValue={0}
-            {...register("id")}
-          />
+          <button onClick={closeModal}>close</button>
+          {/* /* "handleSubmit" will validate your inputs before invoking "onSubmit" */}
+          <form
+            // eslint-disable-next-line
+            onSubmit={handleSubmit(onSubmit, (err) => {
+              console.log(
+                "🪵 [index.tsx:138] ~ token ~ \x1b[0;32me\x1b[0m = ",
+                err
+              );
+            })}
+          >
+            {productKeys.map((productKey, i) => {
+              return (
+                <label key={i} className="block">
+                  {productKey}
+                  <input
+                    className="block w-full rounded-lg p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                    {...(productKey === "price" || productKey === "stock"
+                      ? register(productKey, {
+                          required: true,
+                          valueAsNumber: true,
+                        })
+                      : register(productKey, { required: true }))}
+                  />
+                  {/* errors will return when field validation fails  */}
+                  {errors[productKey] && (
+                    <span className="m-2 text-red-700">
+                      {/* @ts-ignore */}
+                      {errors[productKey].message}
+                    </span>
+                  )}
+                </label>
+              );
+            })}
 
-          {/* include validation with required or other standard HTML validation rules */}
-          <input
-            className="block w-full rounded-lg p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-            {...register("imageUrl", { required: true })}
-          />
-          {/* errors will return when field validation fails  */}
-          {errors.imageUrl && <span>This field is required</span>}
+            <input
+              disabled={productsMut.isLoading}
+              type="submit"
+              className="m-3 h-fit w-fit cursor-pointer rounded-lg bg-green-700 p-3 text-white"
+            />
+          </form>
+        </Modal>
+        {onCrate.length > 0 ? (
+          <Crate items={onCrate} setItems={setOnCrate} />
+        ) : null}
+      </div>
 
-          {/* include validation with required or other standard HTML validation rules */}
-          <input
-            className="block w-full rounded-lg p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-            {...register("name", { required: true })}
-          />
-          {/* errors will return when field validation fails  */}
-          {errors.name && <span>This field is required</span>}
-
-          {/* include validation with required or other standard HTML validation rules */}
-          <input
-            className="block w-full rounded-lg p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-            {...register("price", { required: true })}
-          />
-          {/* errors will return when field validation fails  */}
-          {errors.price && <span>This field is required</span>}
-
-          {/* include validation with required or other standard HTML validation rules */}
-          <input
-            className="block w-full rounded-lg p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-            {...register("quantity", { required: true })}
-          />
-          {/* errors will return when field validation fails  */}
-          {errors.quantity && <span>This field is required</span>}
-
-          <input type="submit" />
-        </form>
-      </Modal>
-      {onCrate.length > 0 ? (
-        <Crate items={onCrate} setItems={setOnCrate} />
-      ) : null}
-    </div>
+      <ReactQueryDevtools initialIsOpen={false} />
+    </>
   );
 };
 

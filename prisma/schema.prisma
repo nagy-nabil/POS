@@ -36,7 +36,7 @@ model Product {
     // todo add check price can't be less than zero
     price       Float
     image       String
-    createAt    DateTime
+    createdAt   DateTime          @default(now())
     createdBy   User              @relation(fields: [createdById], references: [id])
     createdById String
     orders      ProductsOnOrder[]

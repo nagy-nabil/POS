@@ -1,7 +1,7 @@
 import React, { type Dispatch, type SetStateAction } from "react";
 
 export type CrateItem = {
-  id: number;
+  id: string;
   name: string;
   quantity: number;
   price: number;
