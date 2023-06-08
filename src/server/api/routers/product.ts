@@ -13,6 +13,7 @@ export const productsRouter = createTRPCRouter({
           price: input.price,
           stock: input.stock,
           createdById: input.createdById,
+          categoryId: input.categoryId,
         },
       });
       return product;

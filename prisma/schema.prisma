@@ -11,21 +11,32 @@ datasource db {
 }
 
 model User {
-    id                 String    @id @default(cuid())
-    userName           String    @unique
-    email              String    @unique
+    id                 String     @id @default(cuid())
+    userName           String     @unique
+    email              String     @unique
     password           String
-    role               Role      @default(STAFF)
-    createdAt          DateTime  @default(now())
+    role               Role       @default(STAFF)
+    createdAt          DateTime   @default(now())
     phone              String
-    activationsStatus  Boolean   @default(false)
+    activationsStatus  Boolean    @default(false)
     activationToken    String?
     resetPasswordToken String?
     predecessorId      String?
-    predecessor        User?     @relation("creator", fields: [predecessorId], references: [id])
-    successors         User[]    @relation("creator")
+    predecessor        User?      @relation("creator", fields: [predecessorId], references: [id])
+    successors         User[]     @relation("creator")
+    category           Category[]
     products           Product[]
     orders             Order[]
+}
+
+model Category {
+    id          String    @id @default(cuid())
+    name        String
+    image       String
+    createdAt   DateTime  @default(now())
+    createdBy   User      @relation(fields: [createdById], references: [id])
+    createdById String
+    products    Product[]
 }
 
 model Product {
@@ -39,6 +50,8 @@ model Product {
     createdAt   DateTime          @default(now())
     createdBy   User              @relation(fields: [createdById], references: [id])
     createdById String
+    category    Category          @relation(fields: [categoryId], references: [id])
+    categoryId  String
     orders      ProductsOnOrder[]
 }
 
