@@ -12,6 +12,7 @@ import Crate, { type CrateItem, type CrateProps } from "@/components/crate";
 import { type Product, type Category } from "@prisma/client";
 import { api } from "@/utils/api";
 import { categorySchema, productSchema } from "@/types/entities";
+import QrCode from "@/components/qrcode";
 
 //! re-enable server-side rendereing after you discover how to work with it and reactQuery together
 // export async function getServerSideProps() {
@@ -300,7 +301,13 @@ const Home: NextPage = () => {
           <Crate items={onCrate} setItems={setOnCrate} />
         ) : null}
       </div>
-
+      <QrCode
+        fps={20}
+        qrcodeSuccessCallback={(decodedText, decodedResult) => {
+          console.log(`Code matched = ${decodedText}`, decodedResult);
+          alert(`Code matched = ${decodedText}`, decodedResult);
+        }}
+      />
       <ReactQueryDevtools initialIsOpen={false} />
     </>
   );

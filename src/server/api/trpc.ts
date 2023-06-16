@@ -3,7 +3,7 @@ import { prisma } from "@/server/db";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
-import { newToken, verifyToken } from "../auth";
+import { verifyToken } from "../auth";
 
 export const createTRPCContext = (opts: CreateNextContextOptions) => {
   const token = opts.req.headers.authorization;

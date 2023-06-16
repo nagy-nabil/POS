@@ -23,6 +23,7 @@
     "@trpc/react-query": "^10.18.0",
     "@trpc/server": "^10.18.0",
     "bcrypt": "^5.1.0",
+    "html5-qrcode": "^2.3.8",
     "jsonwebtoken": "^9.0.0",
     "lodash": "^4.17.21",
     "next": "^13.2.4",
