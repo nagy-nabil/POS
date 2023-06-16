@@ -30,6 +30,18 @@ export const env = createEnv({
       }
       return parsed;
     }),
+    CRYPTROUNDS: z.string().transform((val, ctx) => {
+      const parsed = parseInt(val);
+      if (isNaN(parsed)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Not a number",
+        });
+        return z.NEVER;
+      }
+
+      return parsed;
+    }),
   },
 
   /**
@@ -51,5 +63,6 @@ export const env = createEnv({
     JWTSECRET: process.env.JWTSECRET,
     // expire in period must be more than one minute
     JWTEXPIREIN: process.env.JWTEXPIREIN,
+    CRYPTROUNDS: process.env.CRYPTROUNDS,
   },
 });
