@@ -1,5 +1,9 @@
 import z from "zod";
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  publicProcedure,
+  protectedProcedure,
+} from "@/server/api/trpc";
 import { orderSchema } from "@/types/entities";
 
 export const ordersRouter = createTRPCRouter({
@@ -32,7 +36,8 @@ export const ordersRouter = createTRPCRouter({
     });
   }),
 
-  getMany: publicProcedure.query(({ ctx }) => {
+  getMany: protectedProcedure.query(({ ctx }) => {
+    console.log(ctx.payload);
     return ctx.prisma.order.findMany({
       include: {
         products: {

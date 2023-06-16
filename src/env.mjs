@@ -9,7 +9,27 @@ export const env = createEnv({
   server: {
     DATABASE_URL: z.string().url(),
     NODE_ENV: z.enum(["development", "test", "production"]),
-    // Add `.min(1) on ID and SECRET if you want to make sure they're not empty
+    JWTSECRET: z.string().min(4),
+    // expire in period must be more than one minute
+    JWTEXPIREIN: z.string().transform((val, ctx) => {
+      const parsed = parseInt(val);
+      if (isNaN(parsed)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Not a number",
+        });
+        return z.NEVER;
+      }
+
+      if (parsed < 60) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "number must be gt 60",
+        });
+        return z.NEVER;
+      }
+      return parsed;
+    }),
   },
 
   /**
@@ -28,5 +48,8 @@ export const env = createEnv({
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
+    JWTSECRET: process.env.JWTSECRET,
+    // expire in period must be more than one minute
+    JWTEXPIREIN: process.env.JWTEXPIREIN,
   },
 });
