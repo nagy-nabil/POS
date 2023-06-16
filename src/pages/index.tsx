@@ -214,6 +214,7 @@ const Home: NextPage = () => {
           <h1>Category</h1>
           {/* /* "handleSubmit" will validate your inputs before invoking "onSubmit" */}
           <form
+            // eslint-disable-next-line
             onSubmit={categoryHandleSubmit(categoryOnSubmit, (err) => {
               console.log(
                 "🪵 [index.tsx:138] ~ token ~ \x1b[0;32me\x1b[0m = ",
@@ -259,6 +260,7 @@ const Home: NextPage = () => {
           </button>
           {/* /* "handleSubmit" will validate your inputs before invoking "onSubmit" */}
           <form
+            // eslint-disable-next-line
             onSubmit={handleSubmit(onSubmit, (err) => {
               console.log(
                 "🪵 [index.tsx:138] ~ token ~ \x1b[0;32me\x1b[0m = ",
@@ -305,7 +307,7 @@ const Home: NextPage = () => {
         fps={20}
         qrcodeSuccessCallback={(decodedText, decodedResult) => {
           console.log(`Code matched = ${decodedText}`, decodedResult);
-          alert(`Code matched = ${decodedText}`, decodedResult);
+          alert(`Code matched = ${decodedText},`);
         }}
       />
       <ReactQueryDevtools initialIsOpen={false} />
