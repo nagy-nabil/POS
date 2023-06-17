@@ -1,9 +1,5 @@
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import type {
-  GetServerSidePropsContext,
-  GetStaticPropsContext,
-  NextPage,
-} from "next";
+import type { GetServerSidePropsContext, NextPage } from "next";
 import { useQueryClient } from "@tanstack/react-query";
 import { type z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -210,7 +206,7 @@ const Home: NextPage = () => {
                   key={product.id}
                   imageUrl={product.image}
                   name={product.name}
-                  price={product.price}
+                  sellPrice={product.sellPrice}
                   quantity={product.stock}
                   onClick={() => {
                     setOnCrate((prev) => {
@@ -225,7 +221,7 @@ const Home: NextPage = () => {
                           id: product.id,
                           name: product.name,
                           quantity: 1,
-                          price: product.price,
+                          price: product.sellPrice,
                         };
                       }
                       return [
@@ -314,7 +310,9 @@ const Home: NextPage = () => {
                   {productKey}
                   <input
                     className="block w-full rounded-lg p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                    {...(productKey === "price" || productKey === "stock"
+                    {...(productKey === "sellPrice" ||
+                    productKey === "stock" ||
+                    productKey === "buyPrice"
                       ? register(productKey, {
                           required: true,
                           valueAsNumber: true,

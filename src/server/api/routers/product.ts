@@ -10,7 +10,8 @@ export const productsRouter = createTRPCRouter({
         data: {
           image: input.image,
           name: input.name,
-          price: input.price,
+          buyPrice: input.buyPrice,
+          sellPrice: input.sellPrice,
           stock: input.stock,
           createdById: input.createdById,
           categoryId: input.categoryId,
