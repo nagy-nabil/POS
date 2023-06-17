@@ -50,7 +50,7 @@ const productKeys = productSchema.keyof().options;
 const categoryKeys = categorySchema.keyof().options;
 
 const Home: NextPage = () => {
-  const { t } = useTranslation("common");
+  const { t } = useTranslation();
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState("");
   const [categoryModalIsOpen, setCategoryModalIsOpen] = useState(false);
