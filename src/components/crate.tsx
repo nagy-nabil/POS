@@ -88,7 +88,6 @@ const Crate: React.FC<CrateProps> = (props) => {
         onClick={() => {
           orderMut.mutate(
             {
-              total: cash,
               products: props.items.map((product) => ({
                 id: product.id,
                 quantity: product.quantity,

@@ -45,7 +45,9 @@ model Product {
     // todo add check stock can't be less than zero
     stock       Int
     // todo add check price can't be less than zero
-    price       Float
+    buyPrice    Float
+    // todo add check price can't be less than zero
+    sellPrice   Float
     image       String
     createdAt   DateTime          @default(now())
     createdBy   User              @relation(fields: [createdById], references: [id])
@@ -57,8 +59,6 @@ model Product {
 
 model Order {
     id          String            @id @default(cuid())
-    // guess it's suppose to be computed value
-    total       Float
     paymentType PaymentType       @default(CASH)
     createdAt   DateTime          @default(now())
     createdById String
@@ -67,11 +67,12 @@ model Order {
 }
 
 model ProductsOnOrder {
-    productId String
-    Product   Product @relation(fields: [productId], references: [id])
-    orderId   String
-    order     Order   @relation(fields: [orderId], references: [id])
-    quantity  Int     @default(1)
+    productId   String
+    Product     Product @relation(fields: [productId], references: [id])
+    orderId     String
+    order       Order   @relation(fields: [orderId], references: [id])
+    quantity    Int     @default(1)
+    priceAtSale Float // Price of the product at the time of the order
 
     @@id([productId, orderId])
 }

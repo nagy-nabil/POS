@@ -10,7 +10,8 @@ export const categorySchema = z.object({
 export const productSchema = z.object({
   image: z.string().url(),
   stock: z.number().gte(0),
-  price: z.number().gt(0),
+  buyPrice: z.number().gt(0),
+  sellPrice: z.number().gt(0),
   name: z.string(),
   // todo remove this default value
   createdById: z.string().default("clinkvaij0000d3ecgaqbiafl"),
@@ -20,8 +21,6 @@ export const productSchema = z.object({
 export const orderSchema = z.object({
   // todo remove this default value
   createdById: z.string().default("clinkvaij0000d3ecgaqbiafl"),
-  // TODO total need to be computed or at least decide how to store the total
-  total: z.number().gt(0),
   products: z.array(z.object({ id: z.string(), quantity: z.number() })),
 });
 
