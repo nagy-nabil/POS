@@ -1,5 +1,9 @@
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import type { NextPage } from "next";
+import type {
+  GetServerSidePropsContext,
+  GetStaticPropsContext,
+  NextPage,
+} from "next";
 import { useQueryClient } from "@tanstack/react-query";
 import { type z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,6 +17,8 @@ import { type Product, type Category } from "@prisma/client";
 import { api } from "@/utils/api";
 import { categorySchema, productSchema } from "@/types/entities";
 import QrCode from "@/components/qrcode";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next";
 
 //! re-enable server-side rendereing after you discover how to work with it and reactQuery together
 // export async function getServerSideProps() {
@@ -24,6 +30,19 @@ import QrCode from "@/components/qrcode";
 //   };
 // }
 
+export async function getServerSideProps({
+  locale,
+}: GetServerSidePropsContext) {
+  console.log("🪵 [index.tsx:29] ~ token ~ \x1b[0;32mlocale\x1b[0m = ", locale);
+  return {
+    props: {
+      // only pass array of required namespace to the page to make use of translitions code spliting
+      ...(await serverSideTranslations(locale as string, ["common"])),
+      // Will be passed to the page component as props
+    },
+  };
+}
+
 type ProductT = z.infer<typeof productSchema>;
 type CategoryT = z.infer<typeof categorySchema>;
 
@@ -31,11 +50,11 @@ const productKeys = productSchema.keyof().options;
 const categoryKeys = categorySchema.keyof().options;
 
 const Home: NextPage = () => {
+  const { t } = useTranslation();
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState("");
   const [categoryModalIsOpen, setCategoryModalIsOpen] = useState(false);
   const [onCrate, setOnCrate] = useState<CrateProps["items"]>([]);
-
   // react form hook
   const {
     register: categoryReg,
@@ -115,7 +134,7 @@ const Home: NextPage = () => {
     <>
       <div className="flex h-screen w-full flex-col gap-y-8 overflow-hidden pl-14">
         <header className="flex justify-between">
-          <h1 className="text-5xl">Sales Page</h1>
+          <h1 className="text-5xl">{t("header")}</h1>
           <button
             onClick={openModal}
             className="h-fit w-fit bg-green-400 p-3 text-3xl"
@@ -159,6 +178,27 @@ const Home: NextPage = () => {
 
         {/* products display */}
         <div className="flex h-screen flex-wrap justify-start gap-3 overflow-auto">
+          <div
+            role="status"
+            className="max-w-sm animate-pulse rounded border border-gray-200 p-4 shadow dark:border-gray-700 md:p-6"
+          >
+            <div className="mb-4 flex h-48 items-center justify-center rounded bg-gray-300 dark:bg-gray-700">
+              <svg
+                className="h-12 w-12 text-gray-200 dark:text-gray-600"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+                fill="currentColor"
+                viewBox="0 0 640 512"
+              >
+                <path d="M480 80C480 35.82 515.8 0 560 0C604.2 0 640 35.82 640 80C640 124.2 604.2 160 560 160C515.8 160 480 124.2 480 80zM0 456.1C0 445.6 2.964 435.3 8.551 426.4L225.3 81.01C231.9 70.42 243.5 64 256 64C268.5 64 280.1 70.42 286.8 81.01L412.7 281.7L460.9 202.7C464.1 196.1 472.2 192 480 192C487.8 192 495 196.1 499.1 202.7L631.1 419.1C636.9 428.6 640 439.7 640 450.9C640 484.6 612.6 512 578.9 512H55.91C25.03 512 .0006 486.1 .0006 456.1L0 456.1z" />
+              </svg>
+            </div>
+            <div className="mb-4 h-2.5 w-48 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+            <div className="mb-2.5 h-2 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+            <div className="mb-2.5 h-2 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+            <div className="h-2 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+            <span className="sr-only">Loading...</span>
+          </div>
           {productsQuery.data
             .filter((val) => {
               if (categoryFilter === "") return true;

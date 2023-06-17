@@ -19,10 +19,12 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "sourceMap": true
   },
   "include": [
     ".eslintrc.cjs",
+    "next-i18next.config.js",
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
