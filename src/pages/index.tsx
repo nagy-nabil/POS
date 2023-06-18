@@ -96,8 +96,7 @@ const Home: NextPage = () => {
   return (
     <>
       <div className="flex h-screen w-full flex-col overflow-x-hidden">
-        <header className="flex justify-end">
-          {/* <h1 className="text-5xl">{t("header")}</h1> */}
+        <header className="flex justify-end gap-2">
           <InputWithIcon
             Icon={RiSearch2Line}
             inputName="searchProduct"

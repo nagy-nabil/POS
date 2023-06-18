@@ -11,7 +11,7 @@ const InputWithIcon: React.FC<{
   return (
     <form
       onSubmit={onSubmit}
-      className="overflow-hidde relative flex rounded-lg border-2"
+      className="overflow-hidde relative mt-2 flex rounded-xl border-2"
     >
       <button
         type="submit"

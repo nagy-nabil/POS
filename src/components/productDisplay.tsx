@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { api } from "@/utils/api";
 import { type Product } from "@prisma/client";
 import { RiAddCircleLine } from "react-icons/ri";
-import { type CrateItem } from "@/components/crate";
+import { type CrateItem } from "@/components/modal/crateModal";
 
 type ProductProps = Pick<
   Product,
@@ -144,7 +144,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
                       id: product.id,
                       name: product.name,
                       quantity: 1,
-                      price: product.sellPrice,
+                      sellPrice: product.sellPrice,
                     };
                   }
                   return [
@@ -161,9 +161,9 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
             };
 
             return displayType === "keypad" ? (
-              <KeypadDisplay {...displayProps} />
+              <KeypadDisplay key={product.id} {...displayProps} />
             ) : (
-              <LibraryDisplay {...displayProps} />
+              <LibraryDisplay key={product.id} {...displayProps} />
             );
           })}
       </div>
