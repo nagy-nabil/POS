@@ -5,7 +5,7 @@ import { RiMenu4Fill } from "react-icons/ri";
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { setToken } = useAuth({ redirectAfterSet: "/signin" });
   return (
-    <div className="flex h-screen w-screen">
+    <div className="flex h-screen w-screen scroll-smooth">
       {/* <aside
         className="h-screen bg-slate-800 p-4 dark:bg-gray-900 md:w-1/5"
         aria-label="Sidebar"

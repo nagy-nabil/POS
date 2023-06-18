@@ -1,13 +1,72 @@
-import React from "react";
+import React, { useState } from "react";
 import { api } from "@/utils/api";
-import ItemCard from "@/components/ItemCard";
+import { type Product } from "@prisma/client";
+import { RiAddCircleLine } from "react-icons/ri";
+import { type CrateItem } from "@/components/crate";
+
+type ProductProps = Pick<
+  Product,
+  "sellPrice" | "id" | "image" | "name" | "stock"
+> & {
+  onClick: React.MouseEventHandler<HTMLButtonElement>;
+};
+
+export const KeypadDisplay: React.FC<ProductProps> = (props) => {
+  return (
+    <div
+      className="m-3 flex h-fit w-2/5 flex-col gap-1 md:w-1/5"
+      key={props.id}
+    >
+      <img alt="item-card" src={props.image} className="h-24 w-full" />
+      <h2 className="text-2xl">{props.name}</h2>
+      <span className="text-green-500">price: {props.sellPrice}$</span>
+      <span className="text-gray-500">Quantity: {props.stock}</span>
+      {/* TODO show add and decrease button if the item in the crate */}
+      <button
+        onClick={props.onClick}
+        className="mb-2 mr-2 rounded-xl bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 "
+      >
+        Add To Cart
+      </button>
+    </div>
+  );
+};
+
+export const LibraryDisplay: React.FC<ProductProps> = (props) => {
+  return (
+    <div className=" m-2 flex  h-12 w-11/12" key={props.id}>
+      <div className="flex items-center">
+        <img alt="item-card" src={props.image} className="h-12 w-12" />
+      </div>
+      <div className="ml-3 flex h-12 flex-col">
+        <h2 className="text-2xl">{props.name}</h2>
+        <p>
+          <span className="text-gray-500">{props.stock} : </span>
+          <span className="text-green-500"> {props.sellPrice}$</span>
+        </p>
+      </div>
+      {/* TODO show add and decrease button if the item in the crate */}
+      <button
+        onClick={props.onClick}
+        className="ml-auto rounded-xl   py-2.5 text-2xl font-medium text-gray-500 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 "
+      >
+        <RiAddCircleLine />
+      </button>
+    </div>
+  );
+};
 
 export type ProductDisplayProps = {
   categoryFilter: string;
   displayType: "library" | "keypad";
+  setOnCrate: React.Dispatch<React.SetStateAction<CrateItem[]>>;
 };
 
+// main component
 const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
+  const [displayType, setDisplayType] = useState<
+    ProductDisplayProps["displayType"]
+  >(props.displayType);
   const productsQuery = api.products.getMany.useQuery(undefined, {
     staleTime: 1000 * 50 * 60,
   });
@@ -28,6 +87,11 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
             value="library"
             className="peer hidden"
             defaultChecked={props.displayType === "library"}
+            onChange={(e) => {
+              setDisplayType(
+                e.target.value as ProductDisplayProps["displayType"]
+              );
+            }}
           />
           <label
             htmlFor="library"
@@ -44,6 +108,11 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
             value="keypad"
             className="peer hidden"
             defaultChecked={props.displayType === "keypad"}
+            onChange={(e) => {
+              setDisplayType(
+                e.target.value as ProductDisplayProps["displayType"]
+              );
+            }}
           />
           <label
             htmlFor="keypad"
@@ -54,65 +123,47 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
         </li>
       </ul>
 
-      <div className="flex h-screen flex-wrap justify-start gap-3 overflow-auto">
-        <div
-          role="status"
-          className="max-w-sm animate-pulse rounded border border-gray-200 p-4 shadow dark:border-gray-700 md:p-6"
-        >
-          <div className="mb-4 flex h-48 items-center justify-center rounded bg-gray-300 dark:bg-gray-700">
-            <svg
-              className="h-12 w-12 text-gray-200 dark:text-gray-600"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-              fill="currentColor"
-              viewBox="0 0 640 512"
-            >
-              <path d="M480 80C480 35.82 515.8 0 560 0C604.2 0 640 35.82 640 80C640 124.2 604.2 160 560 160C515.8 160 480 124.2 480 80zM0 456.1C0 445.6 2.964 435.3 8.551 426.4L225.3 81.01C231.9 70.42 243.5 64 256 64C268.5 64 280.1 70.42 286.8 81.01L412.7 281.7L460.9 202.7C464.1 196.1 472.2 192 480 192C487.8 192 495 196.1 499.1 202.7L631.1 419.1C636.9 428.6 640 439.7 640 450.9C640 484.6 612.6 512 578.9 512H55.91C25.03 512 .0006 486.1 .0006 456.1L0 456.1z" />
-            </svg>
-          </div>
-          <div className="mb-4 h-2.5 w-48 rounded-full bg-gray-200 dark:bg-gray-700"></div>
-          <div className="mb-2.5 h-2 rounded-full bg-gray-200 dark:bg-gray-700"></div>
-          <div className="mb-2.5 h-2 rounded-full bg-gray-200 dark:bg-gray-700"></div>
-          <div className="h-2 rounded-full bg-gray-200 dark:bg-gray-700"></div>
-          <span className="sr-only">Loading...</span>
-        </div>
+      <div className="flex flex-wrap justify-between overflow-y-auto overflow-x-hidden pb-16">
         {productsQuery.data
           .filter((val) => {
             if (props.categoryFilter === "") return true;
             else return val.categoryId === props.categoryFilter;
           })
           .map((product) => {
-            return (
-              <ItemCard
-                key={product.id}
-                imageUrl={product.image}
-                name={product.name}
-                sellPrice={product.sellPrice}
-                quantity={product.stock}
-                //   onClick={() => {
-                //     setOnCrate((prev) => {
-                //       // check if the item already exist in the crate it exist increase the qunatity
-                //       let newItem: CrateItem;
-                //       const temp = prev.find((val) => val.id === product.id);
-                //       if (temp !== undefined) {
-                //         newItem = temp;
-                //         newItem.quantity++;
-                //       } else {
-                //         newItem = {
-                //           id: product.id,
-                //           name: product.name,
-                //           quantity: 1,
-                //           price: product.sellPrice,
-                //         };
-                //       }
-                //       return [
-                //         ...prev.filter((val) => val.id !== product.id),
-                //         newItem,
-                //       ];
-                //     });
-                //   }}
-                onClick={() => console.log("add item")}
-              />
+            const displayProps: ProductProps = {
+              onClick: () => {
+                props.setOnCrate((prev) => {
+                  // check if the item already exist in the crate it exist increase the qunatity
+                  let newItem: CrateItem;
+                  const temp = prev.find((val) => val.id === product.id);
+                  if (temp !== undefined) {
+                    newItem = temp;
+                    newItem.quantity++;
+                  } else {
+                    newItem = {
+                      id: product.id,
+                      name: product.name,
+                      quantity: 1,
+                      price: product.sellPrice,
+                    };
+                  }
+                  return [
+                    ...prev.filter((val) => val.id !== product.id),
+                    newItem,
+                  ];
+                });
+              },
+              id: product.id,
+              image: product.image,
+              name: product.name,
+              sellPrice: product.sellPrice,
+              stock: product.stock,
+            };
+
+            return displayType === "keypad" ? (
+              <KeypadDisplay {...displayProps} />
+            ) : (
+              <LibraryDisplay {...displayProps} />
             );
           })}
       </div>

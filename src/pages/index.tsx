@@ -98,7 +98,7 @@ const Home: NextPage = () => {
 
   return (
     <>
-      <div className="flex h-screen w-full flex-col  overflow-hidden ">
+      <div className="flex h-screen w-full flex-col overflow-x-hidden">
         <header className="flex justify-end">
           {/* <h1 className="text-5xl">{t("header")}</h1> */}
           <InputWithIcon
@@ -117,7 +117,11 @@ const Home: NextPage = () => {
         </header>
 
         <CategoryDisplay setCategoryFilter={setCategoryFilter} />
-        <ProductDisplay categoryFilter={categoryFilter} displayType="keypad" />
+        <ProductDisplay
+          setOnCrate={setOnCrate}
+          categoryFilter={categoryFilter}
+          displayType="keypad"
+        />
 
         {/* add or update product modal */}
         <Crate items={onCrate} setItems={setOnCrate} />

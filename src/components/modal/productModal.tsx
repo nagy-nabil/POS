@@ -16,6 +16,9 @@ export type ProductModalProps = {
 };
 
 const ProductModal: React.FC<ProductModalProps> = (props) => {
+  const categoryQuery = api.categories.getMany.useQuery(undefined, {
+    staleTime: 1000 * 50 * 60,
+  });
   const productsMut = api.products.insertOne.useMutation();
   const queryClient = useQueryClient();
   const {
@@ -38,7 +41,16 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
   return (
     <CustomModal Icon={RiAddCircleLine}>
       {/* /* "handleSubmit" will validate your inputs before invoking "onSubmit" */}
-      <form onSubmit={void handleSubmit(onSubmit)}>
+      <form
+        onSubmit={
+          void handleSubmit(onSubmit, (err) => {
+            console.log(
+              "🪵 [productModal.tsx:44] ~ token ~ \x1b[0;32merr\x1b[0m = ",
+              err
+            );
+          })
+        }
+      >
         {productKeys.map((productKey, i) => {
           if (productKey === "categoryId") return null;
           return (
@@ -66,8 +78,31 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
           );
         })}
 
+        <label key={"category"} className="block">
+          Category
+          <select {...register("categoryId", { required: true })}>
+            {categoryQuery.data !== undefined
+              ? categoryQuery.data.map((category) => {
+                  return (
+                    <option
+                      label={category.name}
+                      value={category.id}
+                      key={category.id}
+                    />
+                  );
+                })
+              : null}
+          </select>
+          {/* errors will return when field validation fails  */}
+          {errors["categoryId"] && (
+            <span className="m-2 text-red-700">
+              {errors["categoryId"].message}
+            </span>
+          )}
+        </label>
+
         <input
-          disabled={productsMut.isLoading}
+          disabled={productsMut.isLoading || categoryQuery.isLoading}
           type="submit"
           className="m-3 h-fit w-fit cursor-pointer rounded-lg bg-green-700 p-3 text-white"
         />
