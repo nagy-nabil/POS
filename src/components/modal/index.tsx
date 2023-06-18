@@ -1,10 +1,10 @@
 import React, { useRef } from "react";
 import { RiCloseLine } from "react-icons/ri";
-import type { IconType } from "react-icons";
 
 export type CustomModalProps = {
-  children: React.ReactNode;
-  Icon: IconType;
+  modalChildren: React.ReactNode;
+  buttonChildren: React.ReactNode;
+  buttonAttrs: React.HTMLAttributes<HTMLButtonElement>;
 };
 
 const CustomModal: React.FC<CustomModalProps> = (props) => {
@@ -23,8 +23,8 @@ const CustomModal: React.FC<CustomModalProps> = (props) => {
 
   return (
     <>
-      <button onClick={openModal}>
-        <props.Icon className="h-fit w-fit p-3 text-3xl" />
+      <button onClick={openModal} {...props.buttonAttrs}>
+        {props.buttonChildren}
       </button>
       <dialog
         ref={dialogRef}
@@ -33,7 +33,7 @@ const CustomModal: React.FC<CustomModalProps> = (props) => {
         <button onClick={closeModal}>
           <RiCloseLine className="text-3xl " />
         </button>
-        {props.children}
+        {props.modalChildren}
       </dialog>
     </>
   );

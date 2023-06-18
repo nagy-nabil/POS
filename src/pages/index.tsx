@@ -11,7 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useRef, useState } from "react";
 import CustomModal from "@/components/modal";
 import { type SubmitHandler, useForm } from "react-hook-form";
-import Crate, { type CrateItem, type CrateProps } from "@/components/crate";
+import CrateModal, { type CrateProps } from "@/components/modal/crateModal";
 // import { prisma } from "@/server/db";
 import { type Product, type Category } from "@prisma/client";
 import { api } from "@/utils/api";
@@ -54,11 +54,8 @@ const categoryKeys = categorySchema.keyof().options;
 const Home: NextPage = () => {
   const { token } = useAuth({ noExistRedirectTo: "/signin" });
   const { t } = useTranslation();
-  // const [modalIsOpen, setModalIsOpen] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState("");
-  // const [categoryModalIsOpen, setCategoryModalIsOpen] = useState(false);
-  const [onCrate, setOnCrate] = useState<CrateProps["items"]>([]);
-  const categoryDialog = useRef<HTMLDialogElement>(null);
+  const [onCrate, setOnCrate] = useState<CrateProps["onCrate"]>([]);
 
   // react form hook
   const {
@@ -124,7 +121,7 @@ const Home: NextPage = () => {
         />
 
         {/* add or update product modal */}
-        <Crate items={onCrate} setItems={setOnCrate} />
+        <CrateModal onCrate={onCrate} setOnCrate={setOnCrate} />
       </div>
       {/* <QrCode
         fps={20}
