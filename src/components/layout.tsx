@@ -1,20 +1,16 @@
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
+import { RiMenu4Fill } from "react-icons/ri";
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { setToken } = useAuth({ redirectAfterSet: "/signin" });
   return (
     <div className="flex h-screen w-screen">
-      <aside
+      {/* <aside
         className="h-screen bg-slate-800 p-4 dark:bg-gray-900 md:w-1/5"
         aria-label="Sidebar"
       >
         <Link href={"/"} className="mb-5 flex items-center pl-2.5">
-          {/* <img
-            src="https://flowbite.com/docs/images/logo.svg"
-            className="mr-3 h-6 sm:h-7"
-            alt="Flowbite Logo"
-          /> */}
           <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
             POS
           </span>
@@ -63,7 +59,10 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             Log out
           </button>
         </li>
-      </aside>
+      </aside> */}
+      <button className="fixed left-2 top-2 text-3xl">
+        <RiMenu4Fill />
+      </button>
       {children}
     </div>
   );

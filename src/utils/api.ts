@@ -27,7 +27,18 @@ export const api = createTRPCNext<AppRouter>({
        * @see https://trpc.io/docs/data-transformers
        */
       transformer: superjson,
-
+      queryClientConfig: {
+        defaultOptions: {
+          queries: {
+            networkMode:
+              process.env.NODE_ENV === "development" ? "always" : "online",
+          },
+          mutations: {
+            networkMode:
+              process.env.NODE_ENV === "development" ? "always" : "online",
+          },
+        },
+      },
       /**
        * Links used to determine request flow from client to server.
        *

@@ -1,7 +1,7 @@
 import React, { type Dispatch, type SetStateAction } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { api } from "@/utils/api";
-
+import { FaShoppingBag } from "react-icons/fa";
 export type CrateItem = {
   id: string;
   name: string;
@@ -18,13 +18,16 @@ const Crate: React.FC<CrateProps> = (props) => {
   const queryClient = useQueryClient();
   const orderMut = api.orders.insertOne.useMutation();
 
-  if (props.items.length === 0) {
-    return null;
-  }
   let cash = 0;
   return (
-    <div className="flex flex-col">
-      {props.items.map((val) => {
+    <>
+      <button className="fixed bottom-2 left-4 flex h-fit w-11/12 justify-between rounded-3xl bg-black p-3 text-white">
+        <span>You added {props.items.length} items</span>
+        <span>
+          <FaShoppingBag className="inline" /> ${cash}
+        </span>
+      </button>
+      {/* {props.items.map((val) => {
         const price = val.price * val.quantity;
         cash += price;
         return (
@@ -78,11 +81,11 @@ const Crate: React.FC<CrateProps> = (props) => {
             </button>
           </div>
         );
-      })}
+      })} */}
 
-      <span className="text-2xl text-green-700">Cash: {cash}$</span>
+      {/* <span className="text-2xl text-green-700">Cash: {cash}$</span> */}
 
-      <button
+      {/* <button
         disabled={orderMut.isLoading}
         className="my-3 h-fit w-fit rounded-xl bg-green-500 p-4 text-white"
         onClick={() => {
@@ -110,8 +113,8 @@ const Crate: React.FC<CrateProps> = (props) => {
         }}
       >
         CheckOut
-      </button>
-    </div>
+      </button> */}
+    </>
   );
 };
 export default Crate;
