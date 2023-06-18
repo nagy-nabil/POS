@@ -1,9 +1,9 @@
 import z from "zod";
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { productSchema } from "@/types/entities";
 
 export const productsRouter = createTRPCRouter({
-  insertOne: publicProcedure
+  insertOne: protectedProcedure
     .input(productSchema)
     .mutation(async ({ ctx, input }) => {
       const product = await ctx.prisma.product.create({
@@ -13,14 +13,14 @@ export const productsRouter = createTRPCRouter({
           buyPrice: input.buyPrice,
           sellPrice: input.sellPrice,
           stock: input.stock,
-          createdById: input.createdById,
+          createdById: ctx.payload.id,
           categoryId: input.categoryId,
         },
       });
       return product;
     }),
 
-  getOne: publicProcedure.input(z.string()).query(({ ctx, input }) => {
+  getOne: protectedProcedure.input(z.string()).query(({ ctx, input }) => {
     return ctx.prisma.product.findFirst({
       where: {
         id: input,
@@ -28,7 +28,7 @@ export const productsRouter = createTRPCRouter({
     });
   }),
 
-  getMany: publicProcedure.query(({ ctx }) => {
+  getMany: protectedProcedure.query(({ ctx }) => {
     return ctx.prisma.product.findMany();
   }),
 });
