@@ -1,12 +1,12 @@
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import type { NextPage } from "next";
-import { useRouter } from "next/router";
 import { api } from "@/utils/api";
 import { useState } from "react";
 import { loginSchema } from "@/types/entities";
+import { useAuth } from "@/hooks/useAuth";
 
 const Anal: NextPage = () => {
-  const router = useRouter();
+  const { setToken } = useAuth({ redirectAfterSet: "/" });
   const [errors, setErrors] = useState("");
   const userMut = api.users.signIn.useMutation();
   return (
@@ -27,8 +27,7 @@ const Anal: NextPage = () => {
                 setErrors(error.message);
               },
               async onSuccess(token) {
-                localStorage.setItem("token", token);
-                await router.push("/");
+                await setToken(token);
               },
             });
           } else {

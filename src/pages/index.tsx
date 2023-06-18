@@ -1,10 +1,15 @@
+import type {
+  GetServerSidePropsContext,
+  GetStaticPropsContext,
+  NextPage,
+} from "next";
+import { useRouter } from "next/router";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import type { GetServerSidePropsContext, NextPage } from "next";
 import { useQueryClient } from "@tanstack/react-query";
 import { type z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import ItemCard from "@/components/ItemCard";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "@/components/modal";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import Crate, { type CrateItem, type CrateProps } from "@/components/crate";
@@ -15,6 +20,7 @@ import { categorySchema, productSchema } from "@/types/entities";
 import QrCode from "@/components/qrcode";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
+import { useAuth } from "@/hooks/useAuth";
 
 //! re-enable server-side rendereing after you discover how to work with it and reactQuery together
 // export async function getServerSideProps() {
@@ -26,9 +32,7 @@ import { useTranslation } from "next-i18next";
 //   };
 // }
 
-export async function getServerSideProps({
-  locale,
-}: GetServerSidePropsContext) {
+export async function getStaticProps({ locale }: GetStaticPropsContext) {
   console.log("🪵 [index.tsx:29] ~ token ~ \x1b[0;32mlocale\x1b[0m = ", locale);
   return {
     props: {
@@ -46,6 +50,7 @@ const productKeys = productSchema.keyof().options;
 const categoryKeys = categorySchema.keyof().options;
 
 const Home: NextPage = () => {
+  const { token } = useAuth({ noExistRedirectTo: "/signin" });
   const { t } = useTranslation();
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState("");
@@ -74,6 +79,7 @@ const Home: NextPage = () => {
   const productsMut = api.products.insertOne.useMutation();
   const categoryMut = api.categories.insertOne.useMutation();
 
+  if (!token) return <p>loading token...</p>;
   if (categoryQuery.isLoading) return <p>loading ...</p>;
   else if (categoryQuery.isError) {
     return <p>{JSON.stringify(categoryQuery.error)}</p>;

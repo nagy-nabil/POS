@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { useAuth } from "@/hooks/useAuth";
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { setToken } = useAuth({ redirectAfterSet: "/signin" });
   return (
     <div className="flex h-screen w-screen">
       <aside
@@ -51,6 +53,16 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </Link>
           </li>
         </ul>
+        <li>
+          <button
+            className="flex items-center rounded-lg p-2 text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+            onClick={() => {
+              void setToken("");
+            }}
+          >
+            Log out
+          </button>
+        </li>
       </aside>
       {children}
     </div>
