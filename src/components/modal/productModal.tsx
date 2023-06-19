@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { RiAddCircleLine } from "react-icons/ri";
+import { RiAddLine } from "react-icons/ri";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
@@ -42,25 +42,24 @@ const ProductModal: React.FC<ProductModalProps> = (_props) => {
     <CustomModal
       buttonAttrs={{ className: "mt-2" }}
       dialogAttrs={{}}
-      buttonChildren={<RiAddCircleLine className="h-fit w-fit p-3 text-3xl" />}
+      buttonChildren={<RiAddLine className="h-fit w-fit p-3 text-3xl" />}
       modalChildren={
         <form
-          onSubmit={
-            void handleSubmit(onSubmit, (err) => {
-              console.log(
-                "🪵 [productModal.tsx:44] ~ token ~ \x1b[0;32merr\x1b[0m = ",
-                err
-              );
-            })
-          }
+          onSubmit={handleSubmit(onSubmit, (err) => {
+            console.log(
+              "🪵 [productModal.tsx:44] ~ token ~ \x1b[0;32merr\x1b[0m = ",
+              err
+            );
+          })}
         >
+          <h1 className="my-2 text-3xl">Add New Product</h1>
           {productKeys.map((productKey, i) => {
             if (productKey === "categoryId") return null;
             return (
               <label key={i} className="block">
                 {productKey}
                 <input
-                  className="block w-full rounded-lg p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 "
+                  className="block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
                   {...(productKey === "sellPrice" ||
                   productKey === "stock" ||
                   productKey === "buyPrice"
@@ -81,9 +80,16 @@ const ProductModal: React.FC<ProductModalProps> = (_props) => {
             );
           })}
 
-          <label key={"category"} className="block">
+          <label
+            key={"category"}
+            className="mb-2 block font-medium text-gray-900"
+          >
             Category
-            <select {...register("categoryId", { required: true })}>
+            <select
+              {...register("categoryId", { required: true })}
+              className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500
+              "
+            >
               {categoryQuery.data !== undefined
                 ? categoryQuery.data.map((category) => {
                     return (
@@ -91,6 +97,7 @@ const ProductModal: React.FC<ProductModalProps> = (_props) => {
                         label={category.name}
                         value={category.id}
                         key={category.id}
+                        className="text-black focus:bg-red-500"
                       />
                     );
                   })
@@ -108,6 +115,7 @@ const ProductModal: React.FC<ProductModalProps> = (_props) => {
             disabled={productsMut.isLoading || categoryQuery.isLoading}
             type="submit"
             className="m-3 h-fit w-fit cursor-pointer rounded-lg bg-green-700 p-3 text-white"
+            value={"Add"}
           />
         </form>
       }

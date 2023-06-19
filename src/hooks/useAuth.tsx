@@ -48,7 +48,9 @@ export function useAuth({
       }
     };
     if (!hasWindow) return;
-    void f();
+    f().catch((e) => {
+      throw e;
+    });
   }, [hasWindow, router, noExistRedirectTo, redirectAfterSet, token]);
 
   return {

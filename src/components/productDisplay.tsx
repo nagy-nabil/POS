@@ -104,7 +104,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
           />
           <label
             htmlFor="library"
-            className="flex w-full cursor-pointer justify-center rounded-3xl  p-3 text-gray-500 peer-checked:bg-white peer-checked:font-bold peer-checked:text-black peer-checked:shadow-lg"
+            className="flex w-full cursor-pointer justify-center rounded-3xl  p-2 text-gray-500 peer-checked:bg-white peer-checked:font-bold peer-checked:text-black peer-checked:shadow-lg"
           >
             Library
           </label>
@@ -125,7 +125,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
           />
           <label
             htmlFor="keypad"
-            className="flex w-full cursor-pointer justify-center rounded-3xl  p-3  text-gray-500 peer-checked:bg-white peer-checked:font-bold peer-checked:text-black peer-checked:shadow-lg"
+            className="flex w-full cursor-pointer justify-center rounded-3xl  p-2  text-gray-500 peer-checked:bg-white peer-checked:font-bold peer-checked:text-black peer-checked:shadow-lg"
           >
             Keypad
           </label>

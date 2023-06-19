@@ -1,19 +1,12 @@
-import type {
-  GetServerSidePropsContext,
-  GetStaticPropsContext,
-  NextPage,
-} from "next";
-import { useRouter } from "next/router";
+import type { GetStaticPropsContext, NextPage } from "next";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useQueryClient } from "@tanstack/react-query";
 import { type z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useRef, useState } from "react";
-import CustomModal from "@/components/modal";
+import { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import CrateModal, { type CrateProps } from "@/components/modal/crateModal";
 // import { prisma } from "@/server/db";
-import { type Product, type Category } from "@prisma/client";
 import { api } from "@/utils/api";
 import { categorySchema, productSchema } from "@/types/entities";
 import QrCode from "@/components/qrcode";
