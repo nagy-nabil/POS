@@ -20,7 +20,8 @@ import QrCode from "@/components/qrcode";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
 import { useAuth } from "@/hooks/useAuth";
-import { RiAddCircleLine, RiSearch2Line } from "react-icons/ri";
+import { RiSearch2Line } from "react-icons/ri";
+import { BsQrCodeScan } from "react-icons/bs";
 import InputWithIcon from "@/components/form/inputWithIcon";
 import CategoryDisplay from "@/components/categoryDisplay";
 import ProductDisplay from "@/components/productDisplay";
@@ -103,7 +104,7 @@ const Home: NextPage = () => {
             placeHolder="Search"
           />
           <ProductModal operationType="post" />
-          {/* TODO where to add category */}
+          {/* TODO where to add category => move category mangment in different page*/}
           {/* <button
             onClick={openCategoryModal}
             className="h-fit w-fit bg-green-400 p-3 text-3xl"
@@ -111,16 +112,20 @@ const Home: NextPage = () => {
             category
           </button> */}
         </header>
+        <main>
+          <CategoryDisplay setCategoryFilter={setCategoryFilter} />
+          <ProductDisplay
+            setOnCrate={setOnCrate}
+            categoryFilter={categoryFilter}
+            displayType="keypad"
+          />
+        </main>
 
-        <CategoryDisplay setCategoryFilter={setCategoryFilter} />
-        <ProductDisplay
-          setOnCrate={setOnCrate}
-          categoryFilter={categoryFilter}
-          displayType="keypad"
-        />
-
-        {/* add or update product modal */}
-        <CrateModal onCrate={onCrate} setOnCrate={setOnCrate} />
+        <footer className="fixed bottom-4 left-4 flex w-11/12 justify-between align-middle">
+          <CrateModal onCrate={onCrate} setOnCrate={setOnCrate} />
+          {/* TODO */}
+          <BsQrCodeScan className="h-fit w-fit rounded-full bg-black p-2 text-3xl text-white" />
+        </footer>
       </div>
       {/* <QrCode
         fps={20}

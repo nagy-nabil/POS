@@ -3,6 +3,7 @@ import { api } from "@/utils/api";
 import { type Product } from "@prisma/client";
 import { RiAddCircleLine } from "react-icons/ri";
 import { type CrateItem } from "@/components/modal/crateModal";
+import { useAuth } from "@/hooks/useAuth";
 
 type ProductProps = Pick<
   Product,
@@ -64,11 +65,19 @@ export type ProductDisplayProps = {
 
 // main component
 const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
+  const { setToken } = useAuth({ redirectAfterSet: "/signin" });
   const [displayType, setDisplayType] = useState<
     ProductDisplayProps["displayType"]
   >(props.displayType);
   const productsQuery = api.products.getMany.useQuery(undefined, {
     staleTime: 1000 * 50 * 60,
+    retry(_failureCount, error) {
+      if (error.data?.code === "UNAUTHORIZED") {
+        setToken("");
+        return false;
+      }
+      return true;
+    },
   });
 
   if (productsQuery.isLoading) return <p>loading ...</p>;

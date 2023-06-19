@@ -5,6 +5,7 @@ export type CustomModalProps = {
   modalChildren: React.ReactNode;
   buttonChildren: React.ReactNode;
   buttonAttrs: React.HTMLAttributes<HTMLButtonElement>;
+  dialogAttrs: React.HTMLAttributes<HTMLDialogElement>;
 };
 
 const CustomModal: React.FC<CustomModalProps> = (props) => {
@@ -29,6 +30,7 @@ const CustomModal: React.FC<CustomModalProps> = (props) => {
       <dialog
         ref={dialogRef}
         className="w-11/12 rounded-xl bg-gray-100 shadow-2xl md:w-2/5 "
+        {...props.dialogAttrs}
       >
         <button onClick={closeModal}>
           <RiCloseLine className="text-3xl " />

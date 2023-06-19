@@ -41,6 +41,7 @@ const ProductModal: React.FC<ProductModalProps> = (_props) => {
   return (
     <CustomModal
       buttonAttrs={{ className: "mt-2" }}
+      dialogAttrs={{}}
       buttonChildren={<RiAddCircleLine className="h-fit w-fit p-3 text-3xl" />}
       modalChildren={
         <form

@@ -7,9 +7,15 @@ const TOKENKEY = "token";
 
 // function setLocalKey(key: string, value: string) {}
 
+/**
+ * control storage for `auth`, you can check is the user signed or not from here, and can change the stored token,
+ * * Note -> by setting token to empty string (`""`) the token will be removed,
+ * * also you can specifiy a url to direct the user to after set the token or if no token
+ * @returns
+ */
 export function useAuth({
-  noExistRedirectTo: redirectTo,
-  redirectAfterSet: redirectIfExist,
+  noExistRedirectTo,
+  redirectAfterSet,
 }: {
   noExistRedirectTo?: string;
   redirectAfterSet?: string;
@@ -28,8 +34,8 @@ export function useAuth({
       sessionStorage.setItem(TOKENKEY, value);
       setToken(token);
     }
-    if (redirectIfExist) {
-      await router.push(redirectIfExist);
+    if (redirectAfterSet) {
+      await router.push(redirectAfterSet);
     }
   }
 
@@ -37,16 +43,17 @@ export function useAuth({
     const f = async () => {
       const token = getSessionValue(TOKENKEY);
       setToken(token);
-      if (token === null && redirectTo) {
-        await router.push(redirectTo);
+      if (token === null && noExistRedirectTo) {
+        await router.push(noExistRedirectTo);
       }
     };
     if (!hasWindow) return;
     void f();
-  }, [hasWindow, router, redirectTo, redirectIfExist, token]);
+  }, [hasWindow, router, noExistRedirectTo, redirectAfterSet, token]);
 
   return {
     token,
+    isSignedIn: token !== null,
     setToken: setSessionKey,
   };
 }

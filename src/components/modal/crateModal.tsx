@@ -1,8 +1,11 @@
-import React, { useState, type Dispatch, type SetStateAction } from "react";
+import React, { type Dispatch, type SetStateAction } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { api } from "@/utils/api";
 import { FaShoppingBag } from "react-icons/fa";
 import CustomModal from ".";
+import { RiAddLine } from "react-icons/ri";
+import { AiOutlineMinus } from "react-icons/ai";
+import { MdRemoveShoppingCart } from "react-icons/md";
 
 export type CrateItem = {
   id: string;
@@ -25,54 +28,61 @@ const CrateItem: React.FC<
   return (
     <>
       <div key={props.id} className="flex gap-1">
-        <span className="">{props.name}</span>
-        <span className="text-gray-500">Quantity: {props.quantity}</span>
-        <span className="text-green-600">
-          price: {props.sellPrice}$ - {price}$
-        </span>
-        <button
-          className="h-fit w-fit rounded-lg bg-yellow-300 p-3"
-          onClick={() => {
-            props.setOnCrate((prev) => {
-              const temp = prev.find((temp) => temp.id === props.id);
-              if (temp !== undefined) {
-                temp.quantity--;
-              } else {
-                return [...prev];
-              }
-              return [...prev.filter((temp) => temp.id !== props.id), temp];
-            });
-          }}
-        >
-          -
-        </button>
-        <button
-          className="h-fit w-fit rounded-lg bg-green-300 p-3"
-          onClick={() => {
-            props.setOnCrate((prev) => {
-              const temp = prev.find((temp) => temp.id === props.id);
-              if (temp !== undefined) {
-                temp.quantity++;
-              } else {
-                return [...prev];
-              }
-              return [...prev.filter((temp) => temp.id !== props.id), temp];
-            });
-          }}
-        >
-          +
-        </button>
-        <button
-          className="h-fit w-fit rounded-lg bg-red-300 p-3"
-          onClick={() => {
-            props.setOnCrate((prev) => {
-              return [...prev.filter((temp) => temp.id !== props.id)];
-            });
-          }}
-        >
-          X
-        </button>
+        {/* meta data */}
+        <div>
+          <h3 className="text-xl">{props.name}</h3>
+          <p className="ml-2 text-gray-500">Quantity: {props.quantity}</p>
+          <p className="ml-2 text-green-600">
+            price: {props.sellPrice}$ - {price}$
+          </p>
+        </div>
+        {/* utils */}
+        <div className="ml-auto flex items-center gap-1">
+          <button
+            className="h-fit w-fit rounded-lg bg-red-300 p-1"
+            onClick={() => {
+              props.setOnCrate((prev) => {
+                return [...prev.filter((temp) => temp.id !== props.id)];
+              });
+            }}
+          >
+            <MdRemoveShoppingCart />
+          </button>
+          <button
+            className="h-fit w-fit rounded-lg bg-yellow-300 p-1"
+            onClick={() => {
+              props.setOnCrate((prev) => {
+                const temp = prev.find((temp) => temp.id === props.id);
+                if (temp !== undefined) {
+                  temp.quantity--;
+                } else {
+                  return [...prev];
+                }
+                return [...prev.filter((temp) => temp.id !== props.id), temp];
+              });
+            }}
+          >
+            <AiOutlineMinus />
+          </button>
+          <button
+            className="h-fit w-fit rounded-lg bg-green-300 p-1"
+            onClick={() => {
+              props.setOnCrate((prev) => {
+                const temp = prev.find((temp) => temp.id === props.id);
+                if (temp !== undefined) {
+                  temp.quantity++;
+                } else {
+                  return [...prev];
+                }
+                return [...prev.filter((temp) => temp.id !== props.id), temp];
+              });
+            }}
+          >
+            <RiAddLine />
+          </button>
+        </div>
       </div>
+      <hr className="m-2 " />
     </>
   );
 };
@@ -87,6 +97,7 @@ const CrateModal: React.FC<CrateProps> = (props) => {
   // const [total, setTotal] = useState(0);
   const queryClient = useQueryClient();
   const orderMut = api.orders.insertOne.useMutation();
+
   return (
     <CustomModal
       key="crateModal"
@@ -100,51 +111,57 @@ const CrateModal: React.FC<CrateProps> = (props) => {
       }
       buttonAttrs={{
         className:
-          "fixed bottom-4 left-4 flex h-fit w-11/12 justify-between rounded-3xl bg-black p-3 text-white",
+          "flex h-fit w-11/12 justify-between rounded-3xl bg-black p-3 text-white",
       }}
+      dialogAttrs={{}}
       modalChildren={
-        <>
+        <div className="flex flex-col">
+          {/* render crate items */}
           {props.onCrate.map((val) => {
             return (
               <CrateItem key={val.id} {...val} setOnCrate={props.setOnCrate} />
             );
           })}
 
-          <span className="text-2xl text-green-700">Total: {calcTotal()}$</span>
+          <footer className="flex items-center justify-between">
+            <span className="text-xl text-green-700">
+              Total: {calcTotal()}$
+            </span>
 
-          <button
-            disabled={orderMut.isLoading}
-            className="my-3 h-fit w-fit rounded-xl bg-green-500 p-4 text-white"
-            onClick={() => {
-              orderMut.mutate(
-                {
-                  products: props.onCrate.map((product) => ({
-                    id: product.id,
-                    quantity: product.quantity,
-                  })),
-                },
-                {
-                  onSuccess: () => {
-                    queryClient
-                      .invalidateQueries([
-                        ["orders", "getMany"],
-                        { type: "query" },
-                      ])
-                      .catch((e) => {
-                        console.log(
-                          "🪵 [crate.tsx:102] ~ token ~ \x1b[0;32me\x1b[0m = ",
-                          e
-                        );
-                      });
+            <button
+              disabled={orderMut.isLoading}
+              className=" h-fit w-fit rounded-3xl bg-green-500 p-2 text-white"
+              onClick={() => {
+                orderMut.mutate(
+                  {
+                    products: props.onCrate.map((product) => ({
+                      id: product.id,
+                      quantity: product.quantity,
+                    })),
                   },
-                }
-              );
-              props.setOnCrate([]);
-            }}
-          >
-            CheckOut
-          </button>
-        </>
+                  {
+                    onSuccess: () => {
+                      queryClient
+                        .invalidateQueries([
+                          ["orders", "getMany"],
+                          { type: "query" },
+                        ])
+                        .catch((e) => {
+                          console.log(
+                            "🪵 [crate.tsx:102] ~ token ~ \x1b[0;32me\x1b[0m = ",
+                            e
+                          );
+                        });
+                    },
+                  }
+                );
+                props.setOnCrate([]);
+              }}
+            >
+              CheckOut
+            </button>
+          </footer>
+        </div>
       }
     />
   );
