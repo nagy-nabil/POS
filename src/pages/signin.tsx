@@ -1,66 +1,90 @@
+import { type SubmitHandler, useForm } from "react-hook-form";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import type { NextPage } from "next";
 import { api } from "@/utils/api";
 import { useState } from "react";
 import { loginSchema } from "@/types/entities";
 import { useAuth } from "@/hooks/useAuth";
+import { type z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+type LoginT = z.infer<typeof loginSchema>;
+
+// const loginKeys = loginSchema.keyof().options;
 
 const Anal: NextPage = () => {
   const { setToken } = useAuth({ redirectAfterSet: "/" });
   const [errors, setErrors] = useState("");
   const userMut = api.users.signIn.useMutation();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors: formErrors },
+  } = useForm<LoginT>({ resolver: zodResolver(loginSchema) });
+  const onSubmit: SubmitHandler<LoginT> = (data) => {
+    userMut.mutate(data, {
+      onError(error) {
+        setErrors(error.message);
+      },
+      async onSuccess(token) {
+        await setToken(token);
+      },
+    });
+  };
+
   return (
-    <div className="flex h-screen w-full flex-col content-between justify-items-center p-12 align-middle dark:bg-gray-800 dark:text-slate-300">
-      <h1 className="text-center text-4xl font-bold ">Zagy POS</h1>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          // Read the form data
-          const form = e.target as HTMLFormElement;
-          const formData = new FormData(form);
-          // Or you can work with it as a plain object:
-          const formJson = Object.fromEntries(formData.entries());
-          const parsed = loginSchema.safeParse(formJson);
-          if (parsed.success) {
-            userMut.mutate(parsed.data, {
-              onError(error) {
-                setErrors(error.message);
-              },
-              async onSuccess(token) {
-                await setToken(token);
-              },
-            });
-          } else {
-            setErrors(parsed.error.message);
-          }
-        }}
-      >
+    <div className="flex h-screen w-full flex-col items-center justify-center p-12">
+      <h1 className="m-3 text-center text-6xl font-bold">Zagy</h1>
+      <p className="mb-5 text-gray-500">
+        Do your business <b>Right</b>
+      </p>
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
         <label htmlFor="userName" className="text-lg">
-          UserName
           <input
-            name="userName"
+            placeholder="User Name"
             type="text"
-            className="border bg-gray-100 p-2 text-lg text-opacity-80"
+            className="block w-full rounded-2xl border-2 border-gray-300 p-2  text-lg text-gray-900 focus:border-blue-500 focus:ring-blue-500 "
+            {...register("userName")}
           />
+          {formErrors["userName"] && (
+            <span className="m-2 text-red-700">
+              {formErrors["userName"].message}
+            </span>
+          )}
         </label>
 
         <label htmlFor="password" className="text-lg">
-          password
           <input
-            name="password"
+            placeholder="Password"
             type="password"
-            className="border bg-gray-100 p-2 text-lg text-opacity-80"
+            className="block w-full rounded-2xl border-2 border-gray-300 p-2  text-lg text-gray-900 focus:border-blue-500 focus:ring-blue-500 "
+            {...register("password")}
           />
+          {formErrors["password"] && (
+            <span className="m-2 text-red-700">
+              {formErrors["password"].message}
+            </span>
+          )}
         </label>
 
-        <button
+        <input
+          disabled={userMut.isLoading}
           type="submit"
-          className=" m-4 mx-auto w-2/5 bg-slate-500 p-2 text-lg text-cyan-50"
-        >
-          Sign In
-        </button>
+          className="m-4 mx-auto w-fit rounded-2xl bg-black p-3 text-lg text-cyan-50"
+          value={"Sign In"}
+        />
         <p className="text-red-500">{errors}</p>
       </form>
+      <p className="text-gray-500">
+        Not yet publicly available{" "}
+        <b>
+          Check the demo and Request access from here:
+          <a className="text-blue-300 underline" href="https://zagy.tech">
+            {" "}
+            zagy.tech
+          </a>
+        </b>
+      </p>
       <ReactQueryDevtools initialIsOpen={false} />
     </div>
   );
