@@ -73,7 +73,9 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
     staleTime: 1000 * 50 * 60,
     retry(_failureCount, error) {
       if (error.data?.code === "UNAUTHORIZED") {
-        setToken("");
+        setToken("").catch((e) => {
+          throw e;
+        });
         return false;
       }
       return true;
