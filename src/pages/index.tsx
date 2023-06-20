@@ -13,6 +13,7 @@ import InputWithIcon from "@/components/form/inputWithIcon";
 import CategoryDisplay from "@/components/categoryDisplay";
 import ProductDisplay from "@/components/productDisplay";
 import ProductModal from "@/components/modal/productModal";
+import QrModal from "@/components/modal/qrModal";
 
 //! re-enable server-side rendereing after you discover how to work with it and reactQuery together
 // export async function getServerSideProps() {
@@ -59,23 +60,15 @@ const Home: NextPage = () => {
           <ProductDisplay
             setOnCrate={setOnCrate}
             categoryFilter={categoryFilter}
-            displayType="keypad"
+            displayType="library"
           />
         </main>
 
-        <footer className="fixed bottom-4 left-4 flex w-11/12 justify-between align-middle">
+        <footer className="fixed bottom-4 left-4 flex w-11/12 items-center justify-between">
           <CrateModal onCrate={onCrate} setOnCrate={setOnCrate} />
-          {/* TODO */}
-          <BsQrCodeScan className="h-fit w-fit rounded-full bg-black p-2 text-3xl text-white" />
+          <QrModal setOnCrate={setOnCrate} key="qrModal" />
         </footer>
       </div>
-      {/* <QrCode
-        fps={20}
-        qrcodeSuccessCallback={(decodedText, decodedResult) => {
-          console.log(`Code matched = ${decodedText}`, decodedResult);
-          alert(`Code matched = ${decodedText},`);
-        }}
-      /> */}
       {/* <ReactQueryDevtools initialIsOpen={false} /> */}
     </>
   );

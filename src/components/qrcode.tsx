@@ -3,40 +3,43 @@ import {
   type Html5QrcodeCameraScanConfig,
   type Html5QrcodeFullConfig,
   type QrcodeErrorCallback,
-  type QrcodeSuccessCallback,
+  type Html5QrcodeResult,
 } from "html5-qrcode";
 import { useEffect } from "react";
 
-const qrcodeRegionId = "html5qr-code-full-region";
-
 const QrCode: React.FC<
   {
-    qrcodeSuccessCallback: QrcodeSuccessCallback;
+    qrcodeSuccessCallback: (
+      decodedText: string,
+      result: Html5QrcodeResult,
+      scanner: Html5QrcodeScanner
+    ) => void;
     qrcodeErrorCallback?: QrcodeErrorCallback;
     fps: number | undefined;
+    qrId: string;
   } & Partial<Html5QrcodeCameraScanConfig & Html5QrcodeFullConfig>
 > = (props) => {
   useEffect(() => {
     const verbose = props.verbose === true;
     const html5QrcodeScanner = new Html5QrcodeScanner(
-      qrcodeRegionId,
+      props.qrId,
       { rememberLastUsedCamera: false, ...props },
       verbose
     );
-    html5QrcodeScanner.render(
-      props.qrcodeSuccessCallback,
-      props.qrcodeErrorCallback
-    );
+    html5QrcodeScanner.render((text, decode) => {
+      props.qrcodeSuccessCallback(text, decode, html5QrcodeScanner);
+    }, props.qrcodeErrorCallback);
 
     // cleanup function when component will unmount
     return () => {
+      console.log("unmount");
       html5QrcodeScanner.clear().catch((error) => {
         console.error("Failed to clear html5QrcodeScanner. ", error);
       });
     };
-  }, [props]);
+  }, []);
 
-  return <div id={qrcodeRegionId} />;
+  return <div id={props.qrId} />;
 };
 
 export default QrCode;

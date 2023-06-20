@@ -11,18 +11,17 @@ export const categorySchema = z.object({
 });
 
 export const productSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(3),
   image: z.string().url(),
   stock: z.number().gte(0),
   buyPrice: z.number().gt(0),
   sellPrice: z.number().gt(0),
-  name: z.string(),
-  categoryId: z.string(),
+  categoryId: z.string().nonempty(),
 });
 
 export const orderSchema = z.object({
-  products: z
-    .array(z.object({ id: z.string(), quantity: z.number() }))
-    .nonempty(),
+  products: z.array(z.object({ id: z.string(), quantity: z.number() })),
 });
 
 export const loginSchema = z.object({

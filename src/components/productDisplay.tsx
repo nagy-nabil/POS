@@ -10,12 +10,13 @@ type ProductProps = Pick<
   "sellPrice" | "id" | "image" | "name" | "stock"
 > & {
   onClick: React.MouseEventHandler<HTMLButtonElement>;
+  width: "w-2/5" | "w-2/3" | "w-3/4";
 };
 
 export const KeypadDisplay: React.FC<ProductProps> = (props) => {
   return (
     <div
-      className="m-3 flex h-fit w-2/5 flex-col gap-1 md:w-1/5"
+      className={`${props.width} m-3 flex h-fit flex-col gap-1 md:w-1/5`}
       key={props.id}
     >
       <img alt="item-card" src={props.image} className="h-24 w-full" />
@@ -169,6 +170,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
               name: product.name,
               sellPrice: product.sellPrice,
               stock: product.stock,
+              width: "w-2/5",
             };
 
             return displayType === "keypad" ? (
