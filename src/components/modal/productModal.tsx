@@ -8,6 +8,7 @@ import { api } from "@/utils/api";
 import { type z } from "zod";
 import { productSchema } from "@/types/entities";
 import { type Product } from "@prisma/client";
+import { CgSpinner } from "react-icons/cg";
 
 export type ProductT = z.infer<typeof productSchema>;
 const productKeys = productSchema.keyof().options;
@@ -111,12 +112,18 @@ const ProductModal: React.FC<ProductModalProps> = (_props) => {
             )}
           </label>
 
-          <input
+          <button
             disabled={productsMut.isLoading || categoryQuery.isLoading}
             type="submit"
             className="m-3 h-fit w-fit cursor-pointer rounded-lg bg-green-700 p-3 text-white"
             value={"Add"}
-          />
+          >
+            {productsMut.isLoading ? (
+              <CgSpinner className="animate-spin text-2xl" />
+            ) : (
+              "Add"
+            )}
+          </button>
         </form>
       }
     />

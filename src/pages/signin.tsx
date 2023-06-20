@@ -7,6 +7,7 @@ import { loginSchema } from "@/types/entities";
 import { useAuth } from "@/hooks/useAuth";
 import { type z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { CgSpinner } from "react-icons/cg";
 
 type LoginT = z.infer<typeof loginSchema>;
 
@@ -52,7 +53,6 @@ const Anal: NextPage = () => {
             </span>
           )}
         </label>
-
         <label htmlFor="password" className="text-lg">
           <input
             placeholder="Password"
@@ -66,13 +66,18 @@ const Anal: NextPage = () => {
             </span>
           )}
         </label>
-
-        <input
+        <button
           disabled={userMut.isLoading}
           type="submit"
           className="m-4 mx-auto w-fit rounded-2xl bg-black p-3 text-lg text-cyan-50"
           value={"Sign In"}
-        />
+        >
+          {userMut.isLoading ? (
+            <CgSpinner className="animate-spin text-2xl" />
+          ) : (
+            "Sign In"
+          )}
+        </button>
         <p className="text-red-500">{errors}</p>
       </form>
       <p className="text-gray-500">

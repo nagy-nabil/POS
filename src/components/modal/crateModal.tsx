@@ -1,3 +1,4 @@
+import { CgSpinner } from "react-icons/cg";
 import React, { type Dispatch, type SetStateAction } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { api } from "@/utils/api";
@@ -110,6 +111,7 @@ const CrateModal: React.FC<CrateProps> = (props) => {
         </>
       }
       buttonAttrs={{
+        disabled: props.onCrate.length === 0,
         className:
           "flex h-fit w-11/12 justify-between rounded-3xl bg-black p-3 text-white",
       }}
@@ -158,7 +160,11 @@ const CrateModal: React.FC<CrateProps> = (props) => {
                 props.setOnCrate([]);
               }}
             >
-              CheckOut
+              {orderMut.isLoading ? (
+                <CgSpinner className="animate-spin text-2xl" />
+              ) : (
+                "Check Out"
+              )}
             </button>
           </footer>
         </div>

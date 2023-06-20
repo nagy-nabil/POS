@@ -4,7 +4,8 @@ import { RiCloseLine } from "react-icons/ri";
 export type CustomModalProps = {
   modalChildren: React.ReactNode;
   buttonChildren: React.ReactNode;
-  buttonAttrs: React.HTMLAttributes<HTMLButtonElement>;
+  buttonAttrs: React.HTMLAttributes<HTMLButtonElement> &
+    React.ButtonHTMLAttributes<HTMLButtonElement>;
   dialogAttrs: React.HTMLAttributes<HTMLDialogElement>;
 };
 
