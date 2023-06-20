@@ -1,15 +1,11 @@
 import z from "zod";
 import { PrismaClient } from "@prisma/client";
-import {
-  createTRPCRouter,
-  publicProcedure,
-  protectedProcedure,
-} from "@/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { orderSchema } from "@/types/entities";
 import { TRPCError } from "@trpc/server";
 
 export const ordersRouter = createTRPCRouter({
-  insertOne: publicProcedure
+  insertOne: protectedProcedure
     .input(orderSchema)
     .mutation(async ({ ctx, input }) => {
       // for the interactive transaction, need new client
@@ -57,7 +53,7 @@ export const ordersRouter = createTRPCRouter({
 
         const order = await ctx.prisma.order.create({
           data: {
-            createdById: input.createdById,
+            createdById: ctx.payload.id,
             products: {
               create: createCluse,
             },
@@ -84,7 +80,7 @@ export const ordersRouter = createTRPCRouter({
     }),
 
   // input is the id, need some better representation
-  getOne: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+  getOne: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
     return await ctx.prisma.order.findFirst({
       where: {
         id: input,

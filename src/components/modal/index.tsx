@@ -1,37 +1,44 @@
-import Modal, { type Props, type Styles } from "react-modal";
-import merge from "lodash/merge";
-import { useMemo } from "react";
-Modal.setAppElement("#__next");
+import React, { useRef } from "react";
+import { RiCloseLine } from "react-icons/ri";
 
-const customStyles: Styles = {
-  content: {
-    top: "50%",
-    left: "50%",
-    right: "auto",
-    bottom: "auto",
-    marginRight: "-50%",
-    transform: "translate(-50%, -50%)",
-    padding: "0",
-    border: "none",
-    // backgroundColor: "transparent",
-    minWidth: "30%",
-    minHeight: "60%",
-  },
-  overlay: {
-    backgroundColor: "rgba(0, 7, 24, 0.6)",
-  },
+export type CustomModalProps = {
+  modalChildren: React.ReactNode;
+  buttonChildren: React.ReactNode;
+  buttonAttrs: React.HTMLAttributes<HTMLButtonElement> &
+    React.ButtonHTMLAttributes<HTMLButtonElement>;
+  dialogAttrs: React.HTMLAttributes<HTMLDialogElement>;
 };
 
-const CustomModal: React.FC<Props> = (props) => {
-  const { children, style, ...rest } = props;
-  //   if (style === undefined) {
-  //     throw new Error("no style how baby");
-  //   }
-  const myStyles = useMemo(() => merge(customStyles, style), [style]);
+const CustomModal: React.FC<CustomModalProps> = (props) => {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+
+  // control modal
+  function openModal() {
+    if (dialogRef.current === null) return;
+    dialogRef.current.showModal();
+  }
+
+  function closeModal() {
+    if (dialogRef.current === null) return;
+    dialogRef.current.close();
+  }
+
   return (
-    <Modal {...rest} style={myStyles}>
-      {children}
-    </Modal>
+    <>
+      <button onClick={openModal} {...props.buttonAttrs}>
+        {props.buttonChildren}
+      </button>
+      <dialog
+        ref={dialogRef}
+        className="w-11/12 rounded-xl bg-gray-100 shadow-2xl md:w-2/5 "
+        {...props.dialogAttrs}
+      >
+        <button onClick={closeModal}>
+          <RiCloseLine className="text-3xl " />
+        </button>
+        {props.modalChildren}
+      </dialog>
+    </>
   );
 };
 export default CustomModal;

@@ -1,31 +1,31 @@
 import z from "zod";
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { categorySchema } from "@/types/entities";
 
 export const categoriesRouter = createTRPCRouter({
-  insertOne: publicProcedure
+  insertOne: protectedProcedure
     .input(categorySchema)
     .mutation(async ({ ctx, input }) => {
       const category = await ctx.prisma.category.create({
         data: {
           image: input.image,
           name: input.name,
-          createdById: input.createdById,
+          createdById: ctx.payload.id,
         },
       });
       return category;
     }),
 
   // input is the id, need some better representation
-  getOne: publicProcedure.input(z.string()).query(({ ctx, input }) => {
-    return ctx.prisma.category.findFirst({
+  getOne: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
+    return await ctx.prisma.category.findFirst({
       where: {
         id: input,
       },
     });
   }),
 
-  getMany: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.category.findMany();
+  getMany: protectedProcedure.query(async ({ ctx }) => {
+    return await ctx.prisma.category.findMany();
   }),
 });

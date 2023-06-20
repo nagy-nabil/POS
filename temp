@@ -1,0 +1,41 @@
+<CustomModal dialogRef={categoryDialog}>
+  {/* <button
+            onClick={closeCategoryModal}
+            className="h-fit w-fit bg-red-700 p-4"
+          >
+            close
+          </button> */}
+  <h1>Category</h1>
+  {/* /* "handleSubmit" will validate your inputs before invoking "onSubmit" */}
+  <form
+    // eslint-disable-next-line
+    onSubmit={categoryHandleSubmit(categoryOnSubmit, (err) => {
+      console.log("🪵 [index.tsx:138] ~ token ~ \x1b[0;32me\x1b[0m = ", err);
+    })}
+  >
+    {categoryKeys.map((categoryKey, i) => {
+      return (
+        <label key={i} className="block">
+          {categoryKey}
+          <input
+            className="block w-full rounded-lg p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+            {...categoryReg(categoryKey, { required: true })}
+          />
+          {/* errors will return when field validation fails  */}
+          {categoryErrors[categoryKey] && (
+            <span className="m-2 text-red-700">
+              {/* @ts-ignore */}
+              {errors[categoryKey].message}
+            </span>
+          )}
+        </label>
+      );
+    })}
+
+    <input
+      disabled={categoryMut.isLoading}
+      type="submit"
+      className="m-3 h-fit w-fit cursor-pointer rounded-lg bg-green-700 p-3 text-white"
+    />
+  </form>
+</CustomModal>;
