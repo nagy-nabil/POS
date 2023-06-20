@@ -14,22 +14,27 @@ export type ProductT = z.infer<typeof productSchema>;
 const productKeys = productSchema.keyof().options;
 export type ProductModalProps = {
   operationType: "post" | "put";
+  defaultValues: Partial<ProductT>;
 };
 
-const ProductModal: React.FC<ProductModalProps> = (_props) => {
+const ProductModal: React.FC<ProductModalProps> = (props) => {
   const categoryQuery = api.categories.getMany.useQuery(undefined, {
     staleTime: 1000 * 50 * 60,
   });
-  const productsMut = api.products.insertOne.useMutation();
+  const productInsert = api.products.insertOne.useMutation();
+  const productUpdate = api.products.updateOne.useMutation();
   const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ProductT>({ resolver: zodResolver(productSchema) });
+  } = useForm<ProductT>({
+    resolver: zodResolver(productSchema),
+    defaultValues: props.defaultValues,
+  });
 
   const onSubmit: SubmitHandler<ProductT> = (data) => {
-    productsMut.mutate(data, {
+    productInsert.mutate(data, {
       onSuccess: (data) => {
         queryClient.setQueryData(
           [["products", "getMany"], { type: "query" }],
@@ -113,12 +118,12 @@ const ProductModal: React.FC<ProductModalProps> = (_props) => {
           </label>
 
           <button
-            disabled={productsMut.isLoading || categoryQuery.isLoading}
+            disabled={productInsert.isLoading || categoryQuery.isLoading}
             type="submit"
             className="m-3 h-fit w-fit cursor-pointer rounded-lg bg-green-700 p-3 text-white"
             value={"Add"}
           >
-            {productsMut.isLoading ? (
+            {productInsert.isLoading ? (
               <CgSpinner className="animate-spin text-2xl" />
             ) : (
               "Add"

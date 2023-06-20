@@ -6,7 +6,7 @@ export const payloadSchema = z.object({
 });
 
 export const categorySchema = z.object({
-  name: z.string(),
+  name: z.string().min(3),
   image: z.string().url(),
 });
 

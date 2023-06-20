@@ -1,14 +1,8 @@
 import type { GetStaticPropsContext, NextPage } from "next";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { useQueryClient } from "@tanstack/react-query";
-import { type z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { type SubmitHandler, useForm } from "react-hook-form";
 import CrateModal, { type CrateProps } from "@/components/modal/crateModal";
 // import { prisma } from "@/server/db";
-import { api } from "@/utils/api";
-import { categorySchema, productSchema } from "@/types/entities";
 import QrCode from "@/components/qrcode";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
@@ -41,51 +35,13 @@ export async function getStaticProps({ locale }: GetStaticPropsContext) {
   };
 }
 
-type CategoryT = z.infer<typeof categorySchema>;
-
-const categoryKeys = categorySchema.keyof().options;
-
 const Home: NextPage = () => {
   const { token } = useAuth({ noExistRedirectTo: "/signin" });
   const { t } = useTranslation();
   const [categoryFilter, setCategoryFilter] = useState("");
   const [onCrate, setOnCrate] = useState<CrateProps["onCrate"]>([]);
 
-  // react form hook
-  const {
-    register: categoryReg,
-    handleSubmit: categoryHandleSubmit,
-    formState: { errors: categoryErrors },
-  } = useForm<CategoryT>({ resolver: zodResolver(categorySchema) });
-
-  // react query/TRPC
-  const categoryMut = api.categories.insertOne.useMutation();
-  const queryClient = useQueryClient();
-
   if (!token) return <p>loading token...</p>;
-
-  // function openCategoryModal() {
-  //   if (categoryDialog.current === null) return;
-  //   categoryDialog.current.showModal();
-  // }
-
-  // function closeCategoryModal() {
-  //   if (categoryDialog.current === null) return;
-  //   categoryDialog.current.close();
-  // }
-
-  // submit handlers
-  // const categoryOnSubmit: SubmitHandler<CategoryT> = (data) => {
-  //   categoryMut.mutate(data, {
-  //     onSuccess: (data) => {
-  //       queryClient.setQueryData(
-  //         [["categories", "getMany"], { type: "query" }],
-  //         (prev) => [...(prev as Category[]), data]
-  //       );
-  //       closeCategoryModal();
-  //     },
-  //   });
-  // };
 
   return (
     <>
@@ -96,14 +52,7 @@ const Home: NextPage = () => {
             inputName="searchProduct"
             placeHolder="Search"
           />
-          <ProductModal operationType="post" />
-          {/* TODO where to add category => move category mangment in different page*/}
-          {/* <button
-            onClick={openCategoryModal}
-            className="h-fit w-fit bg-green-400 p-3 text-3xl"
-          >
-            category
-          </button> */}
+          <ProductModal operationType="post" defaultValues={{}} />
         </header>
         <main>
           <CategoryDisplay setCategoryFilter={setCategoryFilter} />
