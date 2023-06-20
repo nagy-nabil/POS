@@ -60,7 +60,7 @@ const Home: NextPage = () => {
           <ProductDisplay
             setOnCrate={setOnCrate}
             categoryFilter={categoryFilter}
-            displayType="keypad"
+            displayType="library"
           />
         </main>
 

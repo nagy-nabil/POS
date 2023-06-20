@@ -8,11 +8,7 @@ export const productsRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const product = await ctx.prisma.product.create({
         data: {
-          image: input.image,
-          name: input.name,
-          buyPrice: input.buyPrice,
-          sellPrice: input.sellPrice,
-          stock: input.stock,
+          ...input,
           createdById: ctx.payload.id,
           categoryId: input.categoryId,
         },
