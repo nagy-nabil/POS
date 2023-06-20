@@ -7,8 +7,6 @@ import {
 } from "html5-qrcode";
 import { useEffect } from "react";
 
-const qrcodeRegionId = "html5qr-code-full-region";
-
 const QrCode: React.FC<
   {
     qrcodeSuccessCallback: (
@@ -18,12 +16,13 @@ const QrCode: React.FC<
     ) => void;
     qrcodeErrorCallback?: QrcodeErrorCallback;
     fps: number | undefined;
+    qrId: string;
   } & Partial<Html5QrcodeCameraScanConfig & Html5QrcodeFullConfig>
 > = (props) => {
   useEffect(() => {
     const verbose = props.verbose === true;
     const html5QrcodeScanner = new Html5QrcodeScanner(
-      qrcodeRegionId,
+      props.qrId,
       { rememberLastUsedCamera: false, ...props },
       verbose
     );
@@ -40,7 +39,7 @@ const QrCode: React.FC<
     };
   }, []);
 
-  return <div id={qrcodeRegionId} />;
+  return <div id={props.qrId} />;
 };
 
 export default QrCode;

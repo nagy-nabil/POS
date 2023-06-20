@@ -94,6 +94,7 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
             </div>
             {isQrOpen === true ? (
               <QrCode
+                qrId="createProductQR"
                 fps={10}
                 qrbox={300}
                 qrcodeSuccessCallback={(text, _, scanner) => {

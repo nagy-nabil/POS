@@ -52,6 +52,7 @@ const QrModal: React.FC<QrModalProps> = (props) => {
       modalChildren={
         <div className="flex flex-col items-center gap-4">
           <QrCode
+            qrId="orderQr"
             fps={10}
             qrbox={300}
             qrcodeSuccessCallback={(text, _, scanner) => {
