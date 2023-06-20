@@ -31,7 +31,7 @@ model User {
 
 model Category {
     id          String    @id @default(cuid())
-    name        String
+    name        String    @unique
     image       String
     createdAt   DateTime  @default(now())
     createdBy   User      @relation(fields: [createdById], references: [id])

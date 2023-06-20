@@ -20,7 +20,9 @@ export const productSchema = z.object({
 });
 
 export const orderSchema = z.object({
-  products: z.array(z.object({ id: z.string(), quantity: z.number() })),
+  products: z
+    .array(z.object({ id: z.string(), quantity: z.number() }))
+    .nonempty(),
 });
 
 export const loginSchema = z.object({
