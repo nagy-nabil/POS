@@ -42,11 +42,14 @@ model Category {
 model Product {
     id          String            @id @default(cuid())
     name        String
-    // todo add check stock can't be less than zero
+    // there a check constraint
+    // alter table "Product" add constraint "stock_less_zero" check (stock >= 0);
     stock       Int
-    // todo add check price can't be less than zero
+    // there a check constraint
+    //alter table "Product" add constraint "buyprice_less_zero" check ("buyPrice" > 0);
     buyPrice    Float
-    // todo add check price can't be less than zero
+    // there a check constraint
+    //alter table "Product" add constraint "sellprice_less_zero" check ("sellPrice" > 0);
     sellPrice   Float
     image       String
     createdAt   DateTime          @default(now())
@@ -71,6 +74,8 @@ model ProductsOnOrder {
     Product     Product @relation(fields: [productId], references: [id])
     orderId     String
     order       Order   @relation(fields: [orderId], references: [id])
+    // there a check constraint
+    //alter table "ProductsOnOrder" add constraint "quntatity_zero" check (quantity > 0);
     quantity    Int     @default(1)
     priceAtSale Float // Price of the product at the time of the order
 

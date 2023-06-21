@@ -1,5 +1,11 @@
 import z from "zod";
 
+export const userSchema = z.object({
+  userName: z.string().min(3),
+  email: z.string().email(),
+  phone: z.string(),
+});
+
 export const payloadSchema = z.object({
   id: z.string(),
   role: z.enum(["ADMIN", "STAFF"]),
@@ -21,7 +27,9 @@ export const productSchema = z.object({
 });
 
 export const orderSchema = z.object({
-  products: z.array(z.object({ id: z.string(), quantity: z.number() })),
+  products: z.array(
+    z.object({ id: z.string().nonempty(), quantity: z.number().min(1) })
+  ),
 });
 
 export const loginSchema = z.object({
