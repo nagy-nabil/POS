@@ -4,6 +4,7 @@ import {
   type Html5QrcodeFullConfig,
   type QrcodeErrorCallback,
   type Html5QrcodeResult,
+  Html5QrcodeScanType,
 } from "html5-qrcode";
 import { useEffect } from "react";
 
@@ -23,7 +24,13 @@ const QrCode: React.FC<
     const verbose = props.verbose === true;
     const html5QrcodeScanner = new Html5QrcodeScanner(
       props.qrId,
-      { rememberLastUsedCamera: false, ...props },
+      {
+        rememberLastUsedCamera: false,
+        showTorchButtonIfSupported: true,
+        showZoomSliderIfSupported: true,
+        supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
+        ...props,
+      },
       verbose
     );
     html5QrcodeScanner.render((text, decode) => {
