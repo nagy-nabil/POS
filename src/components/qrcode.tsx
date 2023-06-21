@@ -23,7 +23,7 @@ const QrCode: React.FC<
   useEffect(() => {
     const verbose = props.verbose === true;
     const html5QrcodeScanner = new Html5QrcodeScanner(
-      props.qrId,
+      "qr-full-id-modal",
       {
         rememberLastUsedCamera: false,
         showTorchButtonIfSupported: true,
