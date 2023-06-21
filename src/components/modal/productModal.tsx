@@ -21,6 +21,7 @@ export type ProductModalProps = {
 };
 
 const ProductModal: React.FC<ProductModalProps> = (props) => {
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const scannerRef = useRef<Html5QrcodeScanner | undefined>(undefined);
   // from the react docs => Do not write or read ref.current during rendering.
   // so i use those state to sync the render with the scanner
@@ -54,6 +55,7 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
           [["products", "getMany"], { type: "query" }],
           (prev) => [...(prev as Product[]), data]
         );
+        dialogRef.current?.close();
       },
       onError(err) {
         setErrors(err.message);
@@ -63,6 +65,7 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
 
   return (
     <CustomModal
+      dialogRef={dialogRef}
       buttonAttrs={{ className: "mt-2" }}
       dialogAttrs={{}}
       buttonChildren={<RiAddLine className="h-fit w-fit p-3 text-3xl" />}

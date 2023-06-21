@@ -2,7 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { RiAddLine } from "react-icons/ri";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React from "react";
+import React, { useRef } from "react";
 import CustomModal from ".";
 import { api } from "@/utils/api";
 import { type z } from "zod";
@@ -20,6 +20,8 @@ export type CategoryModalProps = {
 };
 
 const CategoryModal: React.FC<CategoryModalProps> = (props) => {
+  // used to control dialog directly
+  const dialgoRef = useRef<HTMLDialogElement>(null);
   const categoryInsert = api.categories.insertOne.useMutation();
   const categoryUpdate = api.categories.updateOne.useMutation();
   const queryClient = useQueryClient();
@@ -36,16 +38,19 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
   const onSubmit: SubmitHandler<CategoryT> = (data) => {
     categoryInsert.mutate(data, {
       onSuccess: (data) => {
+        dialgoRef.current;
         queryClient.setQueryData(
           [["categories", "getMany"], { type: "query" }],
           (prev) => [...(prev as Category[]), data]
         );
+        dialgoRef.current?.close();
       },
     });
   };
 
   return (
     <CustomModal
+      dialogRef={dialgoRef}
       buttonAttrs={{ className: "mt-2" }}
       dialogAttrs={{}}
       buttonChildren={<RiAddLine className="h-fit w-fit p-3 text-3xl" />}

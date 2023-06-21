@@ -1,7 +1,9 @@
-import React, { useRef } from "react";
+import React from "react";
 import { RiCloseLine } from "react-icons/ri";
 
 export type CustomModalProps = {
+  // give the parent component the ability to control the dialog directly
+  dialogRef: React.RefObject<HTMLDialogElement>;
   modalChildren: React.ReactNode;
   buttonChildren: React.ReactNode;
   buttonAttrs: React.HTMLAttributes<HTMLButtonElement> &
@@ -10,17 +12,15 @@ export type CustomModalProps = {
 };
 
 const CustomModal: React.FC<CustomModalProps> = (props) => {
-  const dialogRef = useRef<HTMLDialogElement>(null);
-
   // control modal
   function openModal() {
-    if (dialogRef.current === null) return;
-    dialogRef.current.showModal();
+    if (props.dialogRef.current === null) return;
+    props.dialogRef.current.showModal();
   }
 
   function closeModal() {
-    if (dialogRef.current === null) return;
-    dialogRef.current.close();
+    if (props.dialogRef.current === null) return;
+    props.dialogRef.current.close();
   }
 
   return (
@@ -29,7 +29,7 @@ const CustomModal: React.FC<CustomModalProps> = (props) => {
         {props.buttonChildren}
       </button>
       <dialog
-        ref={dialogRef}
+        ref={props.dialogRef}
         className="w-11/12 rounded-xl bg-gray-100 shadow-2xl md:w-2/5 "
         {...props.dialogAttrs}
       >

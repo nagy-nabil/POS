@@ -40,7 +40,7 @@ const Anal: NextPage = () => {
         Do your business <b>Right</b>
       </p>
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
-        <label htmlFor="userName" className="text-lg">
+        <label className="text-lg">
           <input
             placeholder="User Name"
             type="text"
@@ -53,7 +53,7 @@ const Anal: NextPage = () => {
             </span>
           )}
         </label>
-        <label htmlFor="password" className="text-lg">
+        <label className="text-lg">
           <input
             placeholder="Password"
             type="password"

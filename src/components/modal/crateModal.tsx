@@ -1,5 +1,5 @@
 import { CgSpinner } from "react-icons/cg";
-import React, { type Dispatch, type SetStateAction } from "react";
+import React, { useRef, type Dispatch, type SetStateAction } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { api } from "@/utils/api";
 import { FaShoppingBag } from "react-icons/fa";
@@ -90,6 +90,7 @@ const CrateItem: React.FC<
 
 // main crate
 const CrateModal: React.FC<CrateProps> = (props) => {
+  const dialgoRef = useRef(null);
   function calcTotal() {
     let total = 0;
     props.onCrate.forEach((val) => (total += val.sellPrice * val.quantity));
@@ -101,6 +102,7 @@ const CrateModal: React.FC<CrateProps> = (props) => {
 
   return (
     <CustomModal
+      dialogRef={dialgoRef}
       key="crateModal"
       buttonChildren={
         <>

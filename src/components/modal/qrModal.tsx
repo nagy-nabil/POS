@@ -14,6 +14,7 @@ export type QrModalProps = {
 };
 
 const QrModal: React.FC<QrModalProps> = (props) => {
+  const dialgoRef = useRef(null);
   const { setToken } = useAuth({ redirectAfterSet: "/signin" });
   // i don't know if this a good design or even valid react code but i want to keep ref to the scanner
   // to make using it in this component easier
@@ -44,6 +45,7 @@ const QrModal: React.FC<QrModalProps> = (props) => {
 
   return (
     <CustomModal
+      dialogRef={dialgoRef}
       buttonAttrs={{ className: "mt-2" }}
       dialogAttrs={{}}
       buttonChildren={
