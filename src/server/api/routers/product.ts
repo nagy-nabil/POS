@@ -9,6 +9,7 @@ export const productsRouter = createTRPCRouter({
       const product = await ctx.prisma.product.create({
         data: {
           ...input,
+          id: input.id === "" ? undefined : input.id,
           createdById: ctx.payload.id,
           categoryId: input.categoryId,
         },

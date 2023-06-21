@@ -73,10 +73,12 @@ const Anal: NextPage = () => {
                           >
                             {product.Product.name}
                           </th>
-                          <td className="px-6 py-4">{product.priceAtSale}$</td>
+                          <td className="px-6 py-4">
+                            {product.sellPriceAtSale}$
+                          </td>
                           <td className="px-6 py-4">{product.quantity}</td>
                           <td className="px-6 py-4">
-                            {product.quantity * product.priceAtSale}$
+                            {product.quantity * product.sellPriceAtSale}$
                           </td>
                         </tr>
                       ))}

@@ -12,13 +12,18 @@ export const ordersRouter = createTRPCRouter({
       const prisma = new PrismaClient();
       const res = await prisma.$transaction(async (tx) => {
         let totalPrice = 0;
-        const products = await tx.product.findMany({
-          where: {
-            id: {
-              in: input.products.map((val) => val.id),
-            },
-          },
-        });
+        // decrease products stock by quntity
+        // TODO make it in single query
+        // https://stackoverflow.com/questions/18797608/update-multiple-rows-in-same-query-using-postgresql
+        // https://stackoverflow.com/questions/25674737/update-multiple-rows-with-different-values-in-one-query-in-mysql
+        const products = await Promise.all(
+          input.products.map((item) =>
+            tx.product.update({
+              where: { id: item.id },
+              data: { stock: { decrement: item.quantity } },
+            })
+          )
+        );
 
         // make sure that returned products length is the as the requested or there's missing error
         if (products.length !== input.products.length) {
@@ -29,17 +34,12 @@ export const ordersRouter = createTRPCRouter({
         const createCluse: {
           productId: string;
           quantity: number;
-          priceAtSale: number;
+          buyPriceAtSale: number;
+          sellPriceAtSale: number;
         }[] = input.products.map((inProduct) => {
           const product = products.find((test) => test.id === inProduct.id);
           if (!product) {
             throw new TRPCError({ code: "BAD_REQUEST" });
-          }
-          if (inProduct.quantity > product.stock) {
-            throw new TRPCError({
-              code: "BAD_REQUEST",
-              message: "product qunatity cannot be greater than product stock",
-            });
           }
 
           // calc order total price as you go
@@ -47,11 +47,12 @@ export const ordersRouter = createTRPCRouter({
           return {
             productId: inProduct.id,
             quantity: inProduct.quantity,
-            priceAtSale: product.sellPrice,
+            sellPriceAtSale: product.sellPrice,
+            buyPriceAtSale: product.buyPrice,
           };
         });
 
-        const order = await ctx.prisma.order.create({
+        const order = await tx.order.create({
           data: {
             createdById: ctx.payload.id,
             products: {
@@ -64,11 +65,13 @@ export const ordersRouter = createTRPCRouter({
               select: {
                 quantity: true,
                 Product: true,
-                priceAtSale: true,
+                buyPriceAtSale: true,
+                sellPriceAtSale: true,
               },
             },
           },
         });
+
         // TODO exclude password from user
         return {
           ...order,
@@ -97,7 +100,8 @@ export const ordersRouter = createTRPCRouter({
           select: {
             quantity: true,
             Product: true,
-            priceAtSale: true,
+            buyPriceAtSale: true,
+            sellPriceAtSale: true,
           },
         },
       },
@@ -106,7 +110,7 @@ export const ordersRouter = createTRPCRouter({
     const ordersWithTotal = orders.map((order) => {
       // Calculate the total price for each order
       const totalPrice = order.products.reduce(
-        (total, product) => total + product.priceAtSale * product.quantity,
+        (total, product) => total + product.sellPriceAtSale * product.quantity,
         0
       );
 

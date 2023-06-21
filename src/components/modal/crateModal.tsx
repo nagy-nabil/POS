@@ -7,6 +7,7 @@ import CustomModal from ".";
 import { RiAddLine } from "react-icons/ri";
 import { AiOutlineMinus } from "react-icons/ai";
 import { MdRemoveShoppingCart } from "react-icons/md";
+import { type Product } from "@prisma/client";
 
 export type CrateItem = {
   id: string;
@@ -94,7 +95,7 @@ const CrateItem: React.FC<
 
 // main crate
 const CrateModal: React.FC<CrateProps> = (props) => {
-  const dialgoRef = useRef(null);
+  const dialgoRef = useRef<HTMLDialogElement>(null);
   function calcTotal() {
     let total = 0;
     props.onCrate.forEach((val) => (total += val.sellPrice * val.quantity));
@@ -148,7 +149,7 @@ const CrateModal: React.FC<CrateProps> = (props) => {
                     })),
                   },
                   {
-                    onSuccess: () => {
+                    onSuccess: (data) => {
                       queryClient
                         .invalidateQueries([
                           ["orders", "getMany"],
@@ -160,10 +161,29 @@ const CrateModal: React.FC<CrateProps> = (props) => {
                             e
                           );
                         });
+                      props.setOnCrate([]);
+                      // update products store
+                      queryClient.setQueryData(
+                        [["products", "getMany"], { type: "query" }],
+                        (prev) => {
+                          const productsTemp: Product[] = [];
+                          const lookUp = new Set<string>();
+                          data.products.forEach((item) => {
+                            productsTemp.push(item.Product);
+                            lookUp.add(item.Product.id);
+                          });
+                          return [
+                            ...(prev as Product[]).filter(
+                              (test) => !lookUp.has(test.id)
+                            ),
+                            ...productsTemp,
+                          ];
+                        }
+                      );
+                      if (dialgoRef.current !== null) dialgoRef.current.close();
                     },
                   }
                 );
-                props.setOnCrate([]);
               }}
             >
               {orderMut.isLoading ? (

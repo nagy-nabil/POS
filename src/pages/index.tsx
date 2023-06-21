@@ -69,7 +69,7 @@ const Home: NextPage = () => {
           <QrModal setOnCrate={setOnCrate} key="qrModal" />
         </footer>
       </div>
-      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+      <ReactQueryDevtools initialIsOpen={false} />
     </>
   );
 };
