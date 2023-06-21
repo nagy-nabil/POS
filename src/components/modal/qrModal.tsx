@@ -54,7 +54,6 @@ const QrModal: React.FC<QrModalProps> = (props) => {
           <QrCode
             qrId="orderQr"
             fps={10}
-            qrbox={300}
             qrcodeSuccessCallback={(text, _, scanner) => {
               scannerRef.current = scanner;
               const match = productsQuery.data.find((val) => val.id === text);
