@@ -88,9 +88,9 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
               />
 
               {/* only show qr managment with id input */}
-              <button onClick={() => setIsQrOpen((prev) => !prev)}>
+              {/* <button onClick={() => setIsQrOpen((prev) => !prev)}>
                 <BsQrCodeScan className="h-fit w-fit rounded-full border-2 border-gray-500 p-1 text-2xl text-gray-700" />
-              </button>
+              </button> */}
             </div>
             {isQrOpen === true ? (
               <QrCode

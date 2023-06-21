@@ -46,7 +46,7 @@ const QrCode: React.FC<
     };
   }, []);
 
-  return <div id={props.qrId} />;
+  return <div id={"qr-full-id-modal"} />;
 };
 
 export default QrCode;
