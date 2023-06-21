@@ -103,6 +103,7 @@ const QrModal: React.FC<QrModalProps> = (props) => {
                       id: scannerRead.id,
                       name: scannerRead.name,
                       quantity: 1,
+                      stock: scannerRead.stock,
                       sellPrice: scannerRead.sellPrice,
                     };
                   }

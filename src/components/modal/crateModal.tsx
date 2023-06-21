@@ -11,6 +11,7 @@ import { MdRemoveShoppingCart } from "react-icons/md";
 export type CrateItem = {
   id: string;
   name: string;
+  stock: number;
   quantity: number;
   sellPrice: number;
 };
@@ -56,26 +57,29 @@ const CrateItem: React.FC<
                 const temp = prev.find((temp) => temp.id === props.id);
                 if (temp !== undefined) {
                   temp.quantity--;
-                } else {
-                  return [...prev];
+                  // remove item if the quantity went zero or below
+                  if (temp.quantity <= 0) {
+                    return [
+                      ...prev.filter((product) => product.id !== temp.id),
+                    ];
+                  }
                 }
-                return [...prev.filter((temp) => temp.id !== props.id), temp];
+                return [...prev];
               });
             }}
           >
             <AiOutlineMinus />
           </button>
           <button
-            className="h-fit w-fit rounded-lg bg-green-300 p-1"
+            disabled={props.quantity >= props.stock}
+            className="h-fit w-fit rounded-lg bg-green-300 p-1 disabled:bg-gray-500"
             onClick={() => {
               props.setOnCrate((prev) => {
                 const temp = prev.find((temp) => temp.id === props.id);
                 if (temp !== undefined) {
                   temp.quantity++;
-                } else {
-                  return [...prev];
                 }
-                return [...prev.filter((temp) => temp.id !== props.id), temp];
+                return [...prev];
               });
             }}
           >

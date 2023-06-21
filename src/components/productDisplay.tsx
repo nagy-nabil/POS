@@ -25,8 +25,9 @@ export const KeypadDisplay: React.FC<ProductProps> = (props) => {
       <span className="text-gray-500">Quantity: {props.stock}</span>
       {/* TODO show add and decrease button if the item in the crate */}
       <button
+        disabled={props.stock <= 0}
         onClick={props.onClick}
-        className="mb-2 mr-2 rounded-xl bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 "
+        className="mb-2 mr-2 rounded-xl bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:bg-gray-600"
       >
         Add To Cart
       </button>
@@ -49,8 +50,9 @@ export const LibraryDisplay: React.FC<ProductProps> = (props) => {
       </div>
       {/* TODO show add and decrease button if the item in the crate */}
       <button
+        disabled={props.stock <= 0}
         onClick={props.onClick}
-        className="ml-auto rounded-xl   py-2.5 text-2xl font-medium text-gray-500 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 "
+        className="ml-auto rounded-xl   py-2.5 text-2xl font-medium text-gray-700 focus:outline-none disabled:text-gray-400"
       >
         <RiAddCircleLine />
       </button>
@@ -156,6 +158,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
                       id: product.id,
                       name: product.name,
                       quantity: 1,
+                      stock: product.stock,
                       sellPrice: product.sellPrice,
                     };
                   }
