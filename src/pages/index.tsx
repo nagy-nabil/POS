@@ -47,7 +47,7 @@ const Home: NextPageWithLayout = () => {
   return (
     <>
       <div className="flex h-screen w-full flex-col overflow-x-hidden">
-        <header className="flex justify-end gap-2">
+        <header className="ml-auto flex w-4/5 items-center justify-end gap-2">
           <InputWithIcon
             Icon={RiSearch2Line}
             inputName="searchProduct"
@@ -64,7 +64,7 @@ const Home: NextPageWithLayout = () => {
           />
         </main>
 
-        <footer className="fixed bottom-4 left-4 flex w-11/12 items-center justify-between">
+        <footer className="fixed bottom-4 left-4 flex w-11/12 items-center justify-between gap-2">
           <CrateModal onCrate={onCrate} setOnCrate={setOnCrate} />
           <QrModal setOnCrate={setOnCrate} key="qrModal" />
         </footer>

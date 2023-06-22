@@ -46,7 +46,7 @@ const QrModal: React.FC<QrModalProps> = (props) => {
   return (
     <CustomModal
       dialogRef={dialgoRef}
-      buttonAttrs={{ className: "mt-2" }}
+      buttonAttrs={{ className: "" }}
       dialogAttrs={{}}
       buttonChildren={
         <BsQrCodeScan className="h-fit w-fit rounded-full bg-black p-2 text-3xl text-white" />

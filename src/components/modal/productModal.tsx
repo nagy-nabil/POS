@@ -66,7 +66,7 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
   return (
     <CustomModal
       dialogRef={dialogRef}
-      buttonAttrs={{ className: "mt-2" }}
+      buttonAttrs={{ className: "" }}
       dialogAttrs={{}}
       buttonChildren={<RiAddLine className="h-fit w-fit p-3 text-3xl" />}
       modalChildren={
