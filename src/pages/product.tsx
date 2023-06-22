@@ -1,8 +1,9 @@
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import type { NextPage } from "next";
-import { api } from "@/utils/api";
+import { type NextPageWithLayout } from "./_app";
+import Layout from "@/components/layout";
+import { type ReactElement } from "react";
 
-const Category: NextPage = () => {
+const Product: NextPageWithLayout = () => {
   return (
     <>
       <ReactQueryDevtools initialIsOpen={false} />
@@ -10,4 +11,12 @@ const Category: NextPage = () => {
   );
 };
 
-export default Category;
+Product.getLayout = function getLayout(page: ReactElement) {
+  return (
+    <>
+      <Layout>{page}</Layout>
+    </>
+  );
+};
+
+export default Product;

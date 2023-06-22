@@ -1,8 +1,10 @@
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import type { NextPage } from "next";
 import { api } from "@/utils/api";
+import { type NextPageWithLayout } from "./_app";
+import { type ReactElement } from "react";
+import Layout from "@/components/layout";
 
-const Anal: NextPage = () => {
+const Anal: NextPageWithLayout = () => {
   let totalSold = 0;
   const orderQuery = api.orders.getMany.useQuery(undefined, {
     staleTime: 1000 * 50 * 60,
@@ -93,6 +95,14 @@ const Anal: NextPage = () => {
       </div>
 
       <ReactQueryDevtools initialIsOpen={false} />
+    </>
+  );
+};
+
+Anal.getLayout = function getLayout(page: ReactElement) {
+  return (
+    <>
+      <Layout>{page}</Layout>
     </>
   );
 };
