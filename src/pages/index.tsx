@@ -1,19 +1,19 @@
-import type { GetStaticPropsContext, NextPage } from "next";
+import type { GetStaticPropsContext } from "next";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { useState } from "react";
+import { type ReactElement, useState } from "react";
 import CrateModal, { type CrateProps } from "@/components/modal/crateModal";
 // import { prisma } from "@/server/db";
-import QrCode from "@/components/qrcode";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
 import { useAuth } from "@/hooks/useAuth";
 import { RiSearch2Line } from "react-icons/ri";
-import { BsQrCodeScan } from "react-icons/bs";
 import InputWithIcon from "@/components/form/inputWithIcon";
 import CategoryDisplay from "@/components/categoryDisplay";
 import ProductDisplay from "@/components/productDisplay";
 import ProductModal from "@/components/modal/productModal";
 import QrModal from "@/components/modal/qrModal";
+import type { NextPageWithLayout } from "./_app";
+import Layout from "@/components/layout";
 
 //! re-enable server-side rendereing after you discover how to work with it and reactQuery together
 // export async function getServerSideProps() {
@@ -36,7 +36,7 @@ export async function getStaticProps({ locale }: GetStaticPropsContext) {
   };
 }
 
-const Home: NextPage = () => {
+const Home: NextPageWithLayout = () => {
   const { token } = useAuth({ noExistRedirectTo: "/signin" });
   const { t } = useTranslation();
   const [categoryFilter, setCategoryFilter] = useState("");
@@ -74,4 +74,11 @@ const Home: NextPage = () => {
   );
 };
 
+Home.getLayout = function getLayout(page: ReactElement) {
+  return (
+    <>
+      <Layout>{page}</Layout>
+    </>
+  );
+};
 export default Home;
