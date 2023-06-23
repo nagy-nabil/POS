@@ -38,7 +38,7 @@ const CategoryDisplay: React.FC<CategoryDisplayProps> = (props) => {
             return (
               <div
                 role="button"
-                key={"all"}
+                key={category.id}
                 className="flex flex-col items-center "
                 onClick={() => {
                   props.setCategoryFilter(category.id);
