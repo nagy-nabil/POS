@@ -1,0 +1,32 @@
+{
+  "header": "Settings",
+  "appSettings": {
+    "header": "App Settings",
+    "settings": {
+      "changeLang": {
+        "header": "Change Language",
+        "options": ["ENGLISH", "ARABIC"]
+      },
+      "printPolicey": {
+        "header": "Print Policy",
+        "options": ["Always Ask", "Off"]
+      }
+    }
+  },
+  "userSettings": {
+    "header": "User Settings",
+    "settings": {
+      "changeUserName": {
+        "header": "Change User Name",
+        "placeHolder": "User Name",
+        "action": "Update username"
+      },
+      "changePassword": {
+        "header": "Change Password",
+        "placeHolder1": "Enter Password",
+        "placeHolder2": "Re-enter the password",
+        "action": "Update Password"
+      }
+    }
+  }
+}

@@ -1,3 +1,63 @@
 {
-    "header": "صفحة المبيعات"
+  "header": {
+    "name": "صفحة المبيعات",
+    "inputPlaceHolder": "بحث"
+  },
+  "category": {
+    "default": "الكل"
+  },
+  "product": {
+    "modes": ["مكتبة", "لوحة مفاتيح"]
+  },
+  "crate": {
+    "prefix": "لقد أضفت",
+    "postfix": "عناصر",
+    "quantity": "الكمية",
+    "price": "السعر",
+    "footer": {
+      "totalSpan": "الإجمالي",
+      "button": "الدفع"
+    }
+  },
+  "qrModal": {
+    "utils": ["مسح آخر", "تم"]
+  },
+  "productModal": {
+    "headerName": {
+      "post": "إضافة منتج جديد",
+      "put": "تحديث المنتج"
+    },
+    "props": {
+      "id": "المعرف",
+      "name": "الاسم",
+      "image": "الصورة",
+      "stock": "المخزون",
+      "buyPrice": "سعر الشراء",
+      "sellPrice": "سعر البيع",
+      "category": "الفئة"
+    },
+    "action": {
+      "post": "إضافة",
+      "put": "تحديث"
+    }
+  },
+  "categoryModal": {
+    "headerName": {
+      "post": "إضافة فئة جديدة",
+      "put": "تحديث الفئة"
+    },
+    "props": {
+      "name": "الاسم",
+      "image": "الصورة"
+    },
+    "action": {
+      "post": "إضافة",
+      "put": "تحديث"
+    }
+  },
+  "sidebar": {
+    "header": "زاجي",
+    "paths": ["المبيعات", "المنتجات", "الفئات", "التحليل", "الإعدادات"],
+    "actions": ["تسجيل الخروج"]
+  }
 }

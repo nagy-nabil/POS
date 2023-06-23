@@ -86,7 +86,7 @@ const Settings: NextPageWithLayout = () => {
       </label>
 
       <label className="mt-3 flex flex-col gap-3">
-        Print Policey
+        Print Policy
         <select
           className="rounded-xl border-2 border-gray-400 p-2 text-black"
           defaultValue="on"

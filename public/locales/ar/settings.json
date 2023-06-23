@@ -1,0 +1,32 @@
+{
+  "header": "الإعدادات",
+  "appSettings": {
+    "header": "إعدادات التطبيق",
+    "settings": {
+      "changeLang": {
+        "header": "تغيير اللغة",
+        "options": ["الإنجليزية", "العربية"]
+      },
+      "printPolicey": {
+        "header": "سياسة الطباعة",
+        "options": ["طلب دائمًا", "معطل"]
+      }
+    }
+  },
+  "userSettings": {
+    "header": "إعدادات المستخدم",
+    "settings": {
+      "changeUserName": {
+        "header": "تغيير اسم المستخدم",
+        "placeHolder": "اسم المستخدم",
+        "action": "تحديث اسم المستخدم"
+      },
+      "changePassword": {
+        "header": "تغيير كلمة المرور",
+        "placeHolder1": "أدخل كلمة المرور",
+        "placeHolder2": "أعِد إدخال كلمة المرور",
+        "action": "تحديث كلمة المرور"
+      }
+    }
+  }
+}
