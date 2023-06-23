@@ -26,35 +26,38 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
   return (
     <div className="flex flex-col">
       <button
-        className="flex flex-col "
+        className="flex flex-col gap-2"
         onClick={() => setProductsOpen((prev) => !prev)}
       >
-        <p className="w-full overflow-hidden text-2xl font-bold text-orange-700">
+        <p className="w-full overflow-hidden text-left text-xl font-bold text-orange-700">
           # {props.id}
         </p>
         <span>Created At: {props.createdAt.toDateString()}</span>
-        <span>Total: {props.total} $</span>
+        <span className="text-lg font-bold text-green-600">
+          Total: {props.total} $
+        </span>
       </button>
 
       <table
         className={clsx({
           hidden: !productsOpen,
-          " w-full text-left text-sm text-gray-500 dark:text-gray-400": true,
+          " w-full text-left text-sm text-gray-400 transition-all delay-75 ":
+            true,
         })}
       >
-        <thead className="bg-gray-100 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
+        <thead className=" bg-gray-700 text-xs  uppercase text-gray-400">
           <tr>
-            <th scope="col" className="px-6 py-3">
+            <th scope="col" className="px-4 py-2">
               name
             </th>
-            <th scope="col" className="px-6 py-3">
-              price$
+            <th scope="col" className="px-4 py-2">
+              price $
             </th>
-            <th scope="col" className="px-6 py-3">
+            <th scope="col" className="px-4 py-2">
               qunatity
             </th>
-            <th scope="col" className="rounded-r-lg px-6 py-3">
-              total$
+            <th scope="col" className="px-4 py-2">
+              total $
             </th>
           </tr>
         </thead>
@@ -63,13 +66,13 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
             <tr className="bg-white dark:bg-gray-800" key={product.Product.id}>
               <th
                 scope="row"
-                className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"
+                className="whitespace-nowrap px-4 py-2 font-medium text-gray-900 dark:text-white"
               >
                 {product.Product.name}
               </th>
-              <td className="px-6 py-4">{product.sellPriceAtSale}$</td>
-              <td className="px-6 py-4">{product.quantity}</td>
-              <td className="px-6 py-4">
+              <td className="px-4 py-2">{product.sellPriceAtSale}$</td>
+              <td className="px-4 py-2">{product.quantity}</td>
+              <td className="px-4 py-2">
                 {product.quantity * product.sellPriceAtSale}$
               </td>
             </tr>

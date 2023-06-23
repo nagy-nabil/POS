@@ -24,7 +24,7 @@ const Anal: NextPageWithLayout = () => {
 
   return (
     <>
-      <div className="flex h-screen w-full flex-col overflow-hidden">
+      <div className="flex h-screen w-full flex-col overflow-hidden px-4">
         <header className="m-auto mb-8">
           <h1 className="text-5xl">Analysis</h1>
         </header>
@@ -60,10 +60,12 @@ const Anal: NextPageWithLayout = () => {
             return <OrderDisplay key={order.id} {...order} />;
           })}
         </div>
-        <p className="text-2xl text-green-700">Total Sold: {totalSold}$</p>
+        <p className="border-t-2 border-gray-400 p-3 text-2xl text-green-700">
+          Total Sold: {totalSold}$
+        </p>
       </div>
 
-      <ReactQueryDevtools initialIsOpen={false} />
+      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
     </>
   );
 };

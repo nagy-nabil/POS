@@ -60,7 +60,12 @@ export const ordersRouter = createTRPCRouter({
             },
           },
           include: {
-            createdBy: true,
+            createdBy: {
+              select: {
+                id: true,
+                userName: true,
+              },
+            },
             products: {
               select: {
                 quantity: true,
