@@ -65,7 +65,7 @@ const Anal: NextPageWithLayout = () => {
         </p>
       </div>
 
-      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+      <ReactQueryDevtools initialIsOpen={false} />
     </>
   );
 };
