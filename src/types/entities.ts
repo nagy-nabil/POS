@@ -32,7 +32,6 @@ export const orderSchema = z.object({
   ),
 });
 
-export const loginSchema = z.object({
-  userName: z.string().min(3),
+export const loginSchema = userSchema.pick({ userName: true }).extend({
   password: z.string().min(4),
 });

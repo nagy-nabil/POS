@@ -55,7 +55,7 @@ const LanguageSwitcher: React.FC<{
   return (
     <>
       <select
-        className="text-black"
+        className="rounded-xl border-2 border-gray-400 p-2 text-black"
         defaultValue={currentLanguage}
         name="lang"
         onChange={languageChanged}

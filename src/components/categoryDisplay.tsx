@@ -20,48 +20,41 @@ const CategoryDisplay: React.FC<CategoryDisplayProps> = (props) => {
       {/* categories display */}
       <div className="w-full overflow-auto pb-3 pt-6">
         <div className=" flex w-max items-center justify-start gap-4 overflow-y-hidden  ">
-          {new Array(20).fill(0).map((_, i) => {
+          <div
+            role="button"
+            key={"all"}
+            className="flex flex-col items-center "
+            onClick={() => {
+              props.setCategoryFilter("");
+            }}
+          >
+            <img
+              className="border-1 h-20 w-20 rounded-full border-gray-300"
+              src="https://images.immediate.co.uk/production/volatile/sites/30/2020/02/Glass-and-bottle-of-milk-fe0997a.jpg?quality=90&resize=556,505"
+            ></img>
+            <p className="text-lg font-semibold text-slate-600">Milk</p>
+          </div>
+          {categoryQuery.data.map((category) => {
             return (
               <div
                 role="button"
-                key={0}
+                key={"all"}
                 className="flex flex-col items-center "
                 onClick={() => {
-                  props.setCategoryFilter("");
+                  props.setCategoryFilter(category.id);
                 }}
               >
                 <img
                   className="border-1 h-20 w-20 rounded-full border-gray-300"
-                  src="https://images.immediate.co.uk/production/volatile/sites/30/2020/02/Glass-and-bottle-of-milk-fe0997a.jpg?quality=90&resize=556,505"
+                  src={category.image}
                 ></img>
-                <p className="text-lg font-semibold text-slate-600">Milk</p>
+                <p className="text-lg font-semibold text-slate-600">
+                  {category.name}
+                </p>
               </div>
             );
           })}
         </div>
-        {/* <button
-            key={0}
-            className="h-fit w-fit rounded-full bg-slate-600 p-3"
-            onClick={() => {
-              setCategoryFilter("");
-            }}
-          >
-            All
-          </button> */}
-        {/* {categoryQuery.data.map((category) => {
-          return (
-            <button
-              key={category.id}
-              className="p-2"
-              onClick={() => {
-                props.setCategoryFilter(category.id);
-              }}
-            >
-              <img alt="cat" src={category.image} className="rounded-full" />
-              <p>{category.name}</p>
-            </button>
-          );
-        })} */}
       </div>
     </>
   );

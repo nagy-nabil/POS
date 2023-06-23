@@ -1,8 +1,13 @@
 import bcrypt from "bcrypt";
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
-import { loginSchema } from "@/types/entities";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
+import { loginSchema, userSchema } from "@/types/entities";
 import { TRPCError } from "@trpc/server";
 import { newToken } from "@/server/auth";
+import { env } from "@/env.mjs";
 
 // here suppose to add logic to add new org members and so on
 export const usersRouter = createTRPCRouter({
@@ -35,5 +40,46 @@ export const usersRouter = createTRPCRouter({
         });
       }
       return newToken(user);
+    }),
+
+  updateUserName: protectedProcedure
+    .input(
+      userSchema.pick({
+        userName: true,
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.prisma.user.update({
+        where: {
+          id: ctx.payload.id,
+        },
+        data: {
+          userName: input.userName,
+        },
+        select: {
+          userName: true,
+        },
+      });
+    }),
+
+  updatePassword: protectedProcedure
+    .input(
+      loginSchema.pick({
+        password: true,
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const hash = await bcrypt.hash(input.password, env.CRYPTROUNDS);
+      return await ctx.prisma.user.update({
+        where: {
+          id: ctx.payload.id,
+        },
+        data: {
+          password: hash,
+        },
+        select: {
+          userName: true,
+        },
+      });
     }),
 });
