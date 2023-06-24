@@ -1,23 +1,30 @@
+env:
+  CRYPTROUNDS: ${{ secrets.CRYPTROUNDS }}
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  JWTEXPIREIN: ${{ secrets.JWTEXPIREIN}}
+  JWTSECRET: ${{ secrets.JWTSECRET}}
+  NODE_ENV: ${{ secrets.NODE_ENV}}
+
 on:
-    push:
-    pull_request:
-        branches: [main]
+  push:
+  pull_request:
+    branches: [main]
 jobs:
-    valid:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v3
-            - uses: pnpm/action-setup@v2
-              with:
-                  version: 7
-            - name: install node
-              uses: actions/setup-node@v3
-              with:
-                  node-version: "18.*"
-                  cache: "pnpm"
-            - name: Install dependencies
-              run: pnpm install
-            - name: check types
-              run: pnpm run typecheck
-            - name: linter
-              run: pnpm run lint
+  valid:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+      - name: install node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.*"
+          cache: "pnpm"
+      - name: Install dependencies
+        run: pnpm install
+      - name: check types
+        run: pnpm run typecheck
+      - name: linter
+        run: pnpm run lint
