@@ -1,3 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+::-webkit-calendar-picker-indicator {
+    background-color: white;
+    padding: 5px;
+    cursor: pointer;
+    border-radius: 4px;
+}

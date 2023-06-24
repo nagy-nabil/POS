@@ -1,13 +1,20 @@
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { api } from "@/utils/api";
 import { type NextPageWithLayout } from "./_app";
-import { type ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 import Layout from "@/components/layout";
+import OrderDisplay from "@/components/orderDisplay";
 
 const Anal: NextPageWithLayout = () => {
+  const date = new Date();
+  const [fromDate, setFromDate] = useState<Date>(
+    new Date(date.getFullYear(), date.getMonth(), date.getDate())
+  );
+  const [toDate, setToDate] = useState<Date>(date);
   let totalSold = 0;
-  const orderQuery = api.orders.getMany.useQuery(undefined, {
-    staleTime: 1000 * 50 * 60,
+  const orderQuery = api.orders.getMany.useQuery({
+    from: fromDate,
+    to: toDate,
   });
 
   if (orderQuery.isLoading) return <p>loading ...</p>;
@@ -17,81 +24,45 @@ const Anal: NextPageWithLayout = () => {
 
   return (
     <>
-      <div className="flex h-screen w-full flex-col gap-y-8 overflow-hidden pl-14">
-        <header className="flex flex-col justify-between gap-4">
-          <h1 className="text-5xl">ANAl Page</h1>
+      <div className="flex h-screen w-full flex-col overflow-hidden px-4">
+        <header className="m-auto mb-8">
+          <h1 className="text-5xl">Analysis</h1>
         </header>
 
-        <div className="flex h-screen flex-wrap justify-start gap-3 overflow-auto">
-          {orderQuery.data.map((order) => {
-            totalSold += order.total;
-            return (
-              <div className="flex flex-col gap-3" key={order.id}>
-                <h3 className="text-2xl font-bold text-orange-700">
-                  Order Number: {order.id}
-                </h3>
-                <div className="flex flex-col gap-4 border border-solid p-4 shadow-lg">
-                  <span>created By: {order.createdById}</span>
-                  <span>payment type: {order.paymentType}</span>
-                  <span className="text-green-800">Total: {order.total}$</span>
-                  <span>created at: {order.createdAt.toString()}</span>
-                  <h2 className="text-2xl text-sky-700">Products</h2>
+        <div className="flex flex-col gap-3">
+          <label className="flex items-center justify-between gap-2 text-2xl">
+            from
+            <input
+              name="from"
+              type="date"
+              value={fromDate.toISOString().split("T")[0]}
+              onChange={(e) => setFromDate(new Date(e.target.value))}
+              className="rounded-xl border-none bg-gray-600 p-3 text-xl text-white"
+            />
+          </label>
+          <label className="flex items-center justify-between gap-2 text-2xl">
+            to
+            <input
+              value={toDate.toISOString().split("T")[0]}
+              onChange={(e) => setToDate(new Date(e.target.value))}
+              name="to"
+              type="date"
+              className="rounded-xl border-none bg-gray-600 p-3 text-xl text-white"
+            />
+          </label>
+        </div>
 
-                  <table className="w-full text-left text-sm text-gray-500 dark:text-gray-400">
-                    <thead className="bg-gray-100 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
-                      <tr>
-                        <th scope="col" className="rounded-l-lg px-6 py-3">
-                          id
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                          name
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                          price$
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                          qunatity
-                        </th>
-                        <th scope="col" className="rounded-r-lg px-6 py-3">
-                          total$
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {order.products.map((product) => (
-                        <tr
-                          className="bg-white dark:bg-gray-800"
-                          key={product.Product.id}
-                        >
-                          <th
-                            scope="row"
-                            className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"
-                          >
-                            {product.Product.id}
-                          </th>
-                          <th
-                            scope="row"
-                            className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"
-                          >
-                            {product.Product.name}
-                          </th>
-                          <td className="px-6 py-4">
-                            {product.sellPriceAtSale}$
-                          </td>
-                          <td className="px-6 py-4">{product.quantity}</td>
-                          <td className="px-6 py-4">
-                            {product.quantity * product.sellPriceAtSale}$
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            );
+        {/* order display */}
+        <div className="mt-5 flex h-screen flex-col gap-4 overflow-y-auto">
+          {orderQuery.data.map((order) => {
+            console.log(order);
+            totalSold += order.total;
+            return <OrderDisplay key={order.id} {...order} />;
           })}
         </div>
-        <p className="text-2xl text-green-700">Total Sold: {totalSold}$</p>
+        <p className="border-t-2 border-gray-400 p-3 text-2xl text-green-700">
+          Total Sold: {totalSold}$
+        </p>
       </div>
 
       <ReactQueryDevtools initialIsOpen={false} />

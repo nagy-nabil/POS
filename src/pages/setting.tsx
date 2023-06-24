@@ -49,6 +49,7 @@ const Settings: NextPageWithLayout = () => {
     register: userNameReg,
     handleSubmit: userNameOnSubmit,
     formState: { errors: userNameErrors },
+    setError: setUserNameError,
   } = useForm<{ userName: string }>({
     resolver: zodResolver(loginSchema.pick({ userName: true })),
   });
@@ -60,9 +61,13 @@ const Settings: NextPageWithLayout = () => {
   } = useForm<PasswordFormT>({
     resolver: zodResolver(passwordForm),
   });
-  console.log(passwordErrors);
+
   const userNameSubmit: SubmitHandler<{ userName: string }> = (data) => {
-    userNameUpdate.mutate(data);
+    userNameUpdate.mutate(data, {
+      onError(error) {
+        setUserNameError("userName", error);
+      },
+    });
   };
   const passwordSubmit: SubmitHandler<PasswordFormT> = (data) => {
     passwordUpdate.mutate(data);
@@ -78,6 +83,17 @@ const Settings: NextPageWithLayout = () => {
             document.cookie = `NEXT_LOCALE=${locale}; max-age=31536000; path=/`;
           }}
         />
+      </label>
+
+      <label className="mt-3 flex flex-col gap-3">
+        Print Policy
+        <select
+          className="rounded-xl border-2 border-gray-400 p-2 text-black"
+          defaultValue="on"
+        >
+          <option value="on">Always Ask</option>
+          <option value="off">Off</option>
+        </select>
       </label>
 
       <hr className="mt-4" />

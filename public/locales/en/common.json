@@ -1,3 +1,63 @@
 {
-    "header": "Sales Page"
+  "header": {
+    "name": "Sales Page",
+    "inputPlaceHolder": "Search"
+  },
+  "category": {
+    "default": "All"
+  },
+  "product": {
+    "modes": ["Library", "Keypad"]
+  },
+  "crate": {
+    "prefix": "You added",
+    "postfix": "items",
+    "quantity": "Quantity",
+    "price": "Price",
+    "footer": {
+      "totalSpan": "Total",
+      "button": "Check Out"
+    }
+  },
+  "qrModal": {
+    "utils": ["Scan another", "Done"]
+  },
+  "productModal": {
+    "headerName": {
+      "post": "Add New Product",
+      "put": "Update Product"
+    },
+    "props": {
+      "id": "Id",
+      "name": "Name",
+      "image": "Image",
+      "stock": "Stock",
+      "buyPrice": "Buy Price",
+      "sellPrice": "Sell Price",
+      "category": "Category"
+    },
+    "action": {
+      "post": "Add",
+      "put": "Update"
+    }
+  },
+  "categoryModal": {
+    "headerName": {
+      "post": "Add New Category",
+      "put": "Update Category"
+    },
+    "props": {
+      "name": "Name",
+      "image": "Image"
+    },
+    "action": {
+      "post": "Add",
+      "put": "Update"
+    }
+  },
+  "sidebar": {
+    "header": "Zagy",
+    "paths": ["Sales", "Products", "Categories", "Analysis", "Settings"],
+    "actions": ["Log out"]
+  }
 }

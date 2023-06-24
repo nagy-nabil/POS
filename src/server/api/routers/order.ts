@@ -60,7 +60,12 @@ export const ordersRouter = createTRPCRouter({
             },
           },
           include: {
-            createdBy: true,
+            createdBy: {
+              select: {
+                id: true,
+                userName: true,
+              },
+            },
             products: {
               select: {
                 quantity: true,
@@ -91,34 +96,53 @@ export const ordersRouter = createTRPCRouter({
     });
   }),
 
-  getMany: protectedProcedure.query(async ({ ctx }) => {
-    const orders = await ctx.prisma.order.findMany({
-      include: {
-        // TODO exclude password from user
-        createdBy: true,
-        products: {
-          select: {
-            quantity: true,
-            Product: true,
-            buyPriceAtSale: true,
-            sellPriceAtSale: true,
+  getMany: protectedProcedure
+    .input(
+      z.object({
+        from: z.date(),
+        to: z.date(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const orders = await ctx.prisma.order.findMany({
+        where: {
+          createdAt: {
+            lte: input.to,
+            gte: input.from,
           },
         },
-      },
-    });
+        include: {
+          // TODO exclude password from user
+          createdBy: {
+            select: {
+              id: true,
+              userName: true,
+            },
+          },
+          products: {
+            select: {
+              quantity: true,
+              Product: true,
+              buyPriceAtSale: true,
+              sellPriceAtSale: true,
+            },
+          },
+        },
+      });
 
-    const ordersWithTotal = orders.map((order) => {
-      // Calculate the total price for each order
-      const totalPrice = order.products.reduce(
-        (total, product) => total + product.sellPriceAtSale * product.quantity,
-        0
-      );
+      const ordersWithTotal = orders.map((order) => {
+        // Calculate the total price for each order
+        const totalPrice = order.products.reduce(
+          (total, product) =>
+            total + product.sellPriceAtSale * product.quantity,
+          0
+        );
 
-      return {
-        ...order,
-        total: totalPrice,
-      };
-    });
-    return ordersWithTotal;
-  }),
+        return {
+          ...order,
+          total: totalPrice,
+        };
+      });
+      return ordersWithTotal;
+    }),
 });

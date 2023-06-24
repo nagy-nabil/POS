@@ -1,0 +1,17 @@
+{
+  "header": "Analysis",
+  "orderHistory": {
+    "from": "From",
+    "to": "To",
+    "footer": "Total Sold",
+    "historyItem": {
+      "meta": {
+        "createdAt": "Created At",
+        "total": "Total"
+      },
+      "table": {
+        "header": ["Name", "Price", "Quantity", "Total"]
+      }
+    }
+  }
+}
