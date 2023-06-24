@@ -15,16 +15,6 @@ import QrModal from "@/components/modal/qrModal";
 import type { NextPageWithLayout } from "./_app";
 import Layout from "@/components/layout";
 
-//! re-enable server-side rendereing after you discover how to work with it and reactQuery together
-// export async function getServerSideProps() {
-//   const products = await prisma.product.findMany();
-//   return {
-//     props: {
-//       products,
-//     },
-//   };
-// }
-
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   console.log("🪵 [index.tsx:29] ~ token ~ \x1b[0;32mlocale\x1b[0m = ", locale);
   return {

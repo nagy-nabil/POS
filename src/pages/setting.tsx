@@ -11,6 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { api } from "@/utils/api";
 import { z } from "zod";
 import { CgSpinner } from "react-icons/cg";
+import { useAuth } from "@/hooks/useAuth";
 
 export async function getServerSideProps({
   locale,
@@ -41,6 +42,7 @@ const passwordForm = loginSchema
 type PasswordFormT = z.infer<typeof passwordForm>;
 
 const Settings: NextPageWithLayout = () => {
+  const {} = useAuth({ noExistRedirectTo: "/signin" });
   const userNameUpdate = api.users.updateUserName.useMutation();
   const passwordUpdate = api.users.updatePassword.useMutation();
 

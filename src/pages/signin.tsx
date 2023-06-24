@@ -1,6 +1,6 @@
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import type { NextPage } from "next";
+import type { GetStaticPropsContext, NextPage } from "next";
 import { api } from "@/utils/api";
 import { useState } from "react";
 import { loginSchema } from "@/types/entities";
@@ -8,9 +8,20 @@ import { useAuth } from "@/hooks/useAuth";
 import { type z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CgSpinner } from "react-icons/cg";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+
+export async function getStaticProps({ locale }: GetStaticPropsContext) {
+  console.log("🪵 [index.tsx:29] ~ token ~ \x1b[0;32mlocale\x1b[0m = ", locale);
+  return {
+    props: {
+      // only pass array of required namespace to the page to make use of translitions code spliting
+      ...(await serverSideTranslations(locale as string, ["common"])),
+      // Will be passed to the page component as props
+    },
+  };
+}
 
 type LoginT = z.infer<typeof loginSchema>;
-
 // const loginKeys = loginSchema.keyof().options;
 
 const Anal: NextPage = () => {

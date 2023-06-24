@@ -4,18 +4,47 @@ import { type NextPageWithLayout } from "./_app";
 import { useState, type ReactElement } from "react";
 import Layout from "@/components/layout";
 import OrderDisplay from "@/components/orderDisplay";
+import { useAuth } from "@/hooks/useAuth";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import type { GetStaticPropsContext } from "next";
+
+export async function getStaticProps({ locale }: GetStaticPropsContext) {
+  console.log("🪵 [index.tsx:29] ~ token ~ \x1b[0;32mlocale\x1b[0m = ", locale);
+  return {
+    props: {
+      // only pass array of required namespace to the page to make use of translitions code spliting
+      ...(await serverSideTranslations(locale as string, ["common"])),
+      // Will be passed to the page component as props
+    },
+  };
+}
 
 const Anal: NextPageWithLayout = () => {
+  const { setToken } = useAuth({ noExistRedirectTo: "/signin" });
   const date = new Date();
   const [fromDate, setFromDate] = useState<Date>(
     new Date(date.getFullYear(), date.getMonth(), date.getDate())
   );
   const [toDate, setToDate] = useState<Date>(date);
   let totalSold = 0;
-  const orderQuery = api.orders.getMany.useQuery({
-    from: fromDate,
-    to: toDate,
-  });
+
+  const orderQuery = api.orders.getMany.useQuery(
+    {
+      from: fromDate,
+      to: toDate,
+    },
+    {
+      retry(_failureCount, error) {
+        if (error.data?.code === "UNAUTHORIZED") {
+          setToken("").catch((e) => {
+            throw e;
+          });
+          return false;
+        }
+        return true;
+      },
+    }
+  );
 
   if (orderQuery.isLoading) return <p>loading ...</p>;
   else if (orderQuery.isError) {
