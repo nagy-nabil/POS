@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { RiAddLine } from "react-icons/ri";
+import { BiEdit } from "react-icons/bi";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useRef, useState } from "react";
@@ -12,6 +13,7 @@ import { CgSpinner } from "react-icons/cg";
 import { BsQrCodeScan } from "react-icons/bs";
 import QrCode from "../qrcode";
 import { Html5QrcodeScannerState, type Html5QrcodeScanner } from "html5-qrcode";
+import clsx from "clsx";
 
 export type ProductT = z.infer<typeof productSchema>;
 const productKeys = productSchema.keyof().options;
@@ -49,18 +51,40 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
   });
 
   const onSubmit: SubmitHandler<ProductT> = (data) => {
-    productInsert.mutate(data, {
-      onSuccess: (data) => {
-        queryClient.setQueryData(
-          [["products", "getMany"], { type: "query" }],
-          (prev) => [...(prev as Product[]), data]
-        );
-        dialogRef.current?.close();
-      },
-      onError(err) {
-        setErrors(err.message);
-      },
-    });
+    if (props.operationType === "post") {
+      productInsert.mutate(data, {
+        onSuccess: (data) => {
+          queryClient.setQueryData(
+            [["products", "getMany"], { type: "query" }],
+            (prev) => [...(prev as Product[]), data]
+          );
+          dialogRef.current?.close();
+        },
+        onError(err) {
+          setErrors(err.message);
+        },
+      });
+    } else if (data.id === undefined || data.id === "") {
+      setErrors("id cannot be undefined or an empty string");
+    } else if (props.operationType === "put") {
+      // @ts-ignore
+      productUpdate.mutate(data, {
+        onSuccess: (data, variables) => {
+          // remove the one with the id of the input and insert the returned from the mutation
+          queryClient.setQueryData(
+            [["products", "getMany"], { type: "query" }],
+            (prev) => [
+              ...(prev as Product[]).filter((test) => test.id !== variables.id),
+              data,
+            ]
+          );
+          dialogRef.current?.close();
+        },
+        onError(err) {
+          setErrors(err.message);
+        },
+      });
+    }
   };
 
   return (
@@ -68,7 +92,13 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
       dialogRef={dialogRef}
       buttonAttrs={{ className: "" }}
       dialogAttrs={{}}
-      buttonChildren={<RiAddLine className="h-fit w-fit p-3 text-3xl" />}
+      buttonChildren={
+        props.operationType === "post" ? (
+          <RiAddLine className="h-fit w-fit p-3 text-3xl text-green-600" />
+        ) : (
+          <BiEdit className="h-fit w-fit p-3 text-3xl text-yellow-400" />
+        )
+      }
       modalChildren={
         <form
           onSubmit={handleSubmit(onSubmit, (err) => {
@@ -78,7 +108,11 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
             );
           })}
         >
-          <h1 className="my-2 text-3xl">Add New Product</h1>
+          <h1 className="my-2 text-3xl">
+            {props.operationType === "post"
+              ? "Add New Product"
+              : "Update Product"}
+          </h1>
           {/* create form inputs */}
 
           {/* id is special case than the loop */}
@@ -211,13 +245,18 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
           <button
             disabled={productInsert.isLoading || categoryQuery.isLoading}
             type="submit"
-            className="m-3 h-fit w-fit cursor-pointer rounded-lg bg-green-700 p-3 text-white"
-            value={"Add"}
+            className={clsx({
+              "m-3 h-fit w-fit cursor-pointer rounded-lg  p-3 text-white": true,
+              "bg-green-700": props.operationType === "post",
+              "bg-yellow-600": props.operationType === "put",
+            })}
           >
-            {productInsert.isLoading ? (
+            {productInsert.isLoading || productUpdate.isLoading ? (
               <CgSpinner className="animate-spin text-2xl" />
-            ) : (
+            ) : props.operationType === "post" ? (
               "Add"
+            ) : (
+              "Update"
             )}
           </button>
         </form>
