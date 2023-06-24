@@ -1,4 +1,5 @@
 import React, { type Dispatch, type SetStateAction } from "react";
+import Image from "next/image";
 import { api } from "@/utils/api";
 
 export type CategoryDisplayProps = {
@@ -28,11 +29,25 @@ const CategoryDisplay: React.FC<CategoryDisplayProps> = (props) => {
               props.setCategoryFilter("");
             }}
           >
-            <img
-              className="border-1 h-20 w-20 rounded-full border-gray-300"
-              src="https://images.immediate.co.uk/production/volatile/sites/30/2020/02/Glass-and-bottle-of-milk-fe0997a.jpg?quality=90&resize=556,505"
-            ></img>
-            <p className="text-lg font-semibold text-slate-600">Milk</p>
+            <label>
+              <input
+                type="radio"
+                className="peer hidden"
+                name="categoryOptions"
+                defaultChecked={true}
+              />
+              <Image
+                className="border-1 rounded-full border-green-500 peer-checked:border-4"
+                src="https://images.immediate.co.uk/production/volatile/sites/30/2020/02/Glass-and-bottle-of-milk-fe0997a.jpg?quality=90"
+                alt="no Filter"
+                width={80}
+                height={80}
+                priority={true}
+              ></Image>
+              <p className="text-center text-lg font-semibold text-slate-600">
+                No Filter
+              </p>
+            </label>
           </div>
           {categoryQuery.data.map((category) => {
             return (
@@ -44,13 +59,23 @@ const CategoryDisplay: React.FC<CategoryDisplayProps> = (props) => {
                   props.setCategoryFilter(category.id);
                 }}
               >
-                <img
-                  className="border-1 h-20 w-20 rounded-full border-gray-300"
-                  src={category.image}
-                ></img>
-                <p className="text-lg font-semibold text-slate-600">
-                  {category.name}
-                </p>
+                <label>
+                  <input
+                    type="radio"
+                    className="peer hidden"
+                    name="categoryOptions"
+                  />
+                  <Image
+                    className="border-1  rounded-full border-green-500 peer-checked:border-4"
+                    src={category.image}
+                    alt="category image"
+                    width={80}
+                    height={80}
+                  ></Image>
+                  <p className="text-center text-lg font-semibold text-slate-600">
+                    {category.name}
+                  </p>
+                </label>
               </div>
             );
           })}

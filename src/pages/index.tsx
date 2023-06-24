@@ -4,7 +4,7 @@ import { type ReactElement, useState } from "react";
 import CrateModal, { type CrateProps } from "@/components/modal/crateModal";
 // import { prisma } from "@/server/db";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { useTranslation } from "next-i18next";
+// import { useTranslation } from "next-i18next";
 import { useAuth } from "@/hooks/useAuth";
 import { RiSearch2Line } from "react-icons/ri";
 import InputWithIcon from "@/components/form/inputWithIcon";
@@ -28,7 +28,7 @@ export async function getStaticProps({ locale }: GetStaticPropsContext) {
 
 const Home: NextPageWithLayout = () => {
   const { token } = useAuth({ noExistRedirectTo: "/signin" });
-  const { t } = useTranslation();
+  // const { t } = useTranslation();
   const [categoryFilter, setCategoryFilter] = useState("");
   const [onCrate, setOnCrate] = useState<CrateProps["onCrate"]>([]);
 

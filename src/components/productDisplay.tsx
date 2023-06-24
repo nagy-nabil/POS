@@ -4,6 +4,7 @@ import { type Product } from "@prisma/client";
 import { RiAddCircleLine } from "react-icons/ri";
 import { type CrateItem } from "@/components/modal/crateModal";
 import { useAuth } from "@/hooks/useAuth";
+import Image from "next/image";
 
 type ProductProps = Pick<
   Product,
@@ -19,7 +20,14 @@ export const KeypadDisplay: React.FC<ProductProps> = (props) => {
       className={`${props.width} m-3 flex h-fit flex-col gap-1 md:w-1/5`}
       key={props.id}
     >
-      <img alt="item-card" src={props.image} className="h-24 w-full" />
+      <Image
+        alt="item-card"
+        src={props.image}
+        className="h-auto w-full"
+        sizes="100vw"
+        width={130}
+        height={80}
+      />
       <h2 className="text-2xl">{props.name}</h2>
       <span className="text-green-500">price: {props.sellPrice}$</span>
       <span className="text-gray-500">Quantity: {props.stock}</span>
@@ -37,12 +45,18 @@ export const KeypadDisplay: React.FC<ProductProps> = (props) => {
 
 export const LibraryDisplay: React.FC<ProductProps> = (props) => {
   return (
-    <div className=" m-2 flex  h-12 w-11/12" key={props.id}>
+    <div className=" m-2 flex  h-1/6 w-11/12" key={props.id}>
       <div className="flex items-center">
-        <img alt="item-card" src={props.image} className="h-12 w-12" />
+        <Image
+          alt="item-card"
+          src={props.image}
+          className="h-auto w-auto"
+          width={50}
+          height={50}
+        />
       </div>
       <div className="ml-3 flex h-12 flex-col">
-        <h2 className="text-2xl">{props.name}</h2>
+        <h2 className="h-fit w-fit text-2xl">{props.name}</h2>
         <p>
           <span className="text-gray-500">{props.stock} : </span>
           <span className="text-green-500"> {props.sellPrice}$</span>

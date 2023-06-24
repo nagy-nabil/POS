@@ -15,3 +15,7 @@ point of sale.
 - in case migrate didn't run db seed `pnpm db:seed`
 
 | seed give you default user with `{username: 'admin', password: 'admin'}`
+
+## Features
+
+- 
