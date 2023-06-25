@@ -14,6 +14,7 @@ import { BsQrCodeScan } from "react-icons/bs";
 import QrCode from "../qrcode";
 import { Html5QrcodeScannerState, type Html5QrcodeScanner } from "html5-qrcode";
 import clsx from "clsx";
+import UploadImage, { useUploadAzure } from "../form/uploadImage";
 
 export type ProductT = z.infer<typeof productSchema>;
 const productKeys = productSchema.keyof().options;
@@ -30,6 +31,10 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
   const [isScannerPaused, setIsScannerPaused] = useState(false);
   const [isQrOpen, setIsQrOpen] = useState(false);
   const [errors, setErrors] = useState("");
+  const [fileSelected, setFileSelected] = useState<File | undefined>(undefined);
+  const [fileSelectedSas, setFileSelectedSas] = useState<string | undefined>(
+    undefined
+  );
 
   // react-query
   const categoryQuery = api.categories.getMany.useQuery(undefined, {
@@ -37,6 +42,7 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
   });
   const productInsert = api.products.insertOne.useMutation();
   const productUpdate = api.products.updateOne.useMutation();
+  const imageMut = useUploadAzure();
   const queryClient = useQueryClient();
 
   // form hook
@@ -51,7 +57,16 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
   });
 
   const onSubmit: SubmitHandler<ProductT> = (data) => {
-    if (props.operationType === "post") {
+    if (
+      props.operationType === "put" &&
+      (data.id === undefined || data.id === "")
+    ) {
+      setErrors("id cannot be undefined or an empty string");
+      return;
+    }
+
+    // just puting the mut call into functions to make the poilerplate easier
+    const proIns = () => {
       productInsert.mutate(data, {
         onSuccess: (data) => {
           queryClient.setQueryData(
@@ -64,9 +79,8 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
           setErrors(err.message);
         },
       });
-    } else if (data.id === undefined || data.id === "") {
-      setErrors("id cannot be undefined or an empty string");
-    } else if (props.operationType === "put") {
+    };
+    const proPut = () => {
       // @ts-ignore
       productUpdate.mutate(data, {
         onSuccess: (data, variables) => {
@@ -84,6 +98,32 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
           setErrors(err.message);
         },
       });
+    };
+
+    // set function to be run
+    let toBeRun: () => void;
+    if (props.operationType === "post") {
+      toBeRun = proIns;
+    } else {
+      toBeRun = proPut;
+    }
+
+    // upload new image if selected file not undefined, then call the post or put
+    // if no selected file do the post or put directly
+    if (fileSelectedSas !== undefined && fileSelected !== undefined) {
+      imageMut.mutate(
+        { image: fileSelected, sasUrl: fileSelectedSas },
+        {
+          onSuccess() {
+            toBeRun();
+          },
+          onError(err) {
+            setErrors(err.message);
+          },
+        }
+      );
+    } else {
+      toBeRun();
     }
   };
 
@@ -120,7 +160,7 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
             Id
             <div className="mb-3 flex gap-1">
               <input
-                className=" block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+                className="block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
                 {...register("id")}
               />
 
@@ -182,8 +222,39 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
             )}
           </label>
 
+          {/* image upload is special case */}
+          <label key={"productimage"} className="block">
+            Image
+            <div className="mb-3 flex gap-1">
+              <input
+                className="block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+                {...register("image")}
+              />
+              <UploadImage
+                key={"uploadProductImage"}
+                setFileSelected={setFileSelected}
+                onLink={(url) => {
+                  console.log("url", url);
+                  setFileSelectedSas(url.sasUrl);
+                  setValue("image", url.blobUrl);
+                }}
+              />
+            </div>
+            {/* errors will return when field validation fails  */}
+            {formErrors["image"] && (
+              <span className="m-2 text-red-700">
+                {formErrors["image"].message}
+              </span>
+            )}
+          </label>
+
           {productKeys.map((productKey, i) => {
-            if (productKey === "categoryId" || productKey === "id") return null;
+            if (
+              productKey === "categoryId" ||
+              productKey === "id" ||
+              productKey === "image"
+            )
+              return null;
             return (
               <label key={i} className="block">
                 {productKey}

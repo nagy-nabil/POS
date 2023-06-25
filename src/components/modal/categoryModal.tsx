@@ -9,7 +9,7 @@ import { type z } from "zod";
 import { categorySchema } from "@/types/entities";
 import { type Category } from "@prisma/client";
 import { CgSpinner } from "react-icons/cg";
-import { BiEdit } from "react-icons/bi";
+import { BiEdit, BiUpload } from "react-icons/bi";
 import clsx from "clsx";
 
 type CategoryT = z.infer<typeof categorySchema>;
@@ -104,7 +104,33 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
               ? "Add New Category"
               : "Update Category"}
           </h1>
+
+          {/* image upload is special case */}
+          <label key={"productimage"} className="block">
+            Image
+            <div className="mb-3 flex gap-1">
+              <input
+                className="block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+                {...register("image")}
+              />
+              <button>
+                <BiUpload className="h-fit w-fit rounded-full border-2 border-gray-500 p-1 text-2xl text-gray-700" />
+              </button>
+            </div>
+            {/* errors will return when field validation fails  */}
+            {formErrors["image"] && (
+              <span className="m-2 text-red-700">
+                {formErrors["image"].message}
+              </span>
+            )}
+          </label>
+
           {categoryKeys.map((categoryKey, i) => {
+            if (
+              categoryKey === "image" ||
+              (props.operationType === "post" && categoryKey === "id")
+            )
+              return null;
             return (
               <label key={i} className="block">
                 {categoryKey}

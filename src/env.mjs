@@ -42,6 +42,9 @@ export const env = createEnv({
 
       return parsed;
     }),
+    AzureStorageAccountKey: z.string().nonempty(),
+    AzureStorageAaccountName: z.string().nonempty(),
+    AzureContainerName: z.string().nonempty(),
   },
 
   /**
@@ -64,5 +67,8 @@ export const env = createEnv({
     // expire in period must be more than one minute
     JWTEXPIREIN: process.env.JWTEXPIREIN,
     CRYPTROUNDS: process.env.CRYPTROUNDS,
+    AzureStorageAccountKey: process.env.AZURESTORAGEACCOUNTKEY,
+    AzureContainerName: process.env.AZURECONTAINERNAME,
+    AzureStorageAaccountName: process.env.AZURESTROAGEACCOUNTNAME,
   },
 });
