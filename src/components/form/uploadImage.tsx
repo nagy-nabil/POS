@@ -46,6 +46,7 @@ export default function UploadImage(props: UploadImageProps) {
       <input
         type="file"
         className="hidden"
+        accept="image/*"
         onChange={(event) => {
           if (
             event.target !== null &&
