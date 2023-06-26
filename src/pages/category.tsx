@@ -29,6 +29,7 @@ import { fuzzyFilter } from "@/components/table/helpers";
 import IndeterminateCheckbox from "@/components/form/indeterminateCheckbox";
 import TableBody from "@/components/table/body";
 import TableUtils from "@/components/table/utils";
+import Head from "next/head";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   console.log("🪵 [index.tsx:29] ~ token ~ \x1b[0;32mlocale\x1b[0m = ", locale);
@@ -185,6 +186,9 @@ const Category: NextPageWithLayout = () => {
 
   return (
     <>
+      <Head>
+        <link rel="manifest" href="/app.webmanifest" />
+      </Head>
       <div className="w-screen">
         <header className="mt-2 flex items-center justify-around">
           <h1 className="text-4xl">Category</h1>

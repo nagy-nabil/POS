@@ -12,6 +12,7 @@ import { api } from "@/utils/api";
 import { z } from "zod";
 import { CgSpinner } from "react-icons/cg";
 import { useAuth } from "@/hooks/useAuth";
+import Head from "next/head";
 
 export async function getServerSideProps({
   locale,
@@ -76,113 +77,118 @@ const Settings: NextPageWithLayout = () => {
   };
 
   return (
-    <div className="flex h-screen w-full flex-col content-between justify-items-center p-12 align-middle ">
-      <h2 className="mb-3 text-3xl font-bold">App Settings</h2>
-      <label className="flex flex-col gap-3">
-        Change Language
-        <LanguageSwitcher
-          onChange={(locale) => {
-            document.cookie = `NEXT_LOCALE=${locale}; max-age=31536000; path=/`;
-          }}
-        />
-      </label>
-
-      <label className="mt-3 flex flex-col gap-3">
-        Print Policy
-        <select
-          className="rounded-xl border-2 border-gray-400 p-2 text-black"
-          defaultValue="on"
-        >
-          <option value="on">Always Ask</option>
-          <option value="off">Off</option>
-        </select>
-      </label>
-
-      <hr className="mt-4" />
-      <h2 className="mb-2  text-3xl font-bold">User Settings</h2>
-      <form
-        className="mt-3 flex flex-col gap-3"
-        onSubmit={userNameOnSubmit(userNameSubmit)}
-      >
+    <>
+      <Head>
+        <link rel="manifest" href="/app.webmanifest" />
+      </Head>
+      <div className="flex h-screen w-full flex-col content-between justify-items-center p-12 align-middle ">
+        <h2 className="mb-3 text-3xl font-bold">App Settings</h2>
         <label className="flex flex-col gap-3">
-          Change User Name
-          <input
-            {...userNameReg("userName")}
-            type="text"
-            className="rounded-xl border-2 border-gray-400 p-2 text-lg"
-            placeholder="User Name"
+          Change Language
+          <LanguageSwitcher
+            onChange={(locale) => {
+              document.cookie = `NEXT_LOCALE=${locale}; max-age=31536000; path=/`;
+            }}
           />
-          {userNameErrors["userName"] && (
-            <span className="m-2 text-red-700">
-              {userNameErrors["userName"].message}
-            </span>
-          )}
         </label>
-        <button
-          type="submit"
-          className=" h-fit w-fit rounded-xl bg-green-500 p-2 text-white"
-        >
-          {userNameUpdate.isLoading ? (
-            <CgSpinner className="animate-spin text-2xl" />
-          ) : (
-            "Save Changes"
-          )}
-        </button>
-      </form>
 
-      <hr className="mt-3" />
-
-      <form
-        className="mt-3 flex flex-col gap-3"
-        onSubmit={passwordOnSubmit(passwordSubmit)}
-      >
-        <label className="flex flex-col gap-3">
-          Change password
-          <input
-            {...passwordReg("password")}
-            type="password"
-            placeholder="Password"
-            autoCapitalize="off"
-            className="rounded-xl border-2 border-gray-400 p-2 text-lg"
-          />
-          {passwordErrors["password"] && (
-            <span className="m-2 text-red-700">
-              {passwordErrors["password"].message}
-            </span>
-          )}
-          <input
-            {...passwordReg("rePassword")}
-            type="password"
-            placeholder="Re-enter the password"
-            className="rounded-xl border-2 border-gray-400 p-2 text-lg"
-          />
-          {passwordErrors["rePassword"] && (
-            <span className="m-2 text-red-700">
-              {passwordErrors["rePassword"].message}
-            </span>
-          )}
-          {/* @ts-ignore */}
-          {passwordErrors["confirm"] && (
-            <span className="m-2 text-red-700">
-              {/* @ts-ignore  */}
-              {passwordErrors["confirm"].message} {/* eslint-disable-line*/}
-            </span>
-          )}
+        <label className="mt-3 flex flex-col gap-3">
+          Print Policy
+          <select
+            className="rounded-xl border-2 border-gray-400 p-2 text-black"
+            defaultValue="on"
+          >
+            <option value="on">Always Ask</option>
+            <option value="off">Off</option>
+          </select>
         </label>
-        <button
-          type="submit"
-          className="h-fit  w-fit rounded-xl bg-green-500 p-2 text-white"
-        >
-          {passwordUpdate.isLoading ? (
-            <CgSpinner className="animate-spin text-2xl" />
-          ) : (
-            "Save Changes"
-          )}
-        </button>
-      </form>
 
-      <ReactQueryDevtools initialIsOpen={false} />
-    </div>
+        <hr className="mt-4" />
+        <h2 className="mb-2  text-3xl font-bold">User Settings</h2>
+        <form
+          className="mt-3 flex flex-col gap-3"
+          onSubmit={userNameOnSubmit(userNameSubmit)}
+        >
+          <label className="flex flex-col gap-3">
+            Change User Name
+            <input
+              {...userNameReg("userName")}
+              type="text"
+              className="rounded-xl border-2 border-gray-400 p-2 text-lg"
+              placeholder="User Name"
+            />
+            {userNameErrors["userName"] && (
+              <span className="m-2 text-red-700">
+                {userNameErrors["userName"].message}
+              </span>
+            )}
+          </label>
+          <button
+            type="submit"
+            className=" h-fit w-fit rounded-xl bg-green-500 p-2 text-white"
+          >
+            {userNameUpdate.isLoading ? (
+              <CgSpinner className="animate-spin text-2xl" />
+            ) : (
+              "Save Changes"
+            )}
+          </button>
+        </form>
+
+        <hr className="mt-3" />
+
+        <form
+          className="mt-3 flex flex-col gap-3"
+          onSubmit={passwordOnSubmit(passwordSubmit)}
+        >
+          <label className="flex flex-col gap-3">
+            Change password
+            <input
+              {...passwordReg("password")}
+              type="password"
+              placeholder="Password"
+              autoCapitalize="off"
+              className="rounded-xl border-2 border-gray-400 p-2 text-lg"
+            />
+            {passwordErrors["password"] && (
+              <span className="m-2 text-red-700">
+                {passwordErrors["password"].message}
+              </span>
+            )}
+            <input
+              {...passwordReg("rePassword")}
+              type="password"
+              placeholder="Re-enter the password"
+              className="rounded-xl border-2 border-gray-400 p-2 text-lg"
+            />
+            {passwordErrors["rePassword"] && (
+              <span className="m-2 text-red-700">
+                {passwordErrors["rePassword"].message}
+              </span>
+            )}
+            {/* @ts-ignore */}
+            {passwordErrors["confirm"] && (
+              <span className="m-2 text-red-700">
+                {/* @ts-ignore  */}
+                {passwordErrors["confirm"].message} {/* eslint-disable-line*/}
+              </span>
+            )}
+          </label>
+          <button
+            type="submit"
+            className="h-fit  w-fit rounded-xl bg-green-500 p-2 text-white"
+          >
+            {passwordUpdate.isLoading ? (
+              <CgSpinner className="animate-spin text-2xl" />
+            ) : (
+              "Save Changes"
+            )}
+          </button>
+        </form>
+
+        <ReactQueryDevtools initialIsOpen={false} />
+      </div>
+    </>
   );
 };
 

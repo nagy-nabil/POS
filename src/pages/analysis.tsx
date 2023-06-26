@@ -7,6 +7,7 @@ import OrderDisplay from "@/components/orderDisplay";
 import { useAuth } from "@/hooks/useAuth";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import type { GetStaticPropsContext } from "next";
+import Head from "next/head";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   console.log("🪵 [index.tsx:29] ~ token ~ \x1b[0;32mlocale\x1b[0m = ", locale);
@@ -53,6 +54,9 @@ const Anal: NextPageWithLayout = () => {
 
   return (
     <>
+      <Head>
+        <link rel="manifest" href="/app.webmanifest" />
+      </Head>
       <div className="flex h-screen w-full flex-col overflow-hidden px-4">
         <header className="m-auto mb-8">
           <h1 className="text-5xl">Analysis</h1>
