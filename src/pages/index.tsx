@@ -14,6 +14,7 @@ import ProductModal from "@/components/modal/productModal";
 import QrModal from "@/components/modal/qrModal";
 import type { NextPageWithLayout } from "./_app";
 import Layout from "@/components/layout";
+import Head from "next/head";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   console.log("🪵 [index.tsx:29] ~ token ~ \x1b[0;32mlocale\x1b[0m = ", locale);
@@ -36,6 +37,9 @@ const Home: NextPageWithLayout = () => {
 
   return (
     <>
+      <Head>
+        <link rel="manifest" href="/app.webmanifest" />
+      </Head>
       <div className="flex h-screen w-full flex-col overflow-x-hidden">
         <header className="ml-auto flex w-4/5 items-center justify-end gap-2">
           <InputWithIcon

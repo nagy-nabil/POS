@@ -56,6 +56,10 @@ const config = {
         protocol: "https",
         hostname: "dummyimage.com",
       },
+      {
+        protocol: "https",
+        hostname: "zagypos.blob.core.windows.net",
+      },
     ],
   },
 };

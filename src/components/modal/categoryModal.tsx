@@ -11,6 +11,7 @@ import { type Category } from "@prisma/client";
 import { CgSpinner } from "react-icons/cg";
 import { BiEdit } from "react-icons/bi";
 import clsx from "clsx";
+import UploadImage, { useUploadAzure } from "../form/uploadImage";
 
 type CategoryT = z.infer<typeof categorySchema>;
 
@@ -25,21 +26,37 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
   // used to control dialog directly
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [errors, setErrors] = useState("");
+  const [fileSelected, setFileSelected] = useState<File | undefined>(undefined);
+  const [fileSelectedSas, setFileSelectedSas] = useState<string | undefined>(
+    undefined
+  );
+
   const categoryInsert = api.categories.insertOne.useMutation();
   const categoryUpdate = api.categories.updateOne.useMutation();
+  const imageMut = useUploadAzure();
   const queryClient = useQueryClient();
 
   const {
     register,
     handleSubmit,
     formState: { errors: formErrors },
+    setValue,
   } = useForm<CategoryT>({
     resolver: zodResolver(categorySchema),
     defaultValues: props.defaultValues,
   });
 
   const onSubmit: SubmitHandler<CategoryT> = (data) => {
-    if (props.operationType === "post") {
+    if (
+      props.operationType === "put" &&
+      (data.id === undefined || data.id === "")
+    ) {
+      setErrors("id cannot be undefined or an empty string");
+      return;
+    }
+
+    // just saving the mut call into functions to make the poilerplate easier
+    const catIns = () => {
       categoryInsert.mutate(data, {
         onSuccess: (data) => {
           dialogRef.current;
@@ -53,9 +70,8 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
           setErrors(err.message);
         },
       });
-    } else if (data.id === undefined || data.id === "") {
-      setErrors("id cannot be undefined or an empty string");
-    } else if (props.operationType === "put") {
+    };
+    const catPut = () => {
       // @ts-ignore
       categoryUpdate.mutate(data, {
         onSuccess: (data, variables) => {
@@ -75,6 +91,32 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
           setErrors(err.message);
         },
       });
+    };
+
+    // set function to be run
+    let toBeRun: () => void;
+    if (props.operationType === "post") {
+      toBeRun = catIns;
+    } else {
+      toBeRun = catPut;
+    }
+
+    // upload new image if selected file not undefined, then call the post or put
+    // if no selected file do the post or put directly
+    if (fileSelectedSas !== undefined && fileSelected !== undefined) {
+      imageMut.mutate(
+        { image: fileSelected, sasUrl: fileSelectedSas },
+        {
+          onSuccess() {
+            toBeRun();
+          },
+          onError(err) {
+            setErrors(err.message);
+          },
+        }
+      );
+    } else {
+      toBeRun();
     }
   };
 
@@ -104,7 +146,39 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
               ? "Add New Category"
               : "Update Category"}
           </h1>
+
+          {/* image upload is special case */}
+          <label key={"productimage"} className="block">
+            Image
+            <div className="mb-3 flex gap-1">
+              <input
+                className="block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+                {...register("image")}
+              />
+              <UploadImage
+                key={"uploadCategoryImage"}
+                setFileSelected={setFileSelected}
+                onLink={(url) => {
+                  console.log("url", url);
+                  setFileSelectedSas(url.sasUrl);
+                  setValue("image", url.blobUrl);
+                }}
+              />
+            </div>
+            {/* errors will return when field validation fails  */}
+            {formErrors["image"] && (
+              <span className="m-2 text-red-700">
+                {formErrors["image"].message}
+              </span>
+            )}
+          </label>
+
           {categoryKeys.map((categoryKey, i) => {
+            if (
+              categoryKey === "image" ||
+              (props.operationType === "post" && categoryKey === "id")
+            )
+              return null;
             return (
               <label key={i} className="block">
                 {categoryKey}
