@@ -20,6 +20,7 @@ const categoryKeys = categorySchema.keyof().options;
 export type CategoryModalProps = {
   operationType: "post" | "put";
   defaultValues: Partial<CategoryT>;
+  isImageUploadLoading: boolean;
 };
 
 const CategoryModal: React.FC<CategoryModalProps> = (props) => {
@@ -41,9 +42,11 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
     handleSubmit,
     formState: { errors: formErrors },
     setValue,
+    reset: formReset,
   } = useForm<CategoryT>({
     resolver: zodResolver(categorySchema),
     defaultValues: props.defaultValues,
+    mode: "onSubmit",
   });
 
   const onSubmit: SubmitHandler<CategoryT> = (data) => {
@@ -64,6 +67,10 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
             [["categories", "getMany"], { type: "query" }],
             (prev) => [...(prev as Category[]), data]
           );
+          setFileSelected(undefined);
+          setFileSelectedSas(undefined);
+          setErrors("");
+          formReset();
           dialogRef.current?.close();
         },
         onError(err) {
@@ -85,6 +92,10 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
               data,
             ]
           );
+          setFileSelected(undefined);
+          setFileSelectedSas(undefined);
+          setErrors("");
+          formReset();
           dialogRef.current?.close();
         },
         onError(err) {
@@ -199,7 +210,11 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
 
           <p className="m-2 text-red-700">{errors}</p>
           <button
-            disabled={categoryInsert.isLoading}
+            disabled={
+              categoryInsert.isLoading ||
+              categoryUpdate.isLoading ||
+              props.isImageUploadLoading
+            }
             type="submit"
             className={clsx({
               "m-3 h-fit w-fit cursor-pointer rounded-lg  p-3 text-white": true,
@@ -207,7 +222,9 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
               "bg-yellow-600": props.operationType === "put",
             })}
           >
-            {categoryInsert.isLoading || categoryUpdate.isLoading ? (
+            {categoryInsert.isLoading ||
+            categoryUpdate.isLoading ||
+            props.isImageUploadLoading ? (
               <CgSpinner className="animate-spin text-2xl" />
             ) : props.operationType === "post" ? (
               "Add"

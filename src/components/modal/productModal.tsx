@@ -51,9 +51,11 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
     handleSubmit,
     formState: { errors: formErrors },
     setValue,
+    reset: formReset,
   } = useForm<ProductT>({
     resolver: zodResolver(productSchema),
     defaultValues: props.defaultValues,
+    mode: "onSubmit",
   });
 
   const onSubmit: SubmitHandler<ProductT> = (data) => {
@@ -73,6 +75,10 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
             [["products", "getMany"], { type: "query" }],
             (prev) => [...(prev as Product[]), data]
           );
+          setFileSelected(undefined);
+          setFileSelectedSas(undefined);
+          setErrors("");
+          formReset();
           dialogRef.current?.close();
         },
         onError(err) {
@@ -92,6 +98,10 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
               data,
             ]
           );
+          setFileSelected(undefined);
+          setFileSelectedSas(undefined);
+          setErrors("");
+          formReset();
           dialogRef.current?.close();
         },
         onError(err) {
@@ -314,7 +324,11 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
 
           <p className="m-2 text-red-700">{errors}</p>
           <button
-            disabled={productInsert.isLoading || categoryQuery.isLoading}
+            disabled={
+              productInsert.isLoading ||
+              categoryQuery.isLoading ||
+              imageMut.isLoading
+            }
             type="submit"
             className={clsx({
               "m-3 h-fit w-fit cursor-pointer rounded-lg  p-3 text-white": true,
@@ -322,7 +336,9 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
               "bg-yellow-600": props.operationType === "put",
             })}
           >
-            {productInsert.isLoading || productUpdate.isLoading ? (
+            {productInsert.isLoading ||
+            productUpdate.isLoading ||
+            imageMut.isLoading ? (
               <CgSpinner className="animate-spin text-2xl" />
             ) : props.operationType === "post" ? (
               "Add"
