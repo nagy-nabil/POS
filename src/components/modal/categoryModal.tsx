@@ -20,7 +20,6 @@ const categoryKeys = categorySchema.keyof().options;
 export type CategoryModalProps = {
   operationType: "post" | "put";
   defaultValues: Partial<CategoryT>;
-  isImageUploadLoading: boolean;
 };
 
 const CategoryModal: React.FC<CategoryModalProps> = (props) => {
@@ -213,7 +212,7 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
             disabled={
               categoryInsert.isLoading ||
               categoryUpdate.isLoading ||
-              props.isImageUploadLoading
+              imageMut.isLoading
             }
             type="submit"
             className={clsx({
@@ -224,7 +223,7 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
           >
             {categoryInsert.isLoading ||
             categoryUpdate.isLoading ||
-            props.isImageUploadLoading ? (
+            imageMut.isLoading ? (
               <CgSpinner className="animate-spin text-2xl" />
             ) : props.operationType === "post" ? (
               "Add"
