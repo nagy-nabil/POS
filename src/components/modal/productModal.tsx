@@ -56,6 +56,7 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
     resolver: zodResolver(productSchema),
     defaultValues: props.defaultValues,
     mode: "onSubmit",
+    reValidateMode: "onSubmit",
   });
 
   const onSubmit: SubmitHandler<ProductT> = (data) => {
@@ -175,7 +176,10 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
               />
 
               {/* only show qr managment with id input */}
-              <button onClick={() => setIsQrOpen((prev) => !prev)}>
+              <button
+                type="button"
+                onClick={() => setIsQrOpen((prev) => !prev)}
+              >
                 <BsQrCodeScan className="h-fit w-fit rounded-full border-2 border-gray-500 p-1 text-2xl text-gray-700" />
               </button>
             </div>
@@ -196,7 +200,8 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
             {isQrOpen === true && isScannerPaused === true ? (
               <div className="flex justify-around">
                 <button
-                  className="h-fit w-fit rounded-2xl bg-gray-600 p-2"
+                  type="button"
+                  className="h-fit w-fit rounded-2xl bg-gray-600 p-2 text-white"
                   onClick={() => {
                     if (scannerRef.current === undefined) return;
                     if (
@@ -212,7 +217,8 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
                   Scan another
                 </button>
                 <button
-                  className="h-fit w-fit rounded-2xl bg-gray-600 p-2"
+                  type="button"
+                  className="h-fit w-fit rounded-2xl bg-gray-600 p-2 text-white"
                   onClick={async () => {
                     if (scannerRef.current === undefined) return;
                     await scannerRef.current.clear();
