@@ -102,7 +102,7 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
           # {props.id}
         </p>
         <span className="text-left">
-          Created At: {props.createdAt.toUTCString()}
+          Created At: {props.createdAt.toLocaleString("en-GB")}
         </span>
         <span className="text-lg font-bold text-green-600">
           Total: {props.total} $

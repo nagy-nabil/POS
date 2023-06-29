@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import type { GetStaticPropsContext } from "next";
 import Head from "next/head";
+import { generateInputDateValue } from "@/utils/date";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   console.log("🪵 [index.tsx:29] ~ token ~ \x1b[0;32mlocale\x1b[0m = ", locale);
@@ -22,11 +23,20 @@ export async function getStaticProps({ locale }: GetStaticPropsContext) {
 
 const Anal: NextPageWithLayout = () => {
   const { setToken } = useAuth({ noExistRedirectTo: "/signin" });
-  const date = new Date();
-  const [fromDate, setFromDate] = useState<Date>(
-    new Date(date.getFullYear(), date.getMonth(), date.getDate())
-  );
-  const [toDate, setToDate] = useState<Date>(date);
+  // always would be the time at midnight(start of a day)
+  const [fromDate, setFromDate] = useState<Date>(() => {
+    const localTimestamp = new Date();
+    localTimestamp.setHours(0, 0, 0, 0);
+    return localTimestamp;
+  });
+  // always need to be the end of day (time at 11:59:59:999)
+  const [toDate, setToDate] = useState<Date>(() => {
+    const localTimestamp = new Date();
+    localTimestamp.setHours(23, 59, 59, 999);
+    return localTimestamp;
+  });
+  console.log("from", generateInputDateValue(fromDate));
+  console.log("to", generateInputDateValue(toDate));
   let totalSold = 0;
 
   const orderQuery = api.orders.getMany.useQuery(
@@ -68,16 +78,29 @@ const Anal: NextPageWithLayout = () => {
             <input
               name="from"
               type="date"
-              value={fromDate.toISOString().split("T")[0]}
-              onChange={(e) => setFromDate(new Date(e.target.value))}
+              // yyyy-mm-dd
+              value={generateInputDateValue(fromDate)}
+              onChange={(e) =>
+                setFromDate(() => {
+                  const d = new Date(e.target.value);
+                  d.setHours(0, 0, 0, 0);
+                  return d;
+                })
+              }
               className="rounded-xl border-none bg-gray-600 p-3 text-xl text-white"
             />
           </label>
           <label className="flex items-center justify-between gap-2 text-2xl">
             to
             <input
-              value={toDate.toISOString().split("T")[0]}
-              onChange={(e) => setToDate(new Date(e.target.value))}
+              value={generateInputDateValue(toDate)}
+              onChange={(e) =>
+                setToDate(() => {
+                  const d = new Date(e.target.value);
+                  d.setHours(23, 59, 59, 999);
+                  return d;
+                })
+              }
               name="to"
               type="date"
               className="rounded-xl border-none bg-gray-600 p-3 text-xl text-white"
