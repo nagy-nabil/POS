@@ -27,6 +27,7 @@
     "next-i18next.config.js",
     "next-env.d.ts",
     "**/*.ts",
+    "**/*.js",
     "**/*.tsx",
     "**/*.cjs",
     "**/*.mjs"
