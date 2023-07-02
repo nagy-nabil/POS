@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * The destination read-only property of the Request interface returns a string describing the type of content being requested.
  ** The string must be one of the audio, audioworklet, document, embed, font, frame, iframe,
