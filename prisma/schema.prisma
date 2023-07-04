@@ -73,7 +73,7 @@ model ProductsOnOrder {
     productId       String
     Product         Product @relation(fields: [productId], references: [id])
     orderId         String
-    order           Order   @relation(fields: [orderId], references: [id])
+    order           Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
     // there a check constraint
     //alter table "ProductsOnOrder" add constraint "quntatity_zero" check (quantity > 0);
     quantity        Int     @default(1)

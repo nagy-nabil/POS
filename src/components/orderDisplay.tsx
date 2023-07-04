@@ -1,8 +1,12 @@
 import React, { useRef, useState } from "react";
-import type { PaymentType, Product } from "@prisma/client";
+import type { Order, PaymentType, Product } from "@prisma/client";
 import clsx from "clsx";
 import { HiOutlinePrinter } from "react-icons/hi";
 import { useReactToPrint } from "react-to-print";
+import { AiOutlineDelete } from "react-icons/ai";
+import { api } from "@/utils/api";
+import { CgSpinner } from "react-icons/cg";
+import { useQueryClient } from "@tanstack/react-query";
 
 export type OrderDisplayProps = {
   total: number;
@@ -92,6 +96,18 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
     documentTitle: props.id,
   });
 
+  const queryClient = useQueryClient();
+  const orderDelete = api.orders.delete.useMutation({
+    onSuccess(_data, variables, _context) {
+      queryClient.setQueryData<Order[]>([["orders", "getMany"]], (prev) => {
+        return prev === undefined
+          ? []
+          : [...prev.filter((test) => test.id !== variables)];
+      });
+    },
+  });
+  let totalProfit = 0;
+
   return (
     <div className="flex flex-col">
       <button
@@ -109,15 +125,38 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
         </span>
       </button>
 
-      <button
-        onClick={handlePrint}
-        className={clsx({
-          "my-3 focus:outline-none": true,
-          hidden: !productsOpen,
-        })}
-      >
-        <HiOutlinePrinter className="m-auto h-fit w-fit rounded-lg border-2 border-black p-2 text-3xl text-gray-500" />
-      </button>
+      {/* order utils */}
+      <div className=" flex justify-center gap-2 ">
+        <button
+          type="button"
+          onClick={handlePrint}
+          className={clsx({
+            "my-3 focus:outline-none": true,
+            hidden: !productsOpen,
+          })}
+        >
+          <HiOutlinePrinter className="m-auto h-fit w-fit rounded-lg border-2 border-black p-2 text-3xl text-gray-500" />
+        </button>
+
+        <button
+          onClick={() => {
+            orderDelete.mutate(props.id);
+          }}
+          className={clsx({
+            "my-3 focus:outline-none": true,
+            hidden: !productsOpen,
+          })}
+          type="button"
+          disabled={orderDelete.isLoading}
+        >
+          {orderDelete.isLoading ? (
+            <CgSpinner className="animate-spin text-2xl" />
+          ) : (
+            <AiOutlineDelete className="m-auto h-fit w-fit rounded-lg border-2 border-black p-2 text-3xl text-red-600" />
+          )}
+        </button>
+      </div>
+
       <div className="hidden">
         <OrderPrint {...props} ref={toPrintRef} />
       </div>
@@ -131,35 +170,53 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
         <thead className=" bg-gray-700 text-xs  uppercase text-gray-400">
           <tr>
             <th scope="col" className="px-4 py-2">
-              name
+              Name
             </th>
             <th scope="col" className="px-4 py-2">
-              price $
+              Price $
             </th>
             <th scope="col" className="px-4 py-2">
-              qunatity
+              Qunatity
             </th>
             <th scope="col" className="px-4 py-2">
-              total $
+              Total $
+            </th>
+            <th scope="col" className="px-4 py-2">
+              Profit $
             </th>
           </tr>
         </thead>
         <tbody>
-          {props.products.map((product) => (
-            <tr className="bg-white dark:bg-gray-800" key={product.Product.id}>
-              <th
-                scope="row"
-                className="whitespace-nowrap px-4 py-2 font-medium text-gray-900 dark:text-white"
+          {props.products.map((product) => {
+            const profit = product.sellPriceAtSale - product.buyPriceAtSale;
+            totalProfit += profit;
+            return (
+              <tr
+                className="bg-white dark:bg-gray-800"
+                key={product.Product.id}
               >
-                {product.Product.name}
-              </th>
-              <td className="px-4 py-2">{product.sellPriceAtSale}$</td>
-              <td className="px-4 py-2">{product.quantity}</td>
-              <td className="px-4 py-2">
-                {product.quantity * product.sellPriceAtSale}$
-              </td>
-            </tr>
-          ))}
+                <th
+                  scope="row"
+                  className="whitespace-nowrap px-4 py-2 font-medium text-gray-900 dark:text-white"
+                >
+                  {product.Product.name}
+                </th>
+                <td className="px-4 py-2">{product.sellPriceAtSale}$</td>
+                <td className="px-4 py-2">{product.quantity}</td>
+                <td className="px-4 py-2">
+                  {product.quantity * product.sellPriceAtSale}$
+                </td>
+                <td className="px-4 py-2">{profit} $</td>
+              </tr>
+            );
+          })}
+          <tr className="bg-white dark:bg-gray-800">
+            <td className="px-4 py-2"></td>
+            <td className="px-4 py-2"></td>
+            <td className="px-4 py-2"></td>
+            <td className="px-4 py-2">{props.total}</td>
+            <td className="px-4 py-2">{totalProfit}</td>
+          </tr>
         </tbody>
       </table>
       <hr className="m-auto mt-2 h-[0.5px] w-11/12 border-none bg-gray-500" />

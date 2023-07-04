@@ -56,6 +56,8 @@ const Anal: NextPageWithLayout = () => {
       },
     }
   );
+  const anal = api.orders.anal.useQuery();
+  console.log(anal.data);
 
   if (orderQuery.isLoading) return <p>loading ...</p>;
   else if (orderQuery.isError) {
