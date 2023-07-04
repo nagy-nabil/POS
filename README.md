@@ -18,4 +18,9 @@ point of sale.
 
 ## Features
 
-- 
+- Devide products into categories for ease of use
+- Use Qr/Bar code to add products into the crate
+- Special permissions for admin over staff for security
+- Orders history where you can print them, or delete them if you're an admin!
+- See how's your business doing through our dashboard
+- [ ] Admin can create staff with custom permissions
