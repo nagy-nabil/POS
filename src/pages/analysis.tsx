@@ -198,8 +198,9 @@ const Anal: NextPageWithLayout = () => {
             type="button"
             className="m-auto h-fit w-fit rounded-2xl bg-gray-600 p-3 text-white"
             onClick={() => orderQuery.refetch()}
+            disabled={orderQuery.isLoading && orderQuery.fetchStatus !== "idle"}
           >
-            {orderQuery.isLoading ? (
+            {orderQuery.isLoading && orderQuery.fetchStatus !== "idle" ? (
               <CgSpinner className="animate-spin text-2xl" />
             ) : (
               "Show History"
