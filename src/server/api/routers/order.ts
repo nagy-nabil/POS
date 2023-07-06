@@ -145,4 +145,65 @@ export const ordersRouter = createTRPCRouter({
       });
       return ordersWithTotal;
     }),
+  /**
+   * @param id string
+   */
+  delete: protectedProcedure.input(z.string()).mutation(async ({ input }) => {
+    // delete order means revert its effect which is decreasing some products stock
+    // and as we know order take snapshot of the product while adding it
+    // so what if the order buy/sell price get changed do i still accept the delete?
+    // TODO for now i will accept but need to ask our users what do they expect from this functionality
+
+    const prisma = new PrismaClient();
+    return await prisma.$transaction(async (tx) => {
+      // delete order and return its products
+      const o = await tx.order.delete({
+        where: {
+          id: input,
+        },
+        include: {
+          products: true,
+        },
+      });
+
+      // re-add the stock to the products
+      await Promise.all(
+        o.products.map((p) => {
+          return tx.product.update({
+            where: {
+              id: p.productId,
+            },
+            data: {
+              stock: {
+                increment: p.quantity,
+              },
+            },
+          });
+        })
+      );
+      return o;
+    });
+  }),
+  anal: protectedProcedure.query(async ({ ctx }) => {
+    /**
+     * prisma don't yet support using db native function inside the group by so need to use rawQuery, for more information
+     * @link https://github.com/prisma/prisma/discussions/11692
+     */
+    const res = await ctx.prisma.$queryRaw`
+          select Date(O."createdAt" at time zone 'utc' at time zone 'Africa/Cairo') as date, sum(PO.quantity * (PO."sellPriceAtSale" - PO."buyPriceAtSale")) as "profitDaily", sum(PO.quantity * PO."sellPriceAtSale") as "soldDaily"
+          from "Order" AS O
+          inner join "ProductsOnOrder" AS PO
+          on O.id = PO."orderId"
+          group by date
+          order by date ASC
+          limit 10
+          ;
+      `;
+
+    return res as {
+      date: Date;
+      profitDaily: number;
+      soldDaily: number;
+    }[];
+  }),
 });

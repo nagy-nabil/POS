@@ -42,6 +42,7 @@
     "next-i18next": "^14.0.0",
     "next-superjson": "^0.0.4",
     "react": "18.2.0",
+    "react-charts": "3.0.0-beta.55",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.43.9",
     "react-i18next": "^13.0.0",

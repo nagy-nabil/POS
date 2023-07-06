@@ -60,6 +60,10 @@ const config = {
         protocol: "https",
         hostname: "zagypos.blob.core.windows.net",
       },
+      {
+        protocol: "https",
+        hostname: "via.placeholder.com",
+      },
     ],
   },
 };

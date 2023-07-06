@@ -9,9 +9,16 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import type { GetStaticPropsContext } from "next";
 import Head from "next/head";
 import { generateInputDateValue } from "@/utils/date";
+import React from "react";
+// import * as charts from "react-charts";
+import type { Chart as ChartType, AxisOptions } from "react-charts";
+import dynamic from "next/dynamic";
+import { CgSpinner } from "react-icons/cg";
+const Chart = dynamic(() => import("react-charts").then((mod) => mod.Chart), {
+  ssr: false,
+}) as typeof ChartType;
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
-  console.log("🪵 [index.tsx:29] ~ token ~ \x1b[0;32mlocale\x1b[0m = ", locale);
   return {
     props: {
       // only pass array of required namespace to the page to make use of translitions code spliting
@@ -21,8 +28,90 @@ export async function getStaticProps({ locale }: GetStaticPropsContext) {
   };
 }
 
+type DateSum = {
+  date: Date;
+  profitDaily: number;
+  soldDaily: number;
+};
+
+type Series = {
+  label: string;
+  data: DateSum[];
+};
+
+// const data: Series[] = [
+//   {
+//     label: "React Charts",
+//     data: [
+//       {
+//         date: new Date(),
+//         sum: 202123,
+//       },
+//       {
+//         date: new Date("2023-07-11"),
+//         sum: 2021232,
+//       },
+//       {
+//         date: new Date("2023-07-12"),
+//         sum: 402123,
+//       },
+//       {
+//         date: new Date("2023-07-13"),
+//         sum: 902123,
+//       },
+//       // ...
+//     ],
+//   },
+// ];
+
+function ChartLine(props: {
+  data: Series[];
+  label: string;
+  primaryAxis: AxisOptions<DateSum>;
+  secondaryAxes: AxisOptions<DateSum>[];
+}) {
+  return (
+    <div className=" flex h-96 w-full shrink-0 flex-col gap-3 overflow-x-auto rounded-2xl border-2 border-gray-600 p-3 text-black shadow-xl">
+      <h2 className="text-2xl font-bold">{props.label}</h2>
+      <div className="h-96 w-[600px]">
+        <Chart
+          options={{
+            data: props.data,
+            primaryAxis: props.primaryAxis,
+            secondaryAxes: props.secondaryAxes,
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
 const Anal: NextPageWithLayout = () => {
   const { setToken } = useAuth({ noExistRedirectTo: "/signin" });
+  const profitPrimaryAxis = React.useMemo(
+    (): AxisOptions<DateSum> => ({
+      getValue: (datum) => datum.date,
+    }),
+    []
+  );
+
+  const profitSecondaryAxes = React.useMemo(
+    (): AxisOptions<DateSum>[] => [
+      {
+        getValue: (datum) => datum.profitDaily,
+      },
+    ],
+    []
+  );
+  const soldSecondaryAxes = React.useMemo(
+    (): AxisOptions<DateSum>[] => [
+      {
+        getValue: (datum) => datum.soldDaily,
+      },
+    ],
+    []
+  );
+
   // always would be the time at midnight(start of a day)
   const [fromDate, setFromDate] = useState<Date>(() => {
     const localTimestamp = new Date();
@@ -35,8 +124,6 @@ const Anal: NextPageWithLayout = () => {
     localTimestamp.setHours(23, 59, 59, 999);
     return localTimestamp;
   });
-  console.log("from", generateInputDateValue(fromDate));
-  console.log("to", generateInputDateValue(toDate));
   let totalSold = 0;
 
   const orderQuery = api.orders.getMany.useQuery(
@@ -45,6 +132,7 @@ const Anal: NextPageWithLayout = () => {
       to: toDate,
     },
     {
+      enabled: false,
       retry(_failureCount, error) {
         if (error.data?.code === "UNAUTHORIZED") {
           setToken("").catch((e) => {
@@ -56,9 +144,9 @@ const Anal: NextPageWithLayout = () => {
       },
     }
   );
+  const anal = api.orders.anal.useQuery(undefined, {});
 
-  if (orderQuery.isLoading) return <p>loading ...</p>;
-  else if (orderQuery.isError) {
+  if (orderQuery.isError) {
     return <p>{JSON.stringify(orderQuery.error)}</p>;
   }
 
@@ -106,12 +194,51 @@ const Anal: NextPageWithLayout = () => {
               className="rounded-xl border-none bg-gray-600 p-3 text-xl text-white"
             />
           </label>
+          <button
+            type="button"
+            className="m-auto h-fit w-fit rounded-2xl bg-gray-600 p-3 text-white"
+            onClick={() => orderQuery.refetch()}
+          >
+            {orderQuery.isLoading ? (
+              <CgSpinner className="animate-spin text-2xl" />
+            ) : (
+              "Show History"
+            )}
+          </button>
         </div>
 
         {/* order display */}
         <div className="mt-5 flex h-screen flex-col gap-4 overflow-y-auto">
-          {orderQuery.data.map((order) => {
-            console.log(order);
+          {/* <ChartLine /> */}
+          {anal.data !== undefined && (
+            <>
+              <ChartLine
+                key={"sold-daily"}
+                label="Sold Daily"
+                data={[
+                  {
+                    label: "sold-daily",
+                    data: anal.data,
+                  },
+                ]}
+                primaryAxis={profitPrimaryAxis}
+                secondaryAxes={soldSecondaryAxes}
+              />
+              <ChartLine
+                key={"profit-daily"}
+                label="Profit Daily"
+                data={[
+                  {
+                    label: "daily",
+                    data: anal.data,
+                  },
+                ]}
+                primaryAxis={profitPrimaryAxis}
+                secondaryAxes={profitSecondaryAxes}
+              />
+            </>
+          )}
+          {orderQuery.data?.map((order) => {
             totalSold += order.total;
             return <OrderDisplay key={order.id} {...order} />;
           })}
