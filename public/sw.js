@@ -14,7 +14,7 @@
  * XMLHttpRequest, WebSocket, Cache and more.
  */
 
-const assetsIWantSaved = new Set([
+const cacheFirstAssets = new Set([
   "document",
   "font",
   "image",
@@ -23,33 +23,41 @@ const assetsIWantSaved = new Set([
 ]);
 const cacheName = "pwav1";
 
-self.addEventListener("install", (event) => {
-  const withInstall = async () => {
-    const cache = await caches.open(cacheName);
-    const assets = [
-      // list of assets to cache
-      "/",
-    ];
-    await cache.addAll(assets);
-  };
-  console.log("installing");
-  event.waitUntil(withInstall());
-});
+async function updateCache(req, res) {
+  const cache = await caches.open(cacheName);
+  cache.put(req, res.clone());
+}
+
+async function cacheFirst(request) {
+  const cache = await caches.open(cacheName);
+  let cacheRes = await cache.match(request.url);
+  if (cacheRes !== undefined) {
+    return cacheRes;
+  }
+  // not found in the cache , fetch from network then cache them
+  const networkRes = await fetch(request);
+  // not waiting because we don't want the main thread to be holded to the cache
+  updateCache(request, networkRes.clone());
+  return networkRes;
+}
+
+// self.addEventListener("install", (event) => {
+//   const withInstall = async () => {
+//     const cache = await caches.open(cacheName);
+//     const assets = [
+//       // list of assets to cache
+//       "/",
+//     ];
+//     await cache.addAll(assets);
+//   };
+//   console.log("installing");
+//   event.waitUntil(withInstall());
+// });
 
 self.addEventListener("fetch", (event) => {
-  const f = async () => {
-    const cache = await caches.open(cacheName);
-    let res = await cache.match(event.request.url);
-    if (res === undefined && assetsIWantSaved.has(event.request.destination)) {
-      console.log(
-        "found assets for the first time with url",
-        event.request.url
-      );
-      console.log("cache deez nutz");
-      await cache.add(event.request.url);
-    }
-    return res !== undefined ? res : fetch(event.request);
-  };
-
-  event.respondWith(f());
+  if (cacheFirstAssets.has(event.request.destination)) {
+    event.respondWith(cacheFirst(event.request));
+  } else {
+    event.respondWith(fetch(event.request));
+  }
 });
