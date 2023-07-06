@@ -184,7 +184,9 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
         </thead>
         <tbody>
           {props.products.map((product) => {
-            const profit = product.sellPriceAtSale - product.buyPriceAtSale;
+            const profit =
+              product.quantity *
+              (product.sellPriceAtSale - product.buyPriceAtSale);
             totalProfit += profit;
             return (
               <tr

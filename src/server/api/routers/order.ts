@@ -190,12 +190,20 @@ export const ordersRouter = createTRPCRouter({
      * @link https://github.com/prisma/prisma/discussions/11692
      */
     const res = await ctx.prisma.$queryRaw`
-          select Date(O."createdAt"), sum(PO."sellPriceAtSale" - PO."buyPriceAtSale")
+          select Date(O."createdAt" at time zone 'utc' at time zone 'Africa/Cairo') as date, sum(PO.quantity * (PO."sellPriceAtSale" - PO."buyPriceAtSale")) as "profitDaily", sum(PO.quantity * PO."sellPriceAtSale") as "soldDaily"
           from "Order" AS O
           inner join "ProductsOnOrder" AS PO
           on O.id = PO."orderId"
-          group by Date(O."createdAt");
+          group by date
+          order by date ASC
+          limit 10
+          ;
       `;
-    return res;
+
+    return res as {
+      date: Date;
+      profitDaily: number;
+      soldDaily: number;
+    }[];
   }),
 });
