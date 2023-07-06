@@ -14,7 +14,7 @@ point of sale.
 
 - in case migrate didn't run db seed `pnpm db:seed`
 
-| seed give you default user with `{username: 'admin', password: 'admin'}`
+> seed give you default user with `{username: 'admin', password: 'admin'}`
 
 ## Features
 
@@ -24,3 +24,4 @@ point of sale.
 - Orders history where you can print them, or delete them if you're an admin!
 - See how's your business doing through our dashboard
 - [ ] Admin can create staff with custom permissions
+- [ ] Expenses/loses managment

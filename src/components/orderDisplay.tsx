@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import type { Order, PaymentType, Product } from "@prisma/client";
+import type { PaymentType, Product } from "@prisma/client";
 import clsx from "clsx";
 import { HiOutlinePrinter } from "react-icons/hi";
 import { useReactToPrint } from "react-to-print";
@@ -98,12 +98,8 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
 
   const queryClient = useQueryClient();
   const orderDelete = api.orders.delete.useMutation({
-    onSuccess(_data, variables, _context) {
-      queryClient.setQueryData<Order[]>([["orders", "getMany"]], (prev) => {
-        return prev === undefined
-          ? []
-          : [...prev.filter((test) => test.id !== variables)];
-      });
+    async onSuccess() {
+      await queryClient.invalidateQueries([["orders", "getMany"]]);
     },
   });
   let totalProfit = 0;

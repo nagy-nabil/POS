@@ -148,16 +148,16 @@ export const ordersRouter = createTRPCRouter({
   /**
    * @param id string
    */
-  delete: protectedProcedure
-    .input(z.string())
-    .mutation(async ({ ctx, input }) => {
-      // delete order means revert its effect which is decreasing some products stock
-      // and as we know order take snapshot of the product while adding it
-      // so what if the order buy/sell price get changed do i still accept the delete?
-      // TODO for now i will accept but need to ask our users what do they expect from this functionality
+  delete: protectedProcedure.input(z.string()).mutation(async ({ input }) => {
+    // delete order means revert its effect which is decreasing some products stock
+    // and as we know order take snapshot of the product while adding it
+    // so what if the order buy/sell price get changed do i still accept the delete?
+    // TODO for now i will accept but need to ask our users what do they expect from this functionality
 
+    const prisma = new PrismaClient();
+    return await prisma.$transaction(async (tx) => {
       // delete order and return its products
-      const o = await ctx.prisma.order.delete({
+      const o = await tx.order.delete({
         where: {
           id: input,
         },
@@ -169,7 +169,7 @@ export const ordersRouter = createTRPCRouter({
       // re-add the stock to the products
       await Promise.all(
         o.products.map((p) => {
-          return ctx.prisma.product.update({
+          return tx.product.update({
             where: {
               id: p.productId,
             },
@@ -181,7 +181,9 @@ export const ordersRouter = createTRPCRouter({
           });
         })
       );
-    }),
+      return o;
+    });
+  }),
   anal: protectedProcedure.query(async ({ ctx }) => {
     /**
      * prisma don't yet support using db native function inside the group by so need to use rawQuery, for more information
