@@ -21,10 +21,11 @@ const assetsIWantSaved = new Set([
   "script",
   "style",
 ]);
+const cacheName = "pwav1";
 
 self.addEventListener("install", (event) => {
   const withInstall = async () => {
-    const cache = await caches.open("pwav1");
+    const cache = await caches.open(cacheName);
     const assets = [
       // list of assets to cache
       "/",
@@ -36,10 +37,8 @@ self.addEventListener("install", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  console.log(`URL requeste: ${event.request.url}`);
-
   const f = async () => {
-    const cache = await caches.open("pwav1");
+    const cache = await caches.open(cacheName);
     let res = await cache.match(event.request.url);
     if (res === undefined && assetsIWantSaved.has(event.request.destination)) {
       console.log(

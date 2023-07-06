@@ -13,6 +13,7 @@ import React from "react";
 // import * as charts from "react-charts";
 import type { Chart as ChartType, AxisOptions } from "react-charts";
 import dynamic from "next/dynamic";
+import { CgSpinner } from "react-icons/cg";
 const Chart = dynamic(() => import("react-charts").then((mod) => mod.Chart), {
   ssr: false,
 }) as typeof ChartType;
@@ -198,7 +199,11 @@ const Anal: NextPageWithLayout = () => {
             className="m-auto h-fit w-fit rounded-2xl bg-gray-600 p-3 text-white"
             onClick={() => orderQuery.refetch()}
           >
-            Show History
+            {orderQuery.isLoading ? (
+              <CgSpinner className="animate-spin text-2xl" />
+            ) : (
+              "Show History"
+            )}
           </button>
         </div>
 
