@@ -110,6 +110,7 @@ const CrateModal: React.FC<CrateProps> = (props) => {
 
   return (
     <CustomModal
+      header="Cart Check Out"
       dialogRef={dialgoRef}
       key="crateModal"
       buttonChildren={
@@ -129,6 +130,7 @@ const CrateModal: React.FC<CrateProps> = (props) => {
           "flex h-fit w-11/12 justify-between rounded-3xl bg-black p-3 text-white",
       }}
       dialogAttrs={{}}
+      formAttrs={{}}
       modalChildren={
         <div className="flex flex-col">
           {/* render crate items */}
@@ -146,6 +148,7 @@ const CrateModal: React.FC<CrateProps> = (props) => {
             <button
               disabled={orderMut.isLoading}
               className=" h-fit w-fit rounded-3xl bg-green-500 p-2 text-white"
+              type="button"
               onClick={() => {
                 orderMut.mutate(
                   {

@@ -142,9 +142,23 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
 
   return (
     <CustomModal
+      header={
+        props.operationType === "post"
+          ? t("productModal.headerName.post")
+          : t("productModal.headerName.put")
+      }
       dialogRef={dialogRef}
       buttonAttrs={{ className: "" }}
       dialogAttrs={{}}
+      formAttrs={{
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        onSubmit: handleSubmit(onSubmit, (err) => {
+          console.log(
+            "🪵 [productModal.tsx:44] ~ token ~ \x1b[0;32merr\x1b[0m = ",
+            err
+          );
+        }),
+      }}
       buttonChildren={
         props.operationType === "post" ? (
           <RiAddLine className="h-fit w-fit p-3 text-3xl text-green-600" />
@@ -153,21 +167,7 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
         )
       }
       modalChildren={
-        <form
-          onSubmit={handleSubmit(onSubmit, (err) => {
-            console.log(
-              "🪵 [productModal.tsx:44] ~ token ~ \x1b[0;32merr\x1b[0m = ",
-              err
-            );
-          })}
-        >
-          <h1 className="my-2 text-3xl">
-            {props.operationType === "post"
-              ? t("productModal.headerName.post")
-              : t("productModal.headerName.put")}
-          </h1>
-          {/* create form inputs */}
-
+        <article className="overflow-y-auto overscroll-y-contain">
           {/* id is special case than the loop */}
           <label key="id" className="block">
             {t("productModal.props.id")}
@@ -354,7 +354,7 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
               t("productModal.action.put")
             )}
           </button>
-        </form>
+        </article>
       }
     />
   );
