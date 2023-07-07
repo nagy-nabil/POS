@@ -9,7 +9,7 @@
       },
       "printPolicey": {
         "header": "سياسة الطباعة",
-        "options": ["طلب دائمًا", "معطل"]
+        "options": { "always": "اسأل دائمًا", "off": "إيقاف" }
       }
     }
   },
@@ -24,7 +24,7 @@
       "changePassword": {
         "header": "تغيير كلمة المرور",
         "placeHolder1": "أدخل كلمة المرور",
-        "placeHolder2": "أعِد إدخال كلمة المرور",
+        "placeHolder2": "أعد إدخال كلمة المرور",
         "action": "تحديث كلمة المرور"
       }
     }

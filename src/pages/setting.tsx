@@ -13,6 +13,7 @@ import { z } from "zod";
 import { CgSpinner } from "react-icons/cg";
 import { useAuth } from "@/hooks/useAuth";
 import Head from "next/head";
+import { useTranslation } from "react-i18next";
 
 export async function getServerSideProps({
   locale,
@@ -20,7 +21,10 @@ export async function getServerSideProps({
   return {
     props: {
       // only pass array of required namespace to the page to make use of translitions code spliting
-      ...(await serverSideTranslations(locale as string, ["common"])),
+      ...(await serverSideTranslations(locale as string, [
+        "common",
+        "settings",
+      ])),
       // Will be passed to the page component as props
     },
   };
@@ -43,6 +47,7 @@ const passwordForm = loginSchema
 type PasswordFormT = z.infer<typeof passwordForm>;
 
 const Settings: NextPageWithLayout = () => {
+  const { t } = useTranslation("settings");
   const {} = useAuth({ noExistRedirectTo: "/signin" });
   const userNameUpdate = api.users.updateUserName.useMutation();
   const passwordUpdate = api.users.updatePassword.useMutation();
@@ -82,9 +87,9 @@ const Settings: NextPageWithLayout = () => {
         <link rel="manifest" href="/app.webmanifest" />
       </Head>
       <div className="flex h-screen w-full flex-col content-between justify-items-center p-12 align-middle ">
-        <h2 className="mb-3 text-3xl font-bold">App Settings</h2>
+        <h2 className="mb-3 text-3xl font-bold">{t("appSettings.header")}</h2>
         <label className="flex flex-col gap-3">
-          Change Language
+          {t("appSettings.settings.changeLang.header")}
           <LanguageSwitcher
             onChange={(locale) => {
               document.cookie = `NEXT_LOCALE=${locale}; max-age=31536000; path=/`;
@@ -93,29 +98,35 @@ const Settings: NextPageWithLayout = () => {
         </label>
 
         <label className="mt-3 flex flex-col gap-3">
-          Print Policy
+          {t("appSettings.settings.printPolicey.header")}
           <select
             className="rounded-xl border-2 border-gray-400 p-2 text-black"
             defaultValue="on"
           >
-            <option value="on">Always Ask</option>
-            <option value="off">Off</option>
+            <option value="on">
+              {t("appSettings.settings.printPolicey.options.always")}
+            </option>
+            <option value="off">
+              {t("appSettings.settings.printPolicey.options.off")}
+            </option>
           </select>
         </label>
 
         <hr className="mt-4" />
-        <h2 className="mb-2  text-3xl font-bold">User Settings</h2>
+        <h2 className="mb-2  text-3xl font-bold">{t("userSettings.header")}</h2>
         <form
           className="mt-3 flex flex-col gap-3"
           onSubmit={userNameOnSubmit(userNameSubmit)}
         >
           <label className="flex flex-col gap-3">
-            Change User Name
+            {t("userSettings.settings.changeUserName.header")}
             <input
               {...userNameReg("userName")}
               type="text"
               className="rounded-xl border-2 border-gray-400 p-2 text-lg"
-              placeholder="User Name"
+              placeholder={t(
+                "userSettings.settings.changeUserName.placeHolder"
+              )}
             />
             {userNameErrors["userName"] && (
               <span className="m-2 text-red-700">
@@ -130,7 +141,7 @@ const Settings: NextPageWithLayout = () => {
             {userNameUpdate.isLoading ? (
               <CgSpinner className="animate-spin text-2xl" />
             ) : (
-              "Save Changes"
+              t("userSettings.settings.changeUserName.action")
             )}
           </button>
         </form>
@@ -142,11 +153,13 @@ const Settings: NextPageWithLayout = () => {
           onSubmit={passwordOnSubmit(passwordSubmit)}
         >
           <label className="flex flex-col gap-3">
-            Change password
+            {t("userSettings.settings.changePassword.header")}
             <input
               {...passwordReg("password")}
               type="password"
-              placeholder="Password"
+              placeholder={t(
+                "userSettings.settings.changePassword.placeHolder1"
+              )}
               autoCapitalize="off"
               className="rounded-xl border-2 border-gray-400 p-2 text-lg"
             />
@@ -158,7 +171,9 @@ const Settings: NextPageWithLayout = () => {
             <input
               {...passwordReg("rePassword")}
               type="password"
-              placeholder="Re-enter the password"
+              placeholder={t(
+                "userSettings.settings.changePassword.placeHolder2"
+              )}
               className="rounded-xl border-2 border-gray-400 p-2 text-lg"
             />
             {passwordErrors["rePassword"] && (
@@ -181,7 +196,7 @@ const Settings: NextPageWithLayout = () => {
             {passwordUpdate.isLoading ? (
               <CgSpinner className="animate-spin text-2xl" />
             ) : (
-              "Save Changes"
+              t("userSettings.settings.changePassword.action")
             )}
           </button>
         </form>

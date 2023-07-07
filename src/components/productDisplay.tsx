@@ -5,6 +5,7 @@ import { RiAddCircleLine } from "react-icons/ri";
 import { type CrateItem } from "@/components/modal/crateModal";
 import { useAuth } from "@/hooks/useAuth";
 import Image from "next/image";
+import { useTranslation } from "react-i18next";
 
 type ProductProps = Pick<
   Product,
@@ -15,6 +16,7 @@ type ProductProps = Pick<
 };
 
 export const KeypadDisplay: React.FC<ProductProps> = (props) => {
+  const { t } = useTranslation();
   return (
     <div
       className={`${props.width} m-3 flex h-fit flex-col gap-1 md:w-1/5`}
@@ -37,7 +39,7 @@ export const KeypadDisplay: React.FC<ProductProps> = (props) => {
         onClick={props.onClick}
         className="mb-2 mr-2 rounded-xl bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:bg-gray-600"
       >
-        Add To Cart
+        {t("productDisplay.modes.keypad.action")}
       </button>
     </div>
   );
@@ -82,6 +84,7 @@ export type ProductDisplayProps = {
 
 // main component
 const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
+  const { t } = useTranslation();
   const { setToken } = useAuth({ redirectAfterSet: "/signin" });
   const [displayType, setDisplayType] = useState<
     ProductDisplayProps["displayType"]
@@ -125,7 +128,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
             htmlFor="library"
             className="flex w-full cursor-pointer justify-center rounded-3xl  p-2 text-gray-500 peer-checked:bg-white peer-checked:font-bold peer-checked:text-black peer-checked:shadow-lg"
           >
-            Library
+            {t("productDisplay.modes.Library")}
           </label>
         </li>
         <li className="w-1/2">
@@ -146,7 +149,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
             htmlFor="keypad"
             className="flex w-full cursor-pointer justify-center rounded-3xl  p-2  text-gray-500 peer-checked:bg-white peer-checked:font-bold peer-checked:text-black peer-checked:shadow-lg"
           >
-            Keypad
+            {t("productDisplay.modes.keypad.label")}
           </label>
         </li>
       </ul>

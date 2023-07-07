@@ -30,9 +30,9 @@ import IndeterminateCheckbox from "@/components/form/indeterminateCheckbox";
 import TableBody from "@/components/table/body";
 import TableUtils from "@/components/table/utils";
 import Head from "next/head";
+import { useTranslation } from "react-i18next";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
-  console.log("🪵 [index.tsx:29] ~ token ~ \x1b[0;32mlocale\x1b[0m = ", locale);
   return {
     props: {
       // only pass array of required namespace to the page to make use of translitions code spliting
@@ -54,6 +54,7 @@ declare module "@tanstack/table-core" {
 const columnHelper = createColumnHelper<Category>();
 
 function Table(props: { data: Category[] }) {
+  const { t } = useTranslation();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -88,22 +89,22 @@ function Table(props: { data: Category[] }) {
         ),
       }),
       columnHelper.accessor("id", {
-        header: () => <span>ID</span>,
+        header: () => <span>{t("table.common.id")}</span>,
         cell: (info) => info.getValue(),
         enableSorting: false,
       }),
       columnHelper.accessor("name", {
-        header: () => <span>Name</span>,
+        header: () => <span>{t("table.common.name")}</span>,
         cell: (info) => info.getValue(),
         filterFn: "fuzzy",
       }),
       columnHelper.accessor("createdAt", {
-        header: () => <span>Created At</span>,
+        header: () => <span>{t("table.common.createdAt")}</span>,
         cell: (info) => dateFormater.format(info.getValue()),
         enableColumnFilter: false,
       }),
     ],
-    []
+    [t]
   );
 
   const table = useReactTable({

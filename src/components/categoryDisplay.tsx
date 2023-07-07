@@ -1,12 +1,14 @@
 import React, { type Dispatch, type SetStateAction } from "react";
 import Image from "next/image";
 import { api } from "@/utils/api";
+import { useTranslation } from "next-i18next";
 
 export type CategoryDisplayProps = {
   setCategoryFilter: Dispatch<SetStateAction<string>>;
 };
 
 const CategoryDisplay: React.FC<CategoryDisplayProps> = (props) => {
+  const { t } = useTranslation();
   const categoryQuery = api.categories.getMany.useQuery(undefined, {
     staleTime: 1000 * 50 * 60,
   });
@@ -45,7 +47,7 @@ const CategoryDisplay: React.FC<CategoryDisplayProps> = (props) => {
                 priority={true}
               ></Image>
               <p className="text-center text-lg font-semibold text-slate-600">
-                No Filter
+                {t("categoryDisplay.default")}
               </p>
             </label>
           </div>

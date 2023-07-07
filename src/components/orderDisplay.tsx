@@ -7,6 +7,7 @@ import { AiOutlineDelete } from "react-icons/ai";
 import { api } from "@/utils/api";
 import { CgSpinner } from "react-icons/cg";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "next-i18next";
 
 export type OrderDisplayProps = {
   total: number;
@@ -28,6 +29,7 @@ export type OrderDisplayProps = {
 
 const OrderPrint = React.forwardRef<HTMLDivElement, OrderDisplayProps>(
   function OrderPrint(props, ref) {
+    const { t } = useTranslation();
     return (
       <div ref={ref} className="p-5">
         <h1 className="text-center text-3xl">Zagy</h1>
@@ -37,25 +39,27 @@ const OrderPrint = React.forwardRef<HTMLDivElement, OrderDisplayProps>(
             # {props.id}
           </p>
           <span className="text-left">
-            Created At: {props.createdAt.toUTCString()}
+            {t("orderDisplay.meta.createdAt")}: {props.createdAt.toUTCString()}
           </span>
-          <span className="text-lg font-bold ">Total: {props.total} $</span>
+          <span className="text-lg font-bold ">
+            {t("orderDisplay.meta.total")}: {props.total} $
+          </span>
         </div>
 
         <table className="w-full text-left text-sm text-black">
           <thead className="  text-xs  uppercase text-black">
             <tr>
               <th scope="col" className="px-4 py-2">
-                name
+                {t("orderDisplay.table.name")}
               </th>
               <th scope="col" className="px-4 py-2">
-                price
+                {t("orderDisplay.table.price")}
               </th>
               <th scope="col" className="px-4 py-2">
-                qunatity
+                {t("orderDisplay.table.quantity")}
               </th>
               <th scope="col" className="px-4 py-2">
-                total
+                {t("orderDisplay.table.total")}
               </th>
             </tr>
           </thead>
@@ -89,6 +93,7 @@ const OrderPrint = React.forwardRef<HTMLDivElement, OrderDisplayProps>(
 );
 
 const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
+  const { t } = useTranslation();
   const toPrintRef = useRef<HTMLDivElement>(null);
   const [productsOpen, setProductsOpen] = useState(false);
   const handlePrint = useReactToPrint({
@@ -114,10 +119,11 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
           # {props.id}
         </p>
         <span className="text-left">
-          Created At: {props.createdAt.toLocaleString("en-GB")}
+          {t("orderDisplay.meta.createdAt")}:{" "}
+          {props.createdAt.toLocaleString("en-GB")}
         </span>
         <span className="text-lg font-bold text-green-600">
-          Total: {props.total} $
+          {t("orderDisplay.meta.total")}: {props.total} $
         </span>
       </button>
 
@@ -166,19 +172,19 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
         <thead className=" bg-gray-700 text-xs  uppercase text-gray-400">
           <tr>
             <th scope="col" className="px-4 py-2">
-              Name
+              {t("orderDisplay.table.name")}
             </th>
             <th scope="col" className="px-4 py-2">
-              Price $
+              {t("orderDisplay.table.price")}
             </th>
             <th scope="col" className="px-4 py-2">
-              Qunatity
+              {t("orderDisplay.table.quantity")}
             </th>
             <th scope="col" className="px-4 py-2">
-              Total $
+              {t("orderDisplay.table.total")}
             </th>
             <th scope="col" className="px-4 py-2">
-              Profit $
+              {t("orderDisplay.table.profit")}
             </th>
           </tr>
         </thead>

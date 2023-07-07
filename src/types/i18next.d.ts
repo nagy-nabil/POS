@@ -11,7 +11,7 @@ import type resources from "./i18n";
 
 declare module "i18next" {
   interface CustomTypeOptions {
-    defaultNS: "arCommon";
+    defaultNS: "common";
     resources: typeof resources;
   }
 }

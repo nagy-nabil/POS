@@ -30,9 +30,9 @@ import IndeterminateCheckbox from "@/components/form/indeterminateCheckbox";
 import TableUtils from "@/components/table/utils";
 import TableBody from "@/components/table/body";
 import Head from "next/head";
+import { useTranslation } from "react-i18next";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
-  console.log("🪵 [index.tsx:29] ~ token ~ \x1b[0;32mlocale\x1b[0m = ", locale);
   return {
     props: {
       // only pass array of required namespace to the page to make use of translitions code spliting
@@ -54,6 +54,7 @@ declare module "@tanstack/table-core" {
 const columnHelper = createColumnHelper<Product>();
 
 function Table(props: { data: Product[] }) {
+  const { t } = useTranslation();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -88,34 +89,34 @@ function Table(props: { data: Product[] }) {
         ),
       }),
       columnHelper.accessor("id", {
-        header: () => <span>ID</span>,
+        header: () => <span>{t("table.common.id")}</span>,
         cell: (info) => info.getValue(),
         enableSorting: false,
       }),
       columnHelper.accessor("name", {
-        header: () => <span>Name</span>,
+        header: () => <span>{t("table.common.name")}</span>,
         cell: (info) => info.getValue(),
         filterFn: "fuzzy",
       }),
       columnHelper.accessor("buyPrice", {
-        header: () => <span>Buy Price</span>,
+        header: () => <span>{t("table.product.buyPrice")}</span>,
         cell: (info) => info.getValue(),
       }),
       columnHelper.accessor("sellPrice", {
-        header: () => <span>Sell Price</span>,
+        header: () => <span>{t("table.product.sellPrice")}</span>,
         cell: (info) => info.getValue(),
       }),
       columnHelper.accessor("stock", {
-        header: () => <span>Stock</span>,
+        header: () => <span>{t("table.product.stock")}</span>,
         cell: (info) => info.getValue(),
       }),
       columnHelper.accessor("createdAt", {
-        header: () => <span>Created At</span>,
+        header: () => <span>{t("table.common.createdAt")}</span>,
         cell: (info) => dateFormater.format(info.getValue()),
         enableColumnFilter: false,
       }),
     ],
-    []
+    [t]
   );
 
   const table = useReactTable({
@@ -177,6 +178,7 @@ function Table(props: { data: Product[] }) {
 }
 
 const ProductTable: NextPageWithLayout = () => {
+  const { t } = useTranslation();
   const { token, setToken } = useAuth({ noExistRedirectTo: "/signin" });
   const productsQuery = api.products.getMany.useQuery(undefined, {
     staleTime: 1000 * 50 * 60,
@@ -199,7 +201,7 @@ const ProductTable: NextPageWithLayout = () => {
       </Head>
       <div className="w-screen">
         <header className="mt-2 flex items-center justify-around">
-          <h1 className="text-4xl">Products</h1>
+          <h1 className="text-4xl">{t("pages.product.header")}</h1>
         </header>
         {productsQuery.data && <Table data={productsQuery.data} />}
       </div>

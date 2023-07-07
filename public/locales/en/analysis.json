@@ -4,6 +4,7 @@
     "from": "From",
     "to": "To",
     "footer": "Total Sold",
+    "action": "Show History",
     "historyItem": {
       "meta": {
         "createdAt": "Created At",
@@ -13,5 +14,9 @@
         "header": ["Name", "Price", "Quantity", "Total"]
       }
     }
+  },
+  "graphs": {
+    "sold": "Sold Daily",
+    "profit": "Daily Profit"
   }
 }

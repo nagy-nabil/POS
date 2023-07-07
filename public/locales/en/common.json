@@ -3,11 +3,27 @@
     "name": "Sales Page",
     "inputPlaceHolder": "Search"
   },
-  "category": {
-    "default": "All"
+  "categoryDisplay": {
+    "default": "No Filter"
   },
-  "product": {
-    "modes": ["Library", "Keypad"]
+  "productDisplay": {
+    "modes": {
+      "Library": "Library",
+      "keypad": { "label": "Keypad", "action": "Add To Cart" }
+    }
+  },
+  "orderDisplay": {
+    "meta": {
+      "createdAt": "Created At",
+      "total": "Total"
+    },
+    "table": {
+      "name": "Name",
+      "price": "Price",
+      "quantity": "Quantity",
+      "total": "Total",
+      "profit": "Profit"
+    }
   },
   "crate": {
     "prefix": "You added",
@@ -20,7 +36,10 @@
     }
   },
   "qrModal": {
-    "utils": ["Scan another", "Done"]
+    "utils": {
+      "scan": "Scan another",
+      "done": "Done"
+    }
   },
   "productModal": {
     "headerName": {
@@ -48,7 +67,8 @@
     },
     "props": {
       "name": "Name",
-      "image": "Image"
+      "image": "Image",
+      "id": "ID"
     },
     "action": {
       "post": "Add",
@@ -57,7 +77,31 @@
   },
   "sidebar": {
     "header": "Zagy",
-    "paths": ["Sales", "Products", "Categories", "Analysis", "Settings"],
-    "actions": ["Log out"]
+    "paths": {
+      "sales": "Sales",
+      "products": "Products",
+      "category": "Categories",
+      "anal": "Analysis",
+      "settings": "Settings"
+    },
+    "actions": { "logout": "Log out" }
+  },
+  "table": {
+    "common": {
+      "id": "ID",
+      "name": "Name",
+      "createdAt": "Created At",
+      "createdBy": "Created By"
+    },
+    "product": {
+      "buyPrice": "Buy Price",
+      "sellPrice": "Sell Price",
+      "stock": "Stock"
+    }
+  },
+  "pages": {
+    "product": {
+      "header": "Products"
+    }
   }
 }

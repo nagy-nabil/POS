@@ -2,9 +2,8 @@ import type { GetStaticPropsContext } from "next";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { type ReactElement, useState } from "react";
 import CrateModal, { type CrateProps } from "@/components/modal/crateModal";
-// import { prisma } from "@/server/db";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-// import { useTranslation } from "next-i18next";
+import { useTranslation } from "next-i18next";
 import { useAuth } from "@/hooks/useAuth";
 import { RiSearch2Line } from "react-icons/ri";
 import InputWithIcon from "@/components/form/inputWithIcon";
@@ -17,19 +16,21 @@ import Layout from "@/components/layout";
 import Head from "next/head";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
-  console.log("🪵 [index.tsx:29] ~ token ~ \x1b[0;32mlocale\x1b[0m = ", locale);
   return {
     props: {
       // only pass array of required namespace to the page to make use of translitions code spliting
-      ...(await serverSideTranslations(locale as string, ["common"])),
+      ...(await serverSideTranslations(locale as string, ["common"], null, [
+        "en",
+        "ar",
+      ])),
       // Will be passed to the page component as props
     },
   };
 }
 
-const Home: NextPageWithLayout = () => {
+const Home: NextPageWithLayout = (_props) => {
   const { token } = useAuth({ noExistRedirectTo: "/signin" });
-  // const { t } = useTranslation();
+  const { t } = useTranslation();
   const [categoryFilter, setCategoryFilter] = useState("");
   const [onCrate, setOnCrate] = useState<CrateProps["onCrate"]>([]);
 
@@ -45,7 +46,7 @@ const Home: NextPageWithLayout = () => {
           <InputWithIcon
             Icon={RiSearch2Line}
             inputName="searchProduct"
-            placeHolder="Search"
+            placeHolder={t("header.inputPlaceHolder")}
           />
           <ProductModal operationType="post" defaultValues={{}} />
         </header>
