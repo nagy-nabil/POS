@@ -14,7 +14,8 @@ export type CustomModalProps = {
     React.ButtonHTMLAttributes<HTMLButtonElement>;
   formAttrs: React.HTMLAttributes<HTMLFormElement> &
     React.FormHTMLAttributes<HTMLFormElement>;
-  dialogAttrs: React.HTMLAttributes<HTMLDialogElement>;
+  dialogAttrs: React.HTMLAttributes<HTMLDialogElement> &
+    React.DialogHTMLAttributes<HTMLDialogElement>;
 };
 
 /**
@@ -31,7 +32,7 @@ export default function CustomModal(props: CustomModalProps) {
 
   function closeModal() {
     if (props.dialogRef.current === null) return;
-    props.dialogRef.current.close();
+    props.dialogRef.current.close("close");
   }
 
   return (

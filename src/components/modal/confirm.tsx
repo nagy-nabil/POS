@@ -27,16 +27,40 @@ export default function ConfirmModal(props: ConfirmModalProps) {
     <CustomModal
       header={props.header}
       buttonAttrs={{}}
-      dialogAttrs={{}}
+      dialogAttrs={{
+        onClose(event) {
+          console.log(
+            "return value",
+            (event.target as HTMLDialogElement).returnValue
+          );
+          // props.onCancel();
+        },
+      }}
       formAttrs={{ method: "dialog" }}
       dialogRef={dialogRef}
       buttonChildren={props.buttonChildren}
       modalChildren={
         <main>
           <p>{props.bodyMessage}</p>
-          <div>
-            <button autoFocus={true}>Cancel</button>
-            <button className="text-red-400" onClick={props.onOk}>
+          <div className="mt-2 flex justify-end gap-3 border-t-2 pt-2">
+            <button
+              formMethod="dialog"
+              autoFocus={true}
+              value={"cancel"}
+              className="h-fit w-fit rounded-2xl border-2 p-3"
+            >
+              Cancel
+            </button>
+            <button
+              className="h-fit w-fit rounded-2xl border-2 p-3 text-red-500"
+              type="button"
+              onClick={() => {
+                if (dialogRef.current !== null) {
+                  dialogRef.current.close("confirm");
+                  props.onOk();
+                }
+              }}
+            >
               Confirm
             </button>
           </div>

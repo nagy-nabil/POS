@@ -6,8 +6,9 @@ import { useReactToPrint } from "react-to-print";
 import { AiOutlineDelete } from "react-icons/ai";
 import { api } from "@/utils/api";
 import { CgSpinner } from "react-icons/cg";
-import { useQueryClient } from "@tanstack/react-query";
+// import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "next-i18next";
+import ConfirmModal from "./modal/confirm";
 
 export type OrderDisplayProps = {
   total: number;
@@ -25,6 +26,7 @@ export type OrderDisplayProps = {
     buyPriceAtSale: number;
     sellPriceAtSale: number;
   }[];
+  refetch: any;
 };
 
 const OrderPrint = React.forwardRef<HTMLDivElement, OrderDisplayProps>(
@@ -101,10 +103,12 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
     documentTitle: props.id,
   });
 
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
   const orderDelete = api.orders.delete.useMutation({
     async onSuccess() {
-      await queryClient.invalidateQueries([["orders", "getMany"]]);
+      // await queryClient.invalidateQueries([["orders", "getMany"]]);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      await props.refetch();
     },
   });
   let totalProfit = 0;
@@ -128,35 +132,40 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
       </button>
 
       {/* order utils */}
-      <div className=" flex justify-center gap-2 ">
+      <div
+        className={clsx({
+          " flex justify-center gap-2 ": true,
+          hidden: !productsOpen,
+        })}
+      >
         <button
           type="button"
           onClick={handlePrint}
           className={clsx({
             "my-3 focus:outline-none": true,
-            hidden: !productsOpen,
           })}
         >
           <HiOutlinePrinter className="m-auto h-fit w-fit rounded-lg border-2 border-black p-2 text-3xl text-gray-500" />
         </button>
 
-        <button
-          onClick={() => {
+        <ConfirmModal
+          bodyMessage="Are you sure you want to delete this order, you cannot undo?"
+          header="Delete Order"
+          onOk={() => {
+            console.log("will delete");
             orderDelete.mutate(props.id);
           }}
-          className={clsx({
-            "my-3 focus:outline-none": true,
-            hidden: !productsOpen,
-          })}
-          type="button"
-          disabled={orderDelete.isLoading}
-        >
-          {orderDelete.isLoading ? (
-            <CgSpinner className="animate-spin text-2xl" />
-          ) : (
-            <AiOutlineDelete className="m-auto h-fit w-fit rounded-lg border-2 border-black p-2 text-3xl text-red-600" />
-          )}
-        </button>
+          onCancel={() => {
+            console.log("cancel");
+          }}
+          buttonChildren={
+            orderDelete.isLoading ? (
+              <CgSpinner className="animate-spin text-2xl" />
+            ) : (
+              <AiOutlineDelete className="m-auto h-fit w-fit rounded-lg border-2 border-black p-2 text-3xl text-red-600" />
+            )
+          }
+        />
       </div>
 
       <div className="hidden">

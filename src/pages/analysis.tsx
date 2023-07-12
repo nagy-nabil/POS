@@ -246,7 +246,13 @@ const Anal: NextPageWithLayout = () => {
           )}
           {orderQuery.data?.map((order) => {
             totalSold += order.total;
-            return <OrderDisplay key={order.id} {...order} />;
+            return (
+              <OrderDisplay
+                key={order.id}
+                {...order}
+                refetch={orderQuery.refetch}
+              />
+            );
           })}
         </div>
         <p className="border-t-2 border-gray-400 p-3 text-2xl text-green-700">
