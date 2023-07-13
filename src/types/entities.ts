@@ -36,3 +36,36 @@ export const orderSchema = z.object({
 export const loginSchema = userSchema.pick({ userName: true }).extend({
   password: z.string().min(4),
 });
+
+export const expenseTypeSchema = z.object({
+  name: z.string().min(3),
+  description: z.string().min(4).optional(),
+});
+
+// // this model only hold expenses data but not indicating we spend this money
+// model ExpenseStore {
+//     id                  String                @id @default(cuid())
+//     name                String
+//     description         String?
+//     // for user level concept, simply asking the user do you want to save this data for later use or not
+//     // true indicate don't show this expense in the ui
+//     onTheFly            Boolean               @default(false)
+//     amount              Float
+//     // null value indicate aperiodic expenses
+//     remindAt            DateTime?
+//     typeId              String
+//     type                ExpenseTypes          @relation(fields: [typeId], references: [id])
+//     createdAt           DateTime              @default(now())
+//     createdById         String
+//     createdBy           User                  @relation(fields: [createdById], references: [id])
+//     Expenses            Expenses[]
+//     SpendingsOnExpenses SpendingsOnExpenses[]
+// }
+
+export const expenseStoreSchema = z.object({
+  name: z.string(),
+  description: z.string().min(4).optional(),
+  onTheFly: z.boolean().default(false),
+  amount: z.number().gt(0),
+  remindAt: z.date().optional(),
+});
