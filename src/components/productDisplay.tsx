@@ -77,6 +77,23 @@ export const LibraryDisplay: React.FC<ProductProps> = (props) => {
   );
 };
 
+export function LibraryDisplaySkeleton(props: { count: number }) {
+  return (
+    <div role="status" className="w-full animate-pulse   rounded  p-4 md:p-6">
+      {new Array(props.count).fill(0).map((_, i) => (
+        <div className="my-4 flex items-center justify-between" key={i}>
+          <div>
+            <div className="mb-2.5 h-2.5 w-24 rounded-full bg-gray-300 "></div>
+            <div className="h-2 w-32 rounded-full bg-gray-200 "></div>
+          </div>
+          <div className="h-2.5 w-12 rounded-full bg-gray-300 "></div>
+        </div>
+      ))}
+      <span className="sr-only">Loading...</span>
+    </div>
+  );
+}
+
 export type ProductDisplayProps = {
   categoryFilter: string;
   displayType: "library" | "keypad";
@@ -103,8 +120,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
     },
   });
 
-  if (productsQuery.isLoading) return <p>loading ...</p>;
-  else if (productsQuery.isError) {
+  if (productsQuery.isError) {
     return <p>{JSON.stringify(productsQuery.error)}</p>;
   }
 
@@ -156,50 +172,54 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
       </ul>
 
       <div className="flex flex-wrap justify-between overflow-y-auto overflow-x-hidden pb-16">
-        {productsQuery.data
-          .filter((val) => {
-            if (props.categoryFilter === "") return true;
-            else return val.categoryId === props.categoryFilter;
-          })
-          .map((product) => {
-            const displayProps: ProductProps = {
-              onClick: () => {
-                props.setOnCrate((prev) => {
-                  // check if the item already exist in the crate it exist increase the qunatity
-                  let newItem: CrateItem;
-                  const temp = prev.find((val) => val.id === product.id);
-                  if (temp !== undefined) {
-                    newItem = temp;
-                    newItem.quantity++;
-                  } else {
-                    newItem = {
-                      id: product.id,
-                      name: product.name,
-                      quantity: 1,
-                      stock: product.stock,
-                      sellPrice: product.sellPrice,
-                    };
-                  }
-                  return [
-                    ...prev.filter((val) => val.id !== product.id),
-                    newItem,
-                  ];
-                });
-              },
-              id: product.id,
-              image: product.image,
-              name: product.name,
-              sellPrice: product.sellPrice,
-              stock: product.stock,
-              width: "w-2/5",
-            };
+        {productsQuery.isLoading ? (
+          <LibraryDisplaySkeleton count={5} />
+        ) : (
+          productsQuery.data
+            .filter((val) => {
+              if (props.categoryFilter === "") return true;
+              else return val.categoryId === props.categoryFilter;
+            })
+            .map((product) => {
+              const displayProps: ProductProps = {
+                onClick: () => {
+                  props.setOnCrate((prev) => {
+                    // check if the item already exist in the crate it exist increase the qunatity
+                    let newItem: CrateItem;
+                    const temp = prev.find((val) => val.id === product.id);
+                    if (temp !== undefined) {
+                      newItem = temp;
+                      newItem.quantity++;
+                    } else {
+                      newItem = {
+                        id: product.id,
+                        name: product.name,
+                        quantity: 1,
+                        stock: product.stock,
+                        sellPrice: product.sellPrice,
+                      };
+                    }
+                    return [
+                      ...prev.filter((val) => val.id !== product.id),
+                      newItem,
+                    ];
+                  });
+                },
+                id: product.id,
+                image: product.image,
+                name: product.name,
+                sellPrice: product.sellPrice,
+                stock: product.stock,
+                width: "w-2/5",
+              };
 
-            return displayType === "keypad" ? (
-              <KeypadDisplay key={product.id} {...displayProps} />
-            ) : (
-              <LibraryDisplay key={product.id} {...displayProps} />
-            );
-          })}
+              return displayType === "keypad" ? (
+                <KeypadDisplay key={product.id} {...displayProps} />
+              ) : (
+                <LibraryDisplay key={product.id} {...displayProps} />
+              );
+            })
+        )}
       </div>
     </div>
   );
