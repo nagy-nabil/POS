@@ -44,6 +44,7 @@ const CrateItem: React.FC<
         {/* utils */}
         <div className="ml-auto flex items-center gap-1">
           <button
+            type="button"
             className="h-fit w-fit rounded-lg bg-red-300 p-1"
             onClick={() => {
               props.setOnCrate((prev) => {
@@ -54,6 +55,7 @@ const CrateItem: React.FC<
             <MdRemoveShoppingCart />
           </button>
           <button
+            type="button"
             className="h-fit w-fit rounded-lg bg-yellow-300 p-1"
             onClick={() => {
               props.setOnCrate((prev) => {
@@ -74,6 +76,7 @@ const CrateItem: React.FC<
             <AiOutlineMinus />
           </button>
           <button
+            type="button"
             disabled={props.quantity >= props.stock}
             className="h-fit w-fit rounded-lg bg-green-300 p-1 disabled:bg-gray-500"
             onClick={() => {

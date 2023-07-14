@@ -51,6 +51,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div className="flex h-screen w-screen scroll-smooth">
       <button
+        type="button"
         onClick={() => {
           setSidebarVisible((prev) => !prev);
         }}
@@ -72,6 +73,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </span>
           </Link>
           <button
+            type="button"
             className="rounded-lg border-2 border-gray-600 text-3xl text-white md:hidden"
             onClick={() => {
               setSidebarVisible((prev) => !prev);
@@ -99,6 +101,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
           <li key="logout" className="mt-auto">
             <button
+              type="button"
               className=" flex  items-center gap-3 rounded-2xl p-2 text-white"
               onClick={() => {
                 void setToken("");

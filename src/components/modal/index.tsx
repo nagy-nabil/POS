@@ -42,7 +42,6 @@ export default function CustomModal(props: CustomModalProps) {
       </button>
       <dialog
         onClick={(e) => {
-          console.log((e.target as HTMLDialogElement).nodeName);
           // close the modal when click outside the dialog content
           // the content now is all wraped by form, that's make it easy to inspect
           // the "nodeName" and if it's === 'dialog' no way this is inside the dialog
