@@ -1,6 +1,6 @@
 import LanguageSwitcher from "@/components/langSelector";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import type { GetServerSidePropsContext } from "next";
+import type { GetStaticPropsContext } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { type NextPageWithLayout } from "./_app";
 import { type ReactElement } from "react";
@@ -15,9 +15,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Head from "next/head";
 import { useTranslation } from "react-i18next";
 
-export async function getServerSideProps({
-  locale,
-}: GetServerSidePropsContext) {
+export async function getStaticProps({ locale }: GetStaticPropsContext) {
   return {
     props: {
       // only pass array of required namespace to the page to make use of translitions code spliting

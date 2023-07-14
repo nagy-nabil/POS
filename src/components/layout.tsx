@@ -4,7 +4,7 @@ import { RiMenu4Fill, RiCloseLine, RiLogoutBoxLine } from "react-icons/ri";
 import { AiOutlineShoppingCart, AiOutlineSetting } from "react-icons/ai";
 import { LuBarChart3 } from "react-icons/lu";
 import { CiShoppingTag } from "react-icons/ci";
-import { MdOutlineCategory } from "react-icons/md";
+import { MdMoneyOff, MdOutlineCategory } from "react-icons/md";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
@@ -35,6 +35,11 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         t("sidebar.paths.anal"),
         "/analysis",
         <LuBarChart3 key="analysis" className={iconClasses} />,
+      ],
+      [
+        t("sidebar.paths.spendings"),
+        "/spending",
+        <MdMoneyOff key="spendings" className={iconClasses} />,
       ],
       [
         t("sidebar.paths.settings"),

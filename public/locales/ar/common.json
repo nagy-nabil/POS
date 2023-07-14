@@ -82,6 +82,7 @@
       "products": "المنتجات",
       "category": "الفئات",
       "anal": "التحليل",
+      "spendings": "المصروفات",
       "settings": "الإعدادات"
     },
     "actions": { "logout": "تسجيل الخروج" }
