@@ -6,7 +6,7 @@ import { useReactToPrint } from "react-to-print";
 import { AiOutlineDelete } from "react-icons/ai";
 import { api } from "@/utils/api";
 import { CgSpinner } from "react-icons/cg";
-// import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "next-i18next";
 import ConfirmModal from "./modal/confirm";
 
@@ -26,6 +26,7 @@ export type OrderDisplayProps = {
     buyPriceAtSale: number;
     sellPriceAtSale: number;
   }[];
+  // TODO i'm not in the mood to add type, add it baby
   refetch: any;
 };
 
@@ -98,19 +99,38 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
   const { t } = useTranslation();
   const toPrintRef = useRef<HTMLDivElement>(null);
   const [productsOpen, setProductsOpen] = useState(false);
+  const [operationError, setOperationError] = useState("");
   const handlePrint = useReactToPrint({
     content: () => toPrintRef.current,
     documentTitle: props.id,
   });
 
-  // const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
   const orderDelete = api.orders.delete.useMutation({
-    async onSuccess() {
+    onError(error) {
+      setOperationError(error.message);
+    },
+    async onSuccess(data) {
       // await queryClient.invalidateQueries([["orders", "getMany"]]);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       await props.refetch();
+      // add the stock back to the products store
+      queryClient.setQueryData<Product[]>(
+        [["products", "getMany"], { type: "query" }],
+        (prev) => {
+          if (prev === undefined) return [];
+          data.products.forEach((op) => {
+            const p = prev.find((test) => test.id === op.productId);
+            if (p !== undefined) {
+              p.stock += op.quantity;
+            }
+          });
+          return [...prev];
+        }
+      );
     },
   });
+
   let totalProfit = 0;
 
   return (
@@ -130,7 +150,7 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
           {t("orderDisplay.meta.total")}: {props.total} $
         </span>
       </button>
-
+      <p className="my-2 text-red-500">{operationError}</p>
       {/* order utils */}
       <div
         className={clsx({
