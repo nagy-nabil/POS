@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
+import { matchSorter } from "match-sorter";
 import { api } from "@/utils/api";
 import { type Product } from "@prisma/client";
 import { RiAddCircleLine } from "react-icons/ri";
@@ -96,6 +97,10 @@ export function LibraryDisplaySkeleton(props: { count: number }) {
 
 export type ProductDisplayProps = {
   categoryFilter: string;
+  /**
+   * should be filter based on the product name or id
+   */
+  productFilter: string;
   displayType: "library" | "keypad";
   setOnCrate: React.Dispatch<React.SetStateAction<CrateItem[]>>;
 };
@@ -119,6 +124,25 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
       return true;
     },
   });
+  // apply category filter and the search on products data
+  const productsData = useMemo(() => {
+    console.log("in memo");
+    if (!productsQuery.isLoading && !productsQuery.isError) {
+      const d = productsQuery.data.filter((val) => {
+        if (props.categoryFilter === "") return true;
+        else return val.categoryId === props.categoryFilter;
+      });
+      return matchSorter(d, props.productFilter, { keys: ["name", "id"] });
+      // return d;
+    }
+    return productsQuery.data;
+  }, [
+    productsQuery.isLoading,
+    productsQuery.isError,
+    productsQuery.data,
+    props.categoryFilter,
+    props.productFilter,
+  ]);
 
   if (productsQuery.isError) {
     return <p>{JSON.stringify(productsQuery.error)}</p>;
@@ -172,53 +196,48 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
       </ul>
 
       <div className="flex flex-wrap justify-between overflow-y-auto overflow-x-hidden pb-16">
-        {productsQuery.isLoading ? (
+        {productsData === undefined ? (
           <LibraryDisplaySkeleton count={5} />
         ) : (
-          productsQuery.data
-            .filter((val) => {
-              if (props.categoryFilter === "") return true;
-              else return val.categoryId === props.categoryFilter;
-            })
-            .map((product) => {
-              const displayProps: ProductProps = {
-                onClick: () => {
-                  props.setOnCrate((prev) => {
-                    // check if the item already exist in the crate it exist increase the qunatity
-                    let newItem: CrateItem;
-                    const temp = prev.find((val) => val.id === product.id);
-                    if (temp !== undefined) {
-                      newItem = temp;
-                      newItem.quantity++;
-                    } else {
-                      newItem = {
-                        id: product.id,
-                        name: product.name,
-                        quantity: 1,
-                        stock: product.stock,
-                        sellPrice: product.sellPrice,
-                      };
-                    }
-                    return [
-                      ...prev.filter((val) => val.id !== product.id),
-                      newItem,
-                    ];
-                  });
-                },
-                id: product.id,
-                image: product.image,
-                name: product.name,
-                sellPrice: product.sellPrice,
-                stock: product.stock,
-                width: "w-2/5",
-              };
+          productsData.map((product) => {
+            const displayProps: ProductProps = {
+              onClick: () => {
+                props.setOnCrate((prev) => {
+                  // check if the item already exist in the crate it exist increase the qunatity
+                  let newItem: CrateItem;
+                  const temp = prev.find((val) => val.id === product.id);
+                  if (temp !== undefined) {
+                    newItem = temp;
+                    newItem.quantity++;
+                  } else {
+                    newItem = {
+                      id: product.id,
+                      name: product.name,
+                      quantity: 1,
+                      stock: product.stock,
+                      sellPrice: product.sellPrice,
+                    };
+                  }
+                  return [
+                    ...prev.filter((val) => val.id !== product.id),
+                    newItem,
+                  ];
+                });
+              },
+              id: product.id,
+              image: product.image,
+              name: product.name,
+              sellPrice: product.sellPrice,
+              stock: product.stock,
+              width: "w-2/5",
+            };
 
-              return displayType === "keypad" ? (
-                <KeypadDisplay key={product.id} {...displayProps} />
-              ) : (
-                <LibraryDisplay key={product.id} {...displayProps} />
-              );
-            })
+            return displayType === "keypad" ? (
+              <KeypadDisplay key={product.id} {...displayProps} />
+            ) : (
+              <LibraryDisplay key={product.id} {...displayProps} />
+            );
+          })
         )}
       </div>
     </div>

@@ -5,8 +5,8 @@ import CrateModal, { type CrateProps } from "@/components/modal/crateModal";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
 import { useAuth } from "@/hooks/useAuth";
-import { RiSearch2Line } from "react-icons/ri";
-import InputWithIcon from "@/components/form/inputWithIcon";
+// import { RiSearch2Line } from "react-icons/ri";
+// import InputWithIcon from "@/components/form/inputWithIcon";
 import CategoryDisplay from "@/components/categoryDisplay";
 import ProductDisplay from "@/components/productDisplay";
 import ProductModal from "@/components/modal/productModal";
@@ -14,6 +14,7 @@ import QrModal from "@/components/modal/qrModal";
 import type { NextPageWithLayout } from "./_app";
 import Layout from "@/components/layout";
 import Head from "next/head";
+import DebouncedInput from "@/components/form/debouncedInput";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   return {
@@ -33,6 +34,7 @@ const Home: NextPageWithLayout = (_props) => {
   const { t } = useTranslation();
   const [categoryFilter, setCategoryFilter] = useState("");
   const [onCrate, setOnCrate] = useState<CrateProps["onCrate"]>([]);
+  const [productFilter, setProductFilter] = useState("");
 
   if (!token) return <p>loading token...</p>;
 
@@ -43,10 +45,17 @@ const Home: NextPageWithLayout = (_props) => {
       </Head>
       <div className="flex h-screen w-full flex-col overflow-x-hidden">
         <header className="ml-auto flex w-4/5 items-center justify-end gap-2">
-          <InputWithIcon
+          {/* <InputWithIcon
             Icon={RiSearch2Line}
             inputName="searchProduct"
             placeHolder={t("header.inputPlaceHolder")}
+          /> */}
+          <DebouncedInput
+            type="text"
+            value={""}
+            onChange={(value) => setProductFilter(value as string)}
+            placeholder={t("header.inputPlaceHolder")}
+            className="mt-1 w-full rounded-xl border-2 border-gray-300 p-2"
           />
           <ProductModal operationType="post" defaultValues={{}} />
         </header>
@@ -55,7 +64,8 @@ const Home: NextPageWithLayout = (_props) => {
           <ProductDisplay
             setOnCrate={setOnCrate}
             categoryFilter={categoryFilter}
-            displayType="library"
+            productFilter={productFilter}
+            displayType="keypad"
           />
         </main>
 

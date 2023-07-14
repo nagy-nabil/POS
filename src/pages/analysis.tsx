@@ -216,7 +216,7 @@ const Anal: NextPageWithLayout = () => {
         {/* order display */}
         <div className="mt-5 flex h-screen flex-col gap-4 overflow-y-auto">
           {/* <ChartLine /> */}
-          {anal.data !== undefined && (
+          {anal.data !== undefined && anal.data.length > 0 ? (
             <>
               <ChartLine
                 key={"sold-daily"}
@@ -243,6 +243,8 @@ const Anal: NextPageWithLayout = () => {
                 secondaryAxes={profitSecondaryAxes}
               />
             </>
+          ) : (
+            "NOT ENOUGH DATA TO SHOW GRAPHS"
           )}
           {orderQuery.data?.map((order) => {
             totalSold += order.total;
