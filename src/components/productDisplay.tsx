@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
+import { matchSorter } from "match-sorter";
 import { api } from "@/utils/api";
 import { type Product } from "@prisma/client";
 import { RiAddCircleLine } from "react-icons/ri";
 import { type CrateItem } from "@/components/modal/crateModal";
 import { useAuth } from "@/hooks/useAuth";
 import Image from "next/image";
+import { useTranslation } from "react-i18next";
 
 type ProductProps = Pick<
   Product,
@@ -15,6 +17,7 @@ type ProductProps = Pick<
 };
 
 export const KeypadDisplay: React.FC<ProductProps> = (props) => {
+  const { t } = useTranslation();
   return (
     <div
       className={`${props.width} m-3 flex h-fit flex-col gap-1 md:w-1/5`}
@@ -33,11 +36,12 @@ export const KeypadDisplay: React.FC<ProductProps> = (props) => {
       <span className="text-gray-500">Quantity: {props.stock}</span>
       {/* TODO show add and decrease button if the item in the crate */}
       <button
+        type="button"
         disabled={props.stock <= 0}
         onClick={props.onClick}
         className="mb-2 mr-2 rounded-xl bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:bg-gray-600"
       >
-        Add To Cart
+        {t("productDisplay.modes.keypad.action")}
       </button>
     </div>
   );
@@ -74,14 +78,36 @@ export const LibraryDisplay: React.FC<ProductProps> = (props) => {
   );
 };
 
+export function LibraryDisplaySkeleton(props: { count: number }) {
+  return (
+    <div role="status" className="w-full animate-pulse   rounded  p-4 md:p-6">
+      {new Array(props.count).fill(0).map((_, i) => (
+        <div className="my-4 flex items-center justify-between" key={i}>
+          <div>
+            <div className="mb-2.5 h-2.5 w-24 rounded-full bg-gray-300 "></div>
+            <div className="h-2 w-32 rounded-full bg-gray-200 "></div>
+          </div>
+          <div className="h-2.5 w-12 rounded-full bg-gray-300 "></div>
+        </div>
+      ))}
+      <span className="sr-only">Loading...</span>
+    </div>
+  );
+}
+
 export type ProductDisplayProps = {
   categoryFilter: string;
+  /**
+   * should be filter based on the product name or id
+   */
+  productFilter: string;
   displayType: "library" | "keypad";
   setOnCrate: React.Dispatch<React.SetStateAction<CrateItem[]>>;
 };
 
 // main component
 const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
+  const { t } = useTranslation();
   const { setToken } = useAuth({ redirectAfterSet: "/signin" });
   const [displayType, setDisplayType] = useState<
     ProductDisplayProps["displayType"]
@@ -98,9 +124,27 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
       return true;
     },
   });
+  // apply category filter and the search on products data
+  const productsData = useMemo(() => {
+    console.log("in memo");
+    if (!productsQuery.isLoading && !productsQuery.isError) {
+      const d = productsQuery.data.filter((val) => {
+        if (props.categoryFilter === "") return true;
+        else return val.categoryId === props.categoryFilter;
+      });
+      return matchSorter(d, props.productFilter, { keys: ["name", "id"] });
+      // return d;
+    }
+    return productsQuery.data;
+  }, [
+    productsQuery.isLoading,
+    productsQuery.isError,
+    productsQuery.data,
+    props.categoryFilter,
+    props.productFilter,
+  ]);
 
-  if (productsQuery.isLoading) return <p>loading ...</p>;
-  else if (productsQuery.isError) {
+  if (productsQuery.isError) {
     return <p>{JSON.stringify(productsQuery.error)}</p>;
   }
 
@@ -125,7 +169,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
             htmlFor="library"
             className="flex w-full cursor-pointer justify-center rounded-3xl  p-2 text-gray-500 peer-checked:bg-white peer-checked:font-bold peer-checked:text-black peer-checked:shadow-lg"
           >
-            Library
+            {t("productDisplay.modes.Library")}
           </label>
         </li>
         <li className="w-1/2">
@@ -146,18 +190,16 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
             htmlFor="keypad"
             className="flex w-full cursor-pointer justify-center rounded-3xl  p-2  text-gray-500 peer-checked:bg-white peer-checked:font-bold peer-checked:text-black peer-checked:shadow-lg"
           >
-            Keypad
+            {t("productDisplay.modes.keypad.label")}
           </label>
         </li>
       </ul>
 
       <div className="flex flex-wrap justify-between overflow-y-auto overflow-x-hidden pb-16">
-        {productsQuery.data
-          .filter((val) => {
-            if (props.categoryFilter === "") return true;
-            else return val.categoryId === props.categoryFilter;
-          })
-          .map((product) => {
+        {productsData === undefined ? (
+          <LibraryDisplaySkeleton count={5} />
+        ) : (
+          productsData.map((product) => {
             const displayProps: ProductProps = {
               onClick: () => {
                 props.setOnCrate((prev) => {
@@ -195,7 +237,8 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
             ) : (
               <LibraryDisplay key={product.id} {...displayProps} />
             );
-          })}
+          })
+        )}
       </div>
     </div>
   );

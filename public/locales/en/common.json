@@ -3,11 +3,27 @@
     "name": "Sales Page",
     "inputPlaceHolder": "Search"
   },
-  "category": {
-    "default": "All"
+  "categoryDisplay": {
+    "default": "No Filter"
   },
-  "product": {
-    "modes": ["Library", "Keypad"]
+  "productDisplay": {
+    "modes": {
+      "Library": "Library",
+      "keypad": { "label": "Keypad", "action": "Add To Cart" }
+    }
+  },
+  "orderDisplay": {
+    "meta": {
+      "createdAt": "Created At",
+      "total": "Total"
+    },
+    "table": {
+      "name": "Name",
+      "price": "Price",
+      "quantity": "Quantity",
+      "total": "Total",
+      "profit": "Profit"
+    }
   },
   "crate": {
     "prefix": "You added",
@@ -20,7 +36,10 @@
     }
   },
   "qrModal": {
-    "utils": ["Scan another", "Done"]
+    "utils": {
+      "scan": "Scan another",
+      "done": "Done"
+    }
   },
   "productModal": {
     "headerName": {
@@ -48,16 +67,80 @@
     },
     "props": {
       "name": "Name",
-      "image": "Image"
+      "image": "Image",
+      "id": "ID"
     },
     "action": {
       "post": "Add",
       "put": "Update"
     }
   },
+  "expensesModal": {
+    "typeModal": {
+      "headerName": {
+        "post": "Add New Expense Type",
+        "put": "Update Expense Type"
+      },
+      "props": {
+        "name": "Name",
+        "id": "ID",
+        "description": "Description"
+      },
+      "action": {
+        "post": "Add",
+        "put": "Update"
+      }
+    },
+    "storeModal": {
+      "headerName": {
+        "post": "Add New Expense Store",
+        "put": "Update Expense Store"
+      },
+      "props": {
+        "name": "Name",
+        "id": "ID",
+        "description": "Description",
+        "amount": "Amount",
+        "remindAt": "Remind At",
+        "typeId": "Type"
+      },
+      "action": {
+        "post": "Add",
+        "put": "Update"
+      }
+    }
+  },
   "sidebar": {
     "header": "Zagy",
-    "paths": ["Sales", "Products", "Categories", "Analysis", "Settings"],
-    "actions": ["Log out"]
+    "paths": {
+      "sales": "Sales",
+      "products": "Products",
+      "category": "Categories",
+      "anal": "Analysis",
+      "spendings": "spendings",
+      "settings": "Settings"
+    },
+    "actions": { "logout": "Log out" }
+  },
+  "table": {
+    "common": {
+      "id": "ID",
+      "name": "Name",
+      "createdAt": "Created At",
+      "createdBy": "Created By"
+    },
+    "product": {
+      "buyPrice": "Buy Price",
+      "sellPrice": "Sell Price",
+      "stock": "Stock"
+    }
+  },
+  "pages": {
+    "product": {
+      "header": "Products"
+    },
+    "spending": {
+      "header": "Spendings"
+    }
   }
 }

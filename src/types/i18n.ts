@@ -1,9 +1,11 @@
-import enCommon from "public/locales/en/common.json";
-import arCommon from "public/locales/ar/common.json";
+import common from "public/locales/en/common.json";
+import analysis from "public/locales/en/analysis.json";
+import settings from "public/locales/en/settings.json";
 
 const resources = {
-  enCommon,
-  arCommon,
+  common,
+  settings,
+  analysis,
 } as const;
 
 export default resources;

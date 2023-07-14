@@ -4,41 +4,51 @@ import { RiMenu4Fill, RiCloseLine, RiLogoutBoxLine } from "react-icons/ri";
 import { AiOutlineShoppingCart, AiOutlineSetting } from "react-icons/ai";
 import { LuBarChart3 } from "react-icons/lu";
 import { CiShoppingTag } from "react-icons/ci";
-import { MdOutlineCategory } from "react-icons/md";
-import { useRef, useState } from "react";
+import { MdMoneyOff, MdOutlineCategory } from "react-icons/md";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { t } = useTranslation();
   // used to describe sidebar items
   // [label, href, icon]
   const iconClasses = "w-fit h-fit text-white bg-gray-800 p-3 rounded-2xl ";
-  const sidebar = useRef<[string, string, JSX.Element][]>([
-    [
-      "Sales",
-      "/",
-      <AiOutlineShoppingCart key="sales" className={iconClasses} />,
+  const sidebar = useMemo<[string, string, JSX.Element][]>(
+    () => [
+      [
+        t("sidebar.paths.sales"),
+        "/",
+        <AiOutlineShoppingCart key="sales" className={iconClasses} />,
+      ],
+      [
+        t("sidebar.paths.products"),
+        "/product",
+        <CiShoppingTag key="product" className={iconClasses} />,
+      ],
+      [
+        t("sidebar.paths.category"),
+        "/category",
+        <MdOutlineCategory key="category" className={iconClasses} />,
+      ],
+      [
+        t("sidebar.paths.anal"),
+        "/analysis",
+        <LuBarChart3 key="analysis" className={iconClasses} />,
+      ],
+      [
+        t("sidebar.paths.spendings"),
+        "/spending",
+        <MdMoneyOff key="spendings" className={iconClasses} />,
+      ],
+      [
+        t("sidebar.paths.settings"),
+        "/setting",
+        <AiOutlineSetting key="setting" className={iconClasses} />,
+      ],
     ],
-    [
-      "Product",
-      "/product",
-      <CiShoppingTag key="product" className={iconClasses} />,
-    ],
-    [
-      "category",
-      "/category",
-      <MdOutlineCategory key="category" className={iconClasses} />,
-    ],
-    [
-      "Analysis",
-      "/analysis",
-      <LuBarChart3 key="analysis" className={iconClasses} />,
-    ],
-    [
-      "Settings",
-      "/setting",
-      <AiOutlineSetting key="setting" className={iconClasses} />,
-    ],
-  ]);
+    [t]
+  );
 
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const { setToken } = useAuth({ redirectAfterSet: "/signin" });
@@ -46,6 +56,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div className="flex h-screen w-screen scroll-smooth">
       <button
+        type="button"
         onClick={() => {
           setSidebarVisible((prev) => !prev);
         }}
@@ -67,6 +78,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </span>
           </Link>
           <button
+            type="button"
             className="rounded-lg border-2 border-gray-600 text-3xl text-white md:hidden"
             onClick={() => {
               setSidebarVisible((prev) => !prev);
@@ -78,7 +90,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
         <ul className="m-2 flex h-full flex-col gap-3 text-2xl">
           {/* create sidebar items */}
-          {sidebar.current.map((item, i) => {
+          {sidebar.map((item, i) => {
             return (
               <li key={i}>
                 <Link
@@ -94,6 +106,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
           <li key="logout" className="mt-auto">
             <button
+              type="button"
               className=" flex  items-center gap-3 rounded-2xl p-2 text-white"
               onClick={() => {
                 void setToken("");

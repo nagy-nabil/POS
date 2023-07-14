@@ -36,3 +36,26 @@ export const orderSchema = z.object({
 export const loginSchema = userSchema.pick({ userName: true }).extend({
   password: z.string().min(4),
 });
+
+export const expenseTypeSchema = z.object({
+  id: z.string().nonempty().optional(),
+  name: z.string().min(3),
+  description: z.string().min(4).optional(),
+});
+
+export const expenseStoreSchema = z.object({
+  id: z.string().nonempty().optional(),
+  name: z.string(),
+  description: z.string().min(4).optional(),
+  onTheFly: z.boolean().default(false),
+  amount: z.number().gt(0),
+  remindAt: z.date().optional(),
+  typeId: z.string().nonempty(),
+});
+
+export const expensesSchema = z.object({
+  id: z.string().nonempty().optional(),
+  description: z.string().optional(),
+  additionalAmount: z.number().default(0),
+  expenseStoreIds: z.array(z.string()),
+});

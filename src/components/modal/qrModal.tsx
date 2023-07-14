@@ -8,12 +8,14 @@ import { type CrateItem } from "@/components/modal/crateModal";
 import QrCode from "../qrcode";
 import { useAuth } from "@/hooks/useAuth";
 import { Html5QrcodeScannerState, type Html5QrcodeScanner } from "html5-qrcode";
+import { useTranslation } from "react-i18next";
 
 export type QrModalProps = {
   setOnCrate: React.Dispatch<React.SetStateAction<CrateItem[]>>;
 };
 
 const QrModal: React.FC<QrModalProps> = (props) => {
+  const { t } = useTranslation();
   const dialgoRef = useRef(null);
   const { setToken } = useAuth({ redirectAfterSet: "/signin" });
   // i don't know if this a good design or even valid react code but i want to keep ref to the scanner
@@ -45,9 +47,11 @@ const QrModal: React.FC<QrModalProps> = (props) => {
 
   return (
     <CustomModal
+      header="Read Product By QR"
       dialogRef={dialgoRef}
       buttonAttrs={{ className: "" }}
       dialogAttrs={{}}
+      formAttrs={{}}
       buttonChildren={
         <BsQrCodeScan className="h-fit w-fit rounded-full bg-black p-2 text-3xl text-white" />
       }
@@ -82,7 +86,7 @@ const QrModal: React.FC<QrModalProps> = (props) => {
                 setIsScannerPaused(false);
               }}
             >
-              Scan another
+              {t("qrModal.utils.scan")}
             </button>
           ) : null}
 

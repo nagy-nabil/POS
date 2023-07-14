@@ -3,11 +3,27 @@
     "name": "صفحة المبيعات",
     "inputPlaceHolder": "بحث"
   },
-  "category": {
-    "default": "الكل"
+  "categoryDisplay": {
+    "default": "بدون تصفية"
   },
-  "product": {
-    "modes": ["مكتبة", "لوحة مفاتيح"]
+  "productDisplay": {
+    "modes": {
+      "Library": "المكتبة",
+      "keypad": { "label": "لوحة المفاتيح", "action": "أضف إلى السلة" }
+    }
+  },
+  "orderDisplay": {
+    "meta": {
+      "createdAt": "تم الإنشاء في",
+      "total": "الإجمالي"
+    },
+    "table": {
+      "name": "الاسم",
+      "price": "السعر",
+      "quantity": "الكمية",
+      "total": "الإجمالي",
+      "profit": "الربح"
+    }
   },
   "crate": {
     "prefix": "لقد أضفت",
@@ -20,7 +36,10 @@
     }
   },
   "qrModal": {
-    "utils": ["مسح آخر", "تم"]
+    "utils": {
+      "scan": "مسح آخر",
+      "done": "تم"
+    }
   },
   "productModal": {
     "headerName": {
@@ -28,7 +47,7 @@
       "put": "تحديث المنتج"
     },
     "props": {
-      "id": "المعرف",
+      "id": "الرقم التعريفي",
       "name": "الاسم",
       "image": "الصورة",
       "stock": "المخزون",
@@ -48,7 +67,8 @@
     },
     "props": {
       "name": "الاسم",
-      "image": "الصورة"
+      "image": "الصورة",
+      "id": "المعرف"
     },
     "action": {
       "post": "إضافة",
@@ -57,7 +77,32 @@
   },
   "sidebar": {
     "header": "زاجي",
-    "paths": ["المبيعات", "المنتجات", "الفئات", "التحليل", "الإعدادات"],
-    "actions": ["تسجيل الخروج"]
+    "paths": {
+      "sales": "المبيعات",
+      "products": "المنتجات",
+      "category": "الفئات",
+      "anal": "التحليل",
+      "spendings": "المصروفات",
+      "settings": "الإعدادات"
+    },
+    "actions": { "logout": "تسجيل الخروج" }
+  },
+  "table": {
+    "common": {
+      "id": "الرقم التعريفي",
+      "name": "الاسم",
+      "createdAt": "تم الإنشاء في",
+      "createdBy": "تم الإنشاء بواسطة"
+    },
+    "product": {
+      "buyPrice": "سعر الشراء",
+      "sellPrice": "سعر البيع",
+      "stock": "المخزون"
+    }
+  },
+  "pages": {
+    "product": {
+      "header": "المنتجات"
+    }
   }
 }

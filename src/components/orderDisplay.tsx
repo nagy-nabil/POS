@@ -7,6 +7,8 @@ import { AiOutlineDelete } from "react-icons/ai";
 import { api } from "@/utils/api";
 import { CgSpinner } from "react-icons/cg";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "next-i18next";
+import ConfirmModal from "./modal/confirm";
 
 export type OrderDisplayProps = {
   total: number;
@@ -24,10 +26,13 @@ export type OrderDisplayProps = {
     buyPriceAtSale: number;
     sellPriceAtSale: number;
   }[];
+  // TODO i'm not in the mood to add type, add it baby
+  refetch: any;
 };
 
 const OrderPrint = React.forwardRef<HTMLDivElement, OrderDisplayProps>(
   function OrderPrint(props, ref) {
+    const { t } = useTranslation();
     return (
       <div ref={ref} className="p-5">
         <h1 className="text-center text-3xl">Zagy</h1>
@@ -37,25 +42,27 @@ const OrderPrint = React.forwardRef<HTMLDivElement, OrderDisplayProps>(
             # {props.id}
           </p>
           <span className="text-left">
-            Created At: {props.createdAt.toUTCString()}
+            {t("orderDisplay.meta.createdAt")}: {props.createdAt.toUTCString()}
           </span>
-          <span className="text-lg font-bold ">Total: {props.total} $</span>
+          <span className="text-lg font-bold ">
+            {t("orderDisplay.meta.total")}: {props.total} $
+          </span>
         </div>
 
         <table className="w-full text-left text-sm text-black">
           <thead className="  text-xs  uppercase text-black">
             <tr>
               <th scope="col" className="px-4 py-2">
-                name
+                {t("orderDisplay.table.name")}
               </th>
               <th scope="col" className="px-4 py-2">
-                price
+                {t("orderDisplay.table.price")}
               </th>
               <th scope="col" className="px-4 py-2">
-                qunatity
+                {t("orderDisplay.table.quantity")}
               </th>
               <th scope="col" className="px-4 py-2">
-                total
+                {t("orderDisplay.table.total")}
               </th>
             </tr>
           </thead>
@@ -89,8 +96,10 @@ const OrderPrint = React.forwardRef<HTMLDivElement, OrderDisplayProps>(
 );
 
 const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
+  const { t } = useTranslation();
   const toPrintRef = useRef<HTMLDivElement>(null);
   const [productsOpen, setProductsOpen] = useState(false);
+  const [operationError, setOperationError] = useState("");
   const handlePrint = useReactToPrint({
     content: () => toPrintRef.current,
     documentTitle: props.id,
@@ -98,10 +107,30 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
 
   const queryClient = useQueryClient();
   const orderDelete = api.orders.delete.useMutation({
-    async onSuccess() {
-      await queryClient.invalidateQueries([["orders", "getMany"]]);
+    onError(error) {
+      setOperationError(error.message);
+    },
+    async onSuccess(data) {
+      // await queryClient.invalidateQueries([["orders", "getMany"]]);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      await props.refetch();
+      // add the stock back to the products store
+      queryClient.setQueryData<Product[]>(
+        [["products", "getMany"], { type: "query" }],
+        (prev) => {
+          if (prev === undefined) return [];
+          data.products.forEach((op) => {
+            const p = prev.find((test) => test.id === op.productId);
+            if (p !== undefined) {
+              p.stock += op.quantity;
+            }
+          });
+          return [...prev];
+        }
+      );
     },
   });
+
   let totalProfit = 0;
 
   return (
@@ -114,43 +143,49 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
           # {props.id}
         </p>
         <span className="text-left">
-          Created At: {props.createdAt.toLocaleString("en-GB")}
+          {t("orderDisplay.meta.createdAt")}:{" "}
+          {props.createdAt.toLocaleString("en-GB")}
         </span>
         <span className="text-lg font-bold text-green-600">
-          Total: {props.total} $
+          {t("orderDisplay.meta.total")}: {props.total} $
         </span>
       </button>
-
+      <p className="my-2 text-red-500">{operationError}</p>
       {/* order utils */}
-      <div className=" flex justify-center gap-2 ">
+      <div
+        className={clsx({
+          " flex justify-center gap-2 ": true,
+          hidden: !productsOpen,
+        })}
+      >
         <button
           type="button"
           onClick={handlePrint}
           className={clsx({
             "my-3 focus:outline-none": true,
-            hidden: !productsOpen,
           })}
         >
           <HiOutlinePrinter className="m-auto h-fit w-fit rounded-lg border-2 border-black p-2 text-3xl text-gray-500" />
         </button>
 
-        <button
-          onClick={() => {
+        <ConfirmModal
+          bodyMessage="Are you sure you want to delete this order, you cannot undo?"
+          header="Delete Order"
+          onOk={() => {
+            console.log("will delete");
             orderDelete.mutate(props.id);
           }}
-          className={clsx({
-            "my-3 focus:outline-none": true,
-            hidden: !productsOpen,
-          })}
-          type="button"
-          disabled={orderDelete.isLoading}
-        >
-          {orderDelete.isLoading ? (
-            <CgSpinner className="animate-spin text-2xl" />
-          ) : (
-            <AiOutlineDelete className="m-auto h-fit w-fit rounded-lg border-2 border-black p-2 text-3xl text-red-600" />
-          )}
-        </button>
+          onCancel={() => {
+            console.log("cancel");
+          }}
+          buttonChildren={
+            orderDelete.isLoading ? (
+              <CgSpinner className="animate-spin text-2xl" />
+            ) : (
+              <AiOutlineDelete className="m-auto h-fit w-fit rounded-lg border-2 border-black p-2 text-3xl text-red-600" />
+            )
+          }
+        />
       </div>
 
       <div className="hidden">
@@ -166,19 +201,19 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
         <thead className=" bg-gray-700 text-xs  uppercase text-gray-400">
           <tr>
             <th scope="col" className="px-4 py-2">
-              Name
+              {t("orderDisplay.table.name")}
             </th>
             <th scope="col" className="px-4 py-2">
-              Price $
+              {t("orderDisplay.table.price")}
             </th>
             <th scope="col" className="px-4 py-2">
-              Qunatity
+              {t("orderDisplay.table.quantity")}
             </th>
             <th scope="col" className="px-4 py-2">
-              Total $
+              {t("orderDisplay.table.total")}
             </th>
             <th scope="col" className="px-4 py-2">
-              Profit $
+              {t("orderDisplay.table.profit")}
             </th>
           </tr>
         </thead>

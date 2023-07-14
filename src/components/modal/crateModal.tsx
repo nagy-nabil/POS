@@ -8,6 +8,7 @@ import { RiAddLine } from "react-icons/ri";
 import { AiOutlineMinus } from "react-icons/ai";
 import { MdRemoveShoppingCart } from "react-icons/md";
 import { type Product } from "@prisma/client";
+import { useTranslation } from "next-i18next";
 
 export type CrateItem = {
   id: string;
@@ -27,6 +28,7 @@ const CrateItem: React.FC<
     setOnCrate: CrateProps["setOnCrate"];
   }
 > = (props) => {
+  const { t } = useTranslation();
   const price = props.sellPrice * props.quantity;
   return (
     <>
@@ -36,12 +38,13 @@ const CrateItem: React.FC<
           <h3 className="text-xl">{props.name}</h3>
           <p className="ml-2 text-gray-500">Quantity: {props.quantity}</p>
           <p className="ml-2 text-green-600">
-            price: {props.sellPrice}$ - {price}$
+            {`${t("crate.price")}: ${props.sellPrice} $ - ${price}$`}
           </p>
         </div>
         {/* utils */}
         <div className="ml-auto flex items-center gap-1">
           <button
+            type="button"
             className="h-fit w-fit rounded-lg bg-red-300 p-1"
             onClick={() => {
               props.setOnCrate((prev) => {
@@ -52,6 +55,7 @@ const CrateItem: React.FC<
             <MdRemoveShoppingCart />
           </button>
           <button
+            type="button"
             className="h-fit w-fit rounded-lg bg-yellow-300 p-1"
             onClick={() => {
               props.setOnCrate((prev) => {
@@ -72,6 +76,7 @@ const CrateItem: React.FC<
             <AiOutlineMinus />
           </button>
           <button
+            type="button"
             disabled={props.quantity >= props.stock}
             className="h-fit w-fit rounded-lg bg-green-300 p-1 disabled:bg-gray-500"
             onClick={() => {
@@ -95,6 +100,7 @@ const CrateItem: React.FC<
 
 // main crate
 const CrateModal: React.FC<CrateProps> = (props) => {
+  const { t } = useTranslation();
   const dialgoRef = useRef<HTMLDialogElement>(null);
   function calcTotal() {
     let total = 0;
@@ -107,11 +113,15 @@ const CrateModal: React.FC<CrateProps> = (props) => {
 
   return (
     <CustomModal
+      header="Cart Check Out"
       dialogRef={dialgoRef}
       key="crateModal"
       buttonChildren={
         <>
-          <span>You added {props.onCrate.length} items</span>
+          <span>
+            {" "}
+            {t("crate.prefix")} {props.onCrate.length} {t("crate.postfix")}
+          </span>
           <span>
             <FaShoppingBag className="inline" /> ${calcTotal()}
           </span>
@@ -123,6 +133,7 @@ const CrateModal: React.FC<CrateProps> = (props) => {
           "flex h-fit w-11/12 justify-between rounded-3xl bg-black p-3 text-white",
       }}
       dialogAttrs={{}}
+      formAttrs={{}}
       modalChildren={
         <div className="flex flex-col">
           {/* render crate items */}
@@ -134,12 +145,13 @@ const CrateModal: React.FC<CrateProps> = (props) => {
 
           <footer className="flex items-center justify-between">
             <span className="text-xl text-green-700">
-              Total: {calcTotal()}$
+              {t("crate.footer.totalSpan")}: {calcTotal()}$
             </span>
 
             <button
               disabled={orderMut.isLoading}
               className=" h-fit w-fit rounded-3xl bg-green-500 p-2 text-white"
+              type="button"
               onClick={() => {
                 orderMut.mutate(
                   {
@@ -189,7 +201,7 @@ const CrateModal: React.FC<CrateProps> = (props) => {
               {orderMut.isLoading ? (
                 <CgSpinner className="animate-spin text-2xl" />
               ) : (
-                "Check Out"
+                t("crate.footer.button")
               )}
             </button>
           </footer>

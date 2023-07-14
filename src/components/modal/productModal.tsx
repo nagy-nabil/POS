@@ -1,3 +1,4 @@
+import { useTranslation } from "next-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { RiAddLine } from "react-icons/ri";
 import { BiEdit } from "react-icons/bi";
@@ -24,6 +25,7 @@ export type ProductModalProps = {
 };
 
 const ProductModal: React.FC<ProductModalProps> = (props) => {
+  const { t } = useTranslation();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const scannerRef = useRef<Html5QrcodeScanner | undefined>(undefined);
   // from the react docs => Do not write or read ref.current during rendering.
@@ -140,9 +142,23 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
 
   return (
     <CustomModal
+      header={
+        props.operationType === "post"
+          ? t("productModal.headerName.post")
+          : t("productModal.headerName.put")
+      }
       dialogRef={dialogRef}
       buttonAttrs={{ className: "" }}
       dialogAttrs={{}}
+      formAttrs={{
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        onSubmit: handleSubmit(onSubmit, (err) => {
+          console.log(
+            "🪵 [productModal.tsx:44] ~ token ~ \x1b[0;32merr\x1b[0m = ",
+            err
+          );
+        }),
+      }}
       buttonChildren={
         props.operationType === "post" ? (
           <RiAddLine className="h-fit w-fit p-3 text-3xl text-green-600" />
@@ -151,24 +167,10 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
         )
       }
       modalChildren={
-        <form
-          onSubmit={handleSubmit(onSubmit, (err) => {
-            console.log(
-              "🪵 [productModal.tsx:44] ~ token ~ \x1b[0;32merr\x1b[0m = ",
-              err
-            );
-          })}
-        >
-          <h1 className="my-2 text-3xl">
-            {props.operationType === "post"
-              ? "Add New Product"
-              : "Update Product"}
-          </h1>
-          {/* create form inputs */}
-
+        <article className="overflow-y-auto overscroll-y-contain">
           {/* id is special case than the loop */}
           <label key="id" className="block">
-            Id
+            {t("productModal.props.id")}
             <div className="mb-3 flex gap-1">
               <input
                 className="block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
@@ -240,7 +242,7 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
 
           {/* image upload is special case */}
           <label key={"productimage"} className="block">
-            Image
+            {t("productModal.props.image")}
             <div className="mb-3 flex gap-1">
               <input
                 className="block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
@@ -273,7 +275,7 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
               return null;
             return (
               <label key={i} className="block">
-                {productKey}
+                {t(`productModal.props.${productKey}`)}
                 <input
                   className="block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
                   {...(productKey === "sellPrice" ||
@@ -301,7 +303,7 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
             key={"category"}
             className="mb-2 block font-medium text-gray-900"
           >
-            Category
+            {t("productModal.props.category")}
             <select
               {...register("categoryId", { required: true })}
               className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500
@@ -347,12 +349,12 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
             imageMut.isLoading ? (
               <CgSpinner className="animate-spin text-2xl" />
             ) : props.operationType === "post" ? (
-              "Add"
+              t("productModal.action.post")
             ) : (
-              "Update"
+              t("productModal.action.put")
             )}
           </button>
-        </form>
+        </article>
       }
     />
   );

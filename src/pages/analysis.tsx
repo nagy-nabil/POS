@@ -1,4 +1,5 @@
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { useTranslation } from "next-i18next";
 import { api } from "@/utils/api";
 import { type NextPageWithLayout } from "./_app";
 import { useState, type ReactElement } from "react";
@@ -22,7 +23,10 @@ export async function getStaticProps({ locale }: GetStaticPropsContext) {
   return {
     props: {
       // only pass array of required namespace to the page to make use of translitions code spliting
-      ...(await serverSideTranslations(locale as string, ["common"])),
+      ...(await serverSideTranslations(locale as string, [
+        "common",
+        "analysis",
+      ])),
       // Will be passed to the page component as props
     },
   };
@@ -87,6 +91,7 @@ function ChartLine(props: {
 }
 
 const Anal: NextPageWithLayout = () => {
+  const { t } = useTranslation("analysis");
   const { setToken } = useAuth({ noExistRedirectTo: "/signin" });
   const profitPrimaryAxis = React.useMemo(
     (): AxisOptions<DateSum> => ({
@@ -157,12 +162,12 @@ const Anal: NextPageWithLayout = () => {
       </Head>
       <div className="flex h-screen w-full flex-col overflow-hidden px-4">
         <header className="m-auto mb-8">
-          <h1 className="text-5xl">Analysis</h1>
+          <h1 className="text-5xl">{t("header")}</h1>
         </header>
 
         <div className="flex flex-col gap-3">
           <label className="flex items-center justify-between gap-2 text-2xl">
-            from
+            {t("orderHistory.from")}
             <input
               name="from"
               type="date"
@@ -179,7 +184,7 @@ const Anal: NextPageWithLayout = () => {
             />
           </label>
           <label className="flex items-center justify-between gap-2 text-2xl">
-            to
+            {t("orderHistory.to")}
             <input
               value={generateInputDateValue(toDate)}
               onChange={(e) =>
@@ -203,7 +208,7 @@ const Anal: NextPageWithLayout = () => {
             {orderQuery.isLoading && orderQuery.fetchStatus !== "idle" ? (
               <CgSpinner className="animate-spin text-2xl" />
             ) : (
-              "Show History"
+              t("orderHistory.action")
             )}
           </button>
         </div>
@@ -211,11 +216,11 @@ const Anal: NextPageWithLayout = () => {
         {/* order display */}
         <div className="mt-5 flex h-screen flex-col gap-4 overflow-y-auto">
           {/* <ChartLine /> */}
-          {anal.data !== undefined && (
+          {anal.data !== undefined && anal.data.length > 0 ? (
             <>
               <ChartLine
                 key={"sold-daily"}
-                label="Sold Daily"
+                label={t("graphs.sold")}
                 data={[
                   {
                     label: "sold-daily",
@@ -227,10 +232,10 @@ const Anal: NextPageWithLayout = () => {
               />
               <ChartLine
                 key={"profit-daily"}
-                label="Profit Daily"
+                label={t("graphs.profit")}
                 data={[
                   {
-                    label: "daily",
+                    label: "dailyProfit",
                     data: anal.data,
                   },
                 ]}
@@ -238,10 +243,18 @@ const Anal: NextPageWithLayout = () => {
                 secondaryAxes={profitSecondaryAxes}
               />
             </>
+          ) : (
+            "NOT ENOUGH DATA TO SHOW GRAPHS"
           )}
           {orderQuery.data?.map((order) => {
             totalSold += order.total;
-            return <OrderDisplay key={order.id} {...order} />;
+            return (
+              <OrderDisplay
+                key={order.id}
+                {...order}
+                refetch={orderQuery.refetch}
+              />
+            );
           })}
         </div>
         <p className="border-t-2 border-gray-400 p-3 text-2xl text-green-700">

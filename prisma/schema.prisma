@@ -11,22 +11,25 @@ datasource db {
 }
 
 model User {
-    id                 String     @id @default(cuid())
-    userName           String     @unique
-    email              String     @unique
+    id                 String         @id @default(cuid())
+    userName           String         @unique
+    email              String         @unique
     password           String
-    role               Role       @default(STAFF)
-    createdAt          DateTime   @default(now())
+    role               Role           @default(STAFF)
+    createdAt          DateTime       @default(now())
     phone              String
-    activationsStatus  Boolean    @default(false)
+    activationsStatus  Boolean        @default(false)
     activationToken    String?
     resetPasswordToken String?
     predecessorId      String?
-    predecessor        User?      @relation("creator", fields: [predecessorId], references: [id])
-    successors         User[]     @relation("creator")
+    predecessor        User?          @relation("creator", fields: [predecessorId], references: [id])
+    successors         User[]         @relation("creator")
     category           Category[]
     products           Product[]
     orders             Order[]
+    ExpenseTypes       ExpenseTypes[]
+    ExpenseStore       ExpenseStore[]
+    Expenses           Expenses[]
 }
 
 model Category {
@@ -82,6 +85,59 @@ model ProductsOnOrder {
     sellPriceAtSale Float // Price of the product at the time of the order
 
     @@id([productId, orderId])
+}
+
+// EXPENSES/LOSSES
+
+model ExpenseTypes {
+    id           String         @id @default(cuid())
+    name         String
+    description  String?
+    createdAt    DateTime       @default(now())
+    createdById  String
+    createdBy    User           @relation(fields: [createdById], references: [id])
+    ExpenseStore ExpenseStore[]
+}
+
+// this model only hold expenses data but not indicating we spend this money
+model ExpenseStore {
+    id          String       @id @default(cuid())
+    name        String
+    description String?
+    // for user level concept, simply asking the user do you want to save this data for later use or not
+    // true indicate don't show this expense in the ui
+    onTheFly    Boolean      @default(false)
+    amount      Float
+    // null value indicate aperiodic expenses
+    remindAt    DateTime?
+    typeId      String
+    type        ExpenseTypes @relation(fields: [typeId], references: [id])
+    createdAt   DateTime     @default(now())
+    createdById String
+    createdBy   User         @relation(fields: [createdById], references: [id])
+
+    SpendingsOnExpenses SpendingsOnExpenses[]
+}
+
+// this table describe the spendings, not the previous one
+model Expenses {
+    id                  String                @id @default(cuid())
+    description         String?
+    additionalAmount    Float                 @default(0)
+    createdAt           DateTime              @default(now())
+    createdById         String
+    createdBy           User                  @relation(fields: [createdById], references: [id])
+    SpendingsOnExpenses SpendingsOnExpenses[]
+}
+
+// for more general case expense could have more than expenseStore at once
+model SpendingsOnExpenses {
+    spendingId String
+    spending   ExpenseStore @relation(fields: [spendingId], references: [id])
+    expenseId  String
+    expense    Expenses     @relation(fields: [expenseId], references: [id])
+
+    @@id([spendingId, expenseId])
 }
 
 enum Role {

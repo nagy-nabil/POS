@@ -2,12 +2,11 @@ import type { GetStaticPropsContext } from "next";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { type ReactElement, useState } from "react";
 import CrateModal, { type CrateProps } from "@/components/modal/crateModal";
-// import { prisma } from "@/server/db";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-// import { useTranslation } from "next-i18next";
+import { useTranslation } from "next-i18next";
 import { useAuth } from "@/hooks/useAuth";
-import { RiSearch2Line } from "react-icons/ri";
-import InputWithIcon from "@/components/form/inputWithIcon";
+// import { RiSearch2Line } from "react-icons/ri";
+// import InputWithIcon from "@/components/form/inputWithIcon";
 import CategoryDisplay from "@/components/categoryDisplay";
 import ProductDisplay from "@/components/productDisplay";
 import ProductModal from "@/components/modal/productModal";
@@ -15,23 +14,27 @@ import QrModal from "@/components/modal/qrModal";
 import type { NextPageWithLayout } from "./_app";
 import Layout from "@/components/layout";
 import Head from "next/head";
+import DebouncedInput from "@/components/form/debouncedInput";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
-  console.log("🪵 [index.tsx:29] ~ token ~ \x1b[0;32mlocale\x1b[0m = ", locale);
   return {
     props: {
       // only pass array of required namespace to the page to make use of translitions code spliting
-      ...(await serverSideTranslations(locale as string, ["common"])),
+      ...(await serverSideTranslations(locale as string, ["common"], null, [
+        "en",
+        "ar",
+      ])),
       // Will be passed to the page component as props
     },
   };
 }
 
-const Home: NextPageWithLayout = () => {
+const Home: NextPageWithLayout = (_props) => {
   const { token } = useAuth({ noExistRedirectTo: "/signin" });
-  // const { t } = useTranslation();
+  const { t } = useTranslation();
   const [categoryFilter, setCategoryFilter] = useState("");
   const [onCrate, setOnCrate] = useState<CrateProps["onCrate"]>([]);
+  const [productFilter, setProductFilter] = useState("");
 
   if (!token) return <p>loading token...</p>;
 
@@ -42,10 +45,17 @@ const Home: NextPageWithLayout = () => {
       </Head>
       <div className="flex h-screen w-full flex-col overflow-x-hidden">
         <header className="ml-auto flex w-4/5 items-center justify-end gap-2">
-          <InputWithIcon
+          {/* <InputWithIcon
             Icon={RiSearch2Line}
             inputName="searchProduct"
-            placeHolder="Search"
+            placeHolder={t("header.inputPlaceHolder")}
+          /> */}
+          <DebouncedInput
+            type="text"
+            value={""}
+            onChange={(value) => setProductFilter(value as string)}
+            placeholder={t("header.inputPlaceHolder")}
+            className="mt-1 w-full rounded-xl border-2 border-gray-300 p-2"
           />
           <ProductModal operationType="post" defaultValues={{}} />
         </header>
@@ -54,7 +64,8 @@ const Home: NextPageWithLayout = () => {
           <ProductDisplay
             setOnCrate={setOnCrate}
             categoryFilter={categoryFilter}
-            displayType="library"
+            productFilter={productFilter}
+            displayType="keypad"
           />
         </main>
 

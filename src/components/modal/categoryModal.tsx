@@ -1,3 +1,4 @@
+import { useTranslation } from "next-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { RiAddLine } from "react-icons/ri";
 import { type SubmitHandler, useForm } from "react-hook-form";
@@ -23,6 +24,7 @@ export type CategoryModalProps = {
 };
 
 const CategoryModal: React.FC<CategoryModalProps> = (props) => {
+  const { t } = useTranslation();
   // used to control dialog directly
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [errors, setErrors] = useState("");
@@ -132,9 +134,23 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
 
   return (
     <CustomModal
+      header={
+        props.operationType === "post"
+          ? t("categoryModal.headerName.post")
+          : t("categoryModal.headerName.put")
+      }
       dialogRef={dialogRef}
       buttonAttrs={{ className: "mt-2" }}
       dialogAttrs={{}}
+      formAttrs={{
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        onSubmit: handleSubmit(onSubmit, (err) => {
+          console.log(
+            "🪵 [productModal.tsx:44] ~ token ~ \x1b[0;32merr\x1b[0m = ",
+            err
+          );
+        }),
+      }}
       buttonChildren={
         props.operationType === "post" ? (
           <RiAddLine className="h-fit w-fit p-3 text-3xl text-green-600" />
@@ -143,23 +159,10 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
         )
       }
       modalChildren={
-        <form
-          onSubmit={handleSubmit(onSubmit, (err) => {
-            console.log(
-              "🪵 [productModal.tsx:44] ~ token ~ \x1b[0;32merr\x1b[0m = ",
-              err
-            );
-          })}
-        >
-          <h1 className="my-2 text-3xl">
-            {props.operationType === "post"
-              ? "Add New Category"
-              : "Update Category"}
-          </h1>
-
+        <article>
           {/* image upload is special case */}
           <label key={"productimage"} className="block">
-            Image
+            {t("categoryModal.props.image")}
             <div className="mb-3 flex gap-1">
               <input
                 className="block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
@@ -191,7 +194,7 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
               return null;
             return (
               <label key={i} className="block">
-                {categoryKey}
+                {t(`categoryModal.props.${categoryKey}`)}
                 <input
                   className="block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
                   {...register(categoryKey, { required: true })}
@@ -226,12 +229,12 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
             imageMut.isLoading ? (
               <CgSpinner className="animate-spin text-2xl" />
             ) : props.operationType === "post" ? (
-              "Add"
+              t("categoryModal.action.post")
             ) : (
-              "Update"
+              t("categoryModal.action.put")
             )}
           </button>
-        </form>
+        </article>
       }
     />
   );

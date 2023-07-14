@@ -9,7 +9,7 @@
       },
       "printPolicey": {
         "header": "Print Policy",
-        "options": ["Always Ask", "Off"]
+        "options": { "always": "Always Ask", "off": "Off" }
       }
     }
   },
