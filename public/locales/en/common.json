@@ -116,8 +116,8 @@
       "sales": "Sales",
       "products": "Products",
       "category": "Categories",
-      "anal": "Analysis",
-      "spendings": "spendings",
+      "anal": { "index": "Analysis", "history": "History" },
+      "spendings": { "index": "spendings", "losses": "Losses" },
       "settings": "Settings"
     },
     "actions": { "logout": "Log out" }

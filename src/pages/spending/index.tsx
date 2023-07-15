@@ -1,7 +1,7 @@
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import type { GetStaticPropsContext } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { type NextPageWithLayout } from "./_app";
+import { type NextPageWithLayout } from "../_app";
 import { type ReactElement } from "react";
 import Layout from "@/components/layout";
 import { useAuth } from "@/hooks/useAuth";
@@ -11,6 +11,7 @@ import {
   ExpenseTypeModal,
   ExpensesStoreModal,
 } from "@/components/modal/expensisModal";
+import Accordion from "@/components/accordion";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   console.log(
@@ -29,7 +30,7 @@ export async function getStaticProps({ locale }: GetStaticPropsContext) {
   };
 }
 
-const Settings: NextPageWithLayout = () => {
+const Spending: NextPageWithLayout = () => {
   const { t } = useTranslation();
   const {} = useAuth({ noExistRedirectTo: "/signin" });
 
@@ -54,13 +55,14 @@ const Settings: NextPageWithLayout = () => {
         />
         {/* TODO ADD SPENDING CONTENT*/}
         {/* {productsQuery.data && <Table data={productsQuery.data} />} */}
+        <Accordion title={<>TITLE</>} content={<>more content in here</>} />
       </div>
       <ReactQueryDevtools initialIsOpen={false} />
     </>
   );
 };
 
-Settings.getLayout = function getLayout(page: ReactElement) {
+Spending.getLayout = function getLayout(page: ReactElement) {
   return (
     <>
       <Layout>{page}</Layout>
@@ -68,4 +70,4 @@ Settings.getLayout = function getLayout(page: ReactElement) {
   );
 };
 
-export default Settings;
+export default Spending;

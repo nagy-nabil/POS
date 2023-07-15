@@ -1,6 +1,7 @@
 {
   "header": "Analysis",
   "orderHistory": {
+    "header": "Order History",
     "from": "From",
     "to": "To",
     "footer": "Total Sold",
