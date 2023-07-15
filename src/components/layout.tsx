@@ -1,58 +1,149 @@
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { RiMenu4Fill, RiCloseLine, RiLogoutBoxLine } from "react-icons/ri";
-import { AiOutlineShoppingCart, AiOutlineSetting } from "react-icons/ai";
+import {
+  AiOutlineShoppingCart,
+  AiOutlineSetting,
+  AiOutlineHistory,
+} from "react-icons/ai";
 import { LuBarChart3 } from "react-icons/lu";
 import { CiShoppingTag } from "react-icons/ci";
+import { GiTakeMyMoney } from "react-icons/gi";
 import { MdMoneyOff, MdOutlineCategory } from "react-icons/md";
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
+import Accordion from "./accordion";
+
+export type PathItem = {
+  label: string;
+  href: string;
+  icon: React.ReactElement;
+};
+export type PathItemProps = {
+  path: PathItem & { key: string };
+};
+export type PathsListProps = {
+  paths: (PathItem | PathItem[])[];
+};
+
+export function PathItem(props: PathItemProps & { isActive: boolean }) {
+  return (
+    <>
+      <li key={props.path.key}>
+        <Link
+          href={props.path.href}
+          className={`flex items-center gap-3 rounded-2xl  p-2 text-white 
+                      ${props.isActive ? "bg-gray-700 " : " "}`}
+        >
+          {props.path.icon} {props.path.label}
+        </Link>
+      </li>
+    </>
+  );
+}
+
+/**
+ * in nested use first path label/icon for accordion
+ * if inner list is empty will throw
+ * @param props
+ * @returns
+ */
+export function PathsList(props: PathsListProps) {
+  const { route } = useRouter();
+
+  return (
+    <ul className="m-2 flex h-full flex-col gap-3 text-2xl">
+      {props.paths.map((path, i) => {
+        return Array.isArray(path) ? (
+          <Accordion
+            key={`${i}acclisi`}
+            title={
+              <div
+                className={
+                  "flex items-center gap-3 rounded-2xl  p-2 text-white"
+                }
+              >
+                {/* @ts-ignore */}
+                {path[0].icon} {path[0].label}
+              </div>
+            }
+            content={<PathsList key={`${i}innleis`} paths={path} />}
+          />
+        ) : (
+          <PathItem
+            key={`${i}litom`}
+            isActive={route === path.href}
+            path={{
+              key: i.toString() + "path",
+              ...path,
+            }}
+          />
+        );
+      })}
+    </ul>
+  );
+}
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { t } = useTranslation();
+  const [sidebarVisible, setSidebarVisible] = useState(false);
+  const { setToken } = useAuth({ redirectAfterSet: "/signin" });
   // used to describe sidebar items
-  // [label, href, icon]
   const iconClasses = "w-fit h-fit text-white bg-gray-800 p-3 rounded-2xl ";
-  const sidebar = useMemo<[string, string, JSX.Element][]>(
-    () => [
-      [
-        t("sidebar.paths.sales"),
-        "/",
-        <AiOutlineShoppingCart key="sales" className={iconClasses} />,
+  const sidebar = useMemo<PathsListProps>(
+    () => ({
+      paths: [
+        {
+          label: t("sidebar.paths.sales"),
+          href: "/",
+          icon: <AiOutlineShoppingCart key="sales" className={iconClasses} />,
+        },
+        {
+          label: t("sidebar.paths.products"),
+          href: "/product",
+
+          icon: <CiShoppingTag key="product" className={iconClasses} />,
+        },
+        {
+          label: t("sidebar.paths.category"),
+          href: "/category",
+          icon: <MdOutlineCategory key="category" className={iconClasses} />,
+        },
+        [
+          {
+            label: t("sidebar.paths.anal.index"),
+            href: "/analysis",
+            icon: <LuBarChart3 key="analysis" className={iconClasses} />,
+          },
+          {
+            label: t("sidebar.paths.anal.history"),
+            href: "/analysis/history",
+            icon: <AiOutlineHistory key="analHis" className={iconClasses} />,
+          },
+        ],
+        [
+          {
+            label: t("sidebar.paths.spendings.index"),
+            href: "/spending",
+            icon: <GiTakeMyMoney key="spendings" className={iconClasses} />,
+          },
+          {
+            label: t("sidebar.paths.spendings.losses"),
+            href: "/spending/losses",
+            icon: <MdMoneyOff key="spendings" className={iconClasses} />,
+          },
+        ],
+        {
+          label: t("sidebar.paths.settings"),
+          href: "/setting",
+          icon: <AiOutlineSetting key="setting" className={iconClasses} />,
+        },
       ],
-      [
-        t("sidebar.paths.products"),
-        "/product",
-        <CiShoppingTag key="product" className={iconClasses} />,
-      ],
-      [
-        t("sidebar.paths.category"),
-        "/category",
-        <MdOutlineCategory key="category" className={iconClasses} />,
-      ],
-      [
-        t("sidebar.paths.anal"),
-        "/analysis",
-        <LuBarChart3 key="analysis" className={iconClasses} />,
-      ],
-      [
-        t("sidebar.paths.spendings"),
-        "/spending",
-        <MdMoneyOff key="spendings" className={iconClasses} />,
-      ],
-      [
-        t("sidebar.paths.settings"),
-        "/setting",
-        <AiOutlineSetting key="setting" className={iconClasses} />,
-      ],
-    ],
+    }),
     [t]
   );
 
-  const [sidebarVisible, setSidebarVisible] = useState(false);
-  const { setToken } = useAuth({ redirectAfterSet: "/signin" });
-  const { route } = useRouter();
   return (
     <div className="flex h-screen w-screen scroll-smooth">
       <button
@@ -67,7 +158,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       <aside
         className={
           (sidebarVisible ? "absolute " : "hidden ") +
-          "min-w-1/3 z-50 mr-5 flex  h-screen  w-5/6 flex-col justify-start rounded-r-lg bg-gray-950 p-2 lg:w-1/5"
+          "min-w-1/3 z-50 mr-5 flex  h-screen  w-5/6 flex-col justify-start overflow-y-auto rounded-r-lg bg-gray-950 p-2 lg:w-1/5"
         }
         aria-label="Sidebar"
       >
@@ -87,35 +178,17 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <RiCloseLine />
           </button>
         </header>
-
-        <ul className="m-2 flex h-full flex-col gap-3 text-2xl">
-          {/* create sidebar items */}
-          {sidebar.map((item, i) => {
-            return (
-              <li key={i}>
-                <Link
-                  href={item[1]}
-                  className={`flex items-center gap-3 rounded-2xl  p-2 text-white 
-                      ${route === item[1] ? "bg-gray-700 " : " "}`}
-                >
-                  {item[2]} {item[0]}
-                </Link>
-              </li>
-            );
-          })}
-
-          <li key="logout" className="mt-auto">
-            <button
-              type="button"
-              className=" flex  items-center gap-3 rounded-2xl p-2 text-white"
-              onClick={() => {
-                void setToken("");
-              }}
-            >
-              <RiLogoutBoxLine className={iconClasses} /> Log out
-            </button>
-          </li>
-        </ul>
+        <PathsList {...sidebar} />
+        <button
+          type="button"
+          className=" mt-4  flex h-fit w-fit items-center gap-3 rounded-2xl p-2 text-2xl text-white"
+          onClick={() => {
+            void setToken("");
+          }}
+        >
+          <RiLogoutBoxLine className="h-fit w-fit rounded-2xl bg-gray-800 p-3 text-white " />{" "}
+          Log out
+        </button>
       </aside>
       {/* add overlay when sidebar is active on small screens */}
       {sidebarVisible && (

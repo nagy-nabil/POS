@@ -1,6 +1,7 @@
 {
   "header": "تحليل",
   "orderHistory": {
+    "header": "سجل الطلبات",
     "from": "من",
     "to": "إلى",
     "footer": "إجمالي المباع",

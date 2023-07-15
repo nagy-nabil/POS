@@ -81,8 +81,8 @@
       "sales": "المبيعات",
       "products": "المنتجات",
       "category": "الفئات",
-      "anal": "التحليل",
-      "spendings": "المصروفات",
+      "anal": { "index": "تحليل", "history": "تاريخ الطلبات" },
+      "spendings": { "index": "المصروفات", "losses": "الخسائر" },
       "settings": "الإعدادات"
     },
     "actions": { "logout": "تسجيل الخروج" }

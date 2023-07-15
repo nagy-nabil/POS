@@ -1,7 +1,7 @@
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useTranslation } from "next-i18next";
 import { api } from "@/utils/api";
-import { type NextPageWithLayout } from "./_app";
+import { type NextPageWithLayout } from "../_app";
 import { useState, type ReactElement } from "react";
 import Layout from "@/components/layout";
 import OrderDisplay from "@/components/orderDisplay";
@@ -11,13 +11,7 @@ import type { GetStaticPropsContext } from "next";
 import Head from "next/head";
 import { generateInputDateValue } from "@/utils/date";
 import React from "react";
-// import * as charts from "react-charts";
-import type { Chart as ChartType, AxisOptions } from "react-charts";
-import dynamic from "next/dynamic";
 import { CgSpinner } from "react-icons/cg";
-const Chart = dynamic(() => import("react-charts").then((mod) => mod.Chart), {
-  ssr: false,
-}) as typeof ChartType;
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   return {
@@ -32,90 +26,9 @@ export async function getStaticProps({ locale }: GetStaticPropsContext) {
   };
 }
 
-type DateSum = {
-  date: Date;
-  profitDaily: number;
-  soldDaily: number;
-};
-
-type Series = {
-  label: string;
-  data: DateSum[];
-};
-
-// const data: Series[] = [
-//   {
-//     label: "React Charts",
-//     data: [
-//       {
-//         date: new Date(),
-//         sum: 202123,
-//       },
-//       {
-//         date: new Date("2023-07-11"),
-//         sum: 2021232,
-//       },
-//       {
-//         date: new Date("2023-07-12"),
-//         sum: 402123,
-//       },
-//       {
-//         date: new Date("2023-07-13"),
-//         sum: 902123,
-//       },
-//       // ...
-//     ],
-//   },
-// ];
-
-function ChartLine(props: {
-  data: Series[];
-  label: string;
-  primaryAxis: AxisOptions<DateSum>;
-  secondaryAxes: AxisOptions<DateSum>[];
-}) {
-  return (
-    <div className=" flex h-96 w-full shrink-0 flex-col gap-3 overflow-x-auto rounded-2xl border-2 border-gray-600 p-3 text-black shadow-xl">
-      <h2 className="text-2xl font-bold">{props.label}</h2>
-      <div className="h-96 w-[600px]">
-        <Chart
-          options={{
-            data: props.data,
-            primaryAxis: props.primaryAxis,
-            secondaryAxes: props.secondaryAxes,
-          }}
-        />
-      </div>
-    </div>
-  );
-}
-
-const Anal: NextPageWithLayout = () => {
+const History: NextPageWithLayout = () => {
   const { t } = useTranslation("analysis");
   const { setToken } = useAuth({ noExistRedirectTo: "/signin" });
-  const profitPrimaryAxis = React.useMemo(
-    (): AxisOptions<DateSum> => ({
-      getValue: (datum) => datum.date,
-    }),
-    []
-  );
-
-  const profitSecondaryAxes = React.useMemo(
-    (): AxisOptions<DateSum>[] => [
-      {
-        getValue: (datum) => datum.profitDaily,
-      },
-    ],
-    []
-  );
-  const soldSecondaryAxes = React.useMemo(
-    (): AxisOptions<DateSum>[] => [
-      {
-        getValue: (datum) => datum.soldDaily,
-      },
-    ],
-    []
-  );
 
   // always would be the time at midnight(start of a day)
   const [fromDate, setFromDate] = useState<Date>(() => {
@@ -149,7 +62,6 @@ const Anal: NextPageWithLayout = () => {
       },
     }
   );
-  const anal = api.orders.anal.useQuery(undefined, {});
 
   if (orderQuery.isError) {
     return <p>{JSON.stringify(orderQuery.error)}</p>;
@@ -162,7 +74,7 @@ const Anal: NextPageWithLayout = () => {
       </Head>
       <div className="flex h-screen w-full flex-col overflow-hidden px-4">
         <header className="m-auto mb-8">
-          <h1 className="text-5xl">{t("header")}</h1>
+          <h1 className="text-5xl">{t("orderHistory.header")}</h1>
         </header>
 
         <div className="flex flex-col gap-3">
@@ -215,37 +127,6 @@ const Anal: NextPageWithLayout = () => {
 
         {/* order display */}
         <div className="mt-5 flex h-screen flex-col gap-4 overflow-y-auto">
-          {/* <ChartLine /> */}
-          {anal.data !== undefined && anal.data.length > 0 ? (
-            <>
-              <ChartLine
-                key={"sold-daily"}
-                label={t("graphs.sold")}
-                data={[
-                  {
-                    label: "sold-daily",
-                    data: anal.data,
-                  },
-                ]}
-                primaryAxis={profitPrimaryAxis}
-                secondaryAxes={soldSecondaryAxes}
-              />
-              <ChartLine
-                key={"profit-daily"}
-                label={t("graphs.profit")}
-                data={[
-                  {
-                    label: "dailyProfit",
-                    data: anal.data,
-                  },
-                ]}
-                primaryAxis={profitPrimaryAxis}
-                secondaryAxes={profitSecondaryAxes}
-              />
-            </>
-          ) : (
-            "NOT ENOUGH DATA TO SHOW GRAPHS"
-          )}
           {orderQuery.data?.map((order) => {
             totalSold += order.total;
             return (
@@ -256,6 +137,9 @@ const Anal: NextPageWithLayout = () => {
               />
             );
           })}
+          {orderQuery.data?.length === 0
+            ? "no orders try adding one from sales page"
+            : null}
         </div>
         <p className="border-t-2 border-gray-400 p-3 text-2xl text-green-700">
           Total Sold: {totalSold}$
@@ -267,7 +151,7 @@ const Anal: NextPageWithLayout = () => {
   );
 };
 
-Anal.getLayout = function getLayout(page: ReactElement) {
+History.getLayout = function getLayout(page: ReactElement) {
   return (
     <>
       <Layout>{page}</Layout>
@@ -275,4 +159,4 @@ Anal.getLayout = function getLayout(page: ReactElement) {
   );
 };
 
-export default Anal;
+export default History;
