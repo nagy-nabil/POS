@@ -25,6 +25,7 @@ export const ordersRouter = createTRPCRouter({
           )
         );
 
+        // TODO check this if condition
         // make sure that returned products length is the as the requested or there's missing error
         if (products.length !== input.products.length) {
           throw new TRPCError({ code: "BAD_REQUEST" });

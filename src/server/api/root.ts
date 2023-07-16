@@ -5,6 +5,7 @@ import { categoriesRouter } from "@/server/api/routers/category";
 import { usersRouter } from "@/server/api/routers/user";
 import { helpersRouter } from "@/server/api/routers/helpers";
 import { expensesRouter } from "@/server/api/routers/expenses";
+import { lossesRouter } from "@/server/api/routers/losses";
 
 export const appRouter = createTRPCRouter({
   products: productsRouter,
@@ -13,6 +14,7 @@ export const appRouter = createTRPCRouter({
   users: usersRouter,
   helpers: helpersRouter,
   expenses: expensesRouter,
+  losses: lossesRouter,
 });
 
 // export type definition of API

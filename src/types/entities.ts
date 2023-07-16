@@ -59,3 +59,15 @@ export const expensesSchema = z.object({
   additionalAmount: z.number().default(0),
   expenseStoreIds: z.array(z.string()),
 });
+
+export const productsOnLossSchema = z.object({
+  productId: z.string().nonempty(),
+  quantity: z.number().gt(0),
+});
+
+export const lossesSchema = z.object({
+  id: z.string().nonempty().optional(),
+  description: z.string().optional(),
+  additionalAmount: z.number().default(0),
+  products: z.array(productsOnLossSchema).nonempty(),
+});

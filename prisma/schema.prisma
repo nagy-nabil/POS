@@ -30,6 +30,7 @@ model User {
     ExpenseTypes       ExpenseTypes[]
     ExpenseStore       ExpenseStore[]
     Expenses           Expenses[]
+    Losses             Loss[]
 }
 
 model Category {
@@ -61,6 +62,7 @@ model Product {
     category    Category          @relation(fields: [categoryId], references: [id])
     categoryId  String
     orders      ProductsOnOrder[]
+    losses      ProductsOnLoss[]
 }
 
 model Order {
@@ -138,6 +140,29 @@ model SpendingsOnExpenses {
     expense    Expenses     @relation(fields: [expenseId], references: [id])
 
     @@id([spendingId, expenseId])
+}
+
+model Loss {
+    id               String           @id @default(cuid())
+    description      String?
+    additionalAmount Float            @default(0)
+    createdAt        DateTime         @default(now())
+    createdBy        User             @relation(fields: [createdById], references: [id])
+    createdById      String
+    products         ProductsOnLoss[]
+}
+
+model ProductsOnLoss {
+    lossId          String
+    loss            Loss    @relation(fields: [lossId], references: [id], onDelete: Cascade)
+    productId       String
+    Product         Product @relation(fields: [productId], references: [id])
+    quantity        Float
+    // snapshot of the product at time of the order
+    buyPriceAtLoss  Float // Price of the product at the time of the order
+    sellPriceAtLoss Float // Price of the product at the time of the order
+
+    @@id([productId, lossId])
 }
 
 enum Role {
