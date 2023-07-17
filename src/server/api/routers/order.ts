@@ -195,7 +195,7 @@ export const ordersRouter = createTRPCRouter({
           inner join "ProductsOnOrder" AS PO
           on O.id = PO."orderId"
           group by date
-          order by date ASC
+          order by date DESC
           limit 10
           ;
       `;
