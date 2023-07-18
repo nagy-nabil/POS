@@ -67,6 +67,7 @@ export const productsOnLossSchema = z.object({
 
 export const lossesSchema = z.object({
   id: z.string().nonempty().optional(),
+  name: z.string().optional(),
   description: z.string().optional(),
   additionalAmount: z.number().default(0),
   products: z.array(productsOnLossSchema).nonempty(),

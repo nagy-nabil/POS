@@ -7,11 +7,7 @@ import Layout from "@/components/layout";
 import { useAuth } from "@/hooks/useAuth";
 import Head from "next/head";
 import { useTranslation } from "react-i18next";
-import {
-  ExpenseTypeModal,
-  ExpensesStoreModal,
-} from "@/components/modal/expensisModal";
-import Accordion from "@/components/accordion";
+import LossesModal from "@/components/modal/lossesModal";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   console.log(
@@ -43,19 +39,7 @@ const Spending: NextPageWithLayout = () => {
         <header className="mt-2 flex items-center justify-around">
           <h1 className="text-4xl">{t("pages.spending.header")}</h1>
         </header>
-        <ExpenseTypeModal
-          defaultValues={{}}
-          operationType="post"
-          key={"expessetse"}
-        />
-        <ExpensesStoreModal
-          defaultValues={{}}
-          operationType="post"
-          key={"expessefds"}
-        />
-        {/* TODO ADD SPENDING CONTENT*/}
-        {/* {productsQuery.data && <Table data={productsQuery.data} />} */}
-        <Accordion title={<>TITLE</>} content={<>more content in here</>} />
+        <LossesModal defaultValues={{}} operationType="post" />
       </div>
       <ReactQueryDevtools initialIsOpen={false} />
     </>

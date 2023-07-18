@@ -11,26 +11,79 @@ datasource db {
 }
 
 model User {
-    id                 String         @id @default(cuid())
-    userName           String         @unique
-    email              String         @unique
-    password           String
-    role               Role           @default(STAFF)
-    createdAt          DateTime       @default(now())
-    phone              String
-    activationsStatus  Boolean        @default(false)
-    activationToken    String?
-    resetPasswordToken String?
-    predecessorId      String?
-    predecessor        User?          @relation("creator", fields: [predecessorId], references: [id])
-    successors         User[]         @relation("creator")
-    category           Category[]
-    products           Product[]
-    orders             Order[]
-    ExpenseTypes       ExpenseTypes[]
-    ExpenseStore       ExpenseStore[]
-    Expenses           Expenses[]
-    Losses             Loss[]
+    id                  String            @id @default(cuid())
+    userName            String            @unique
+    email               String            @unique
+    password            String
+    role                RoleT             @default(STAFF)
+    createdAt           DateTime          @default(now())
+    phone               String
+    activationsStatus   Boolean           @default(false)
+    activationToken     String?
+    resetPasswordToken  String?
+    predecessorId       String?
+    predecessor         User?             @relation("creator", fields: [predecessorId], references: [id])
+    successors          User[]            @relation("creator")
+    category            Category[]
+    products            Product[]
+    orders              Order[]
+    ExpenseTypes        ExpenseTypes[]
+    ExpenseStore        ExpenseStore[]
+    Expenses            Expenses[]
+    Losses              Loss[]
+    /// roles user in
+    roles               UserRoles[]
+    /// roles this user created
+    rolesCreated        Role[]
+    permissionsAssigned RolePermissions[]
+    Permission          Permission[]
+}
+
+// RBAC
+
+model Role {
+    id              String            @id @default(cuid())
+    title           String            @unique
+    description     String?
+    createdAt       DateTime          @default(now())
+    createdBy       User              @relation(fields: [createdById], references: [id])
+    createdById     String
+    /// many to many describe users in this role
+    usersOnRole     UserRoles[]
+    RolePermissions RolePermissions[]
+}
+
+// TODO should the permissions be hard coded?
+model Permission {
+    id              String            @id @default(cuid())
+    title           String            @unique
+    description     String?
+    createdAt       DateTime          @default(now())
+    createdBy       User              @relation(fields: [createdById], references: [id])
+    createdById     String
+    RolePermissions RolePermissions[]
+}
+
+model RolePermissions {
+    role         Role       @relation(fields: [roleId], references: [id])
+    roleId       String
+    permission   Permission @relation(fields: [permissionId], references: [id])
+    permissionId String
+    createdAt    DateTime   @default(now())
+    /// who assigned this permission to this role
+    createdBy    User       @relation(fields: [createdById], references: [id])
+    createdById  String
+
+    @@id([permissionId, roleId])
+}
+
+model UserRoles {
+    user   User   @relation(fields: [userId], references: [id])
+    userId String
+    Role   Role   @relation(fields: [roleId], references: [id])
+    roleId String
+
+    @@id([userId, roleId])
 }
 
 model Category {
@@ -144,6 +197,7 @@ model SpendingsOnExpenses {
 
 model Loss {
     id               String           @id @default(cuid())
+    name             String?
     description      String?
     additionalAmount Float            @default(0)
     createdAt        DateTime         @default(now())
@@ -165,7 +219,7 @@ model ProductsOnLoss {
     @@id([productId, lossId])
 }
 
-enum Role {
+enum RoleT {
     SUPERADMIN
     ADMIN
     STAFF

@@ -75,6 +75,23 @@
       "put": "Update"
     }
   },
+  "lossesModal": {
+    "headerName": {
+      "post": "Add New Loss",
+      "put": "Update Loss"
+    },
+    "props": {
+      "id": "ID",
+      "name": "Name",
+      "description": "Description",
+      "additionalAmount": "Additional Amount",
+      "products": "Products"
+    },
+    "action": {
+      "post": "Add",
+      "put": "Update"
+    }
+  },
   "expensesModal": {
     "typeModal": {
       "headerName": {
