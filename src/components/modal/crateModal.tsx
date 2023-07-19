@@ -1,5 +1,10 @@
 import { CgSpinner } from "react-icons/cg";
-import React, { useRef, type Dispatch, type SetStateAction } from "react";
+import React, {
+  useRef,
+  type Dispatch,
+  type SetStateAction,
+  useState,
+} from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { api } from "@/utils/api";
 import { FaShoppingBag } from "react-icons/fa";
@@ -28,6 +33,7 @@ const CrateItem: React.FC<
     setOnCrate: CrateProps["setOnCrate"];
   }
 > = (props) => {
+  const [operationError, setOperationError] = useState("");
   const { t } = useTranslation();
   const price = props.sellPrice * props.quantity;
   return (
@@ -36,7 +42,37 @@ const CrateItem: React.FC<
         {/* meta data */}
         <div>
           <h3 className="text-xl">{props.name}</h3>
-          <p className="ml-2 text-gray-500">Quantity: {props.quantity}</p>
+          <label className="my-2">
+            Quantity:
+            <input
+              type="number"
+              className="mx-2 w-20 rounded-2xl p-2 text-gray-500"
+              value={props.quantity}
+              onChange={(e) => {
+                const v = +e.target.value;
+                if (v > props.stock) {
+                  setOperationError(
+                    "order quantity cannot be greater than product stock"
+                  );
+                  return;
+                }
+                if (v < 0) {
+                  setOperationError("order quantity cannot be less than zero");
+                  return;
+                }
+                setOperationError("");
+                props.setOnCrate((prev) => {
+                  const temp = prev.find((temp) => temp.id === props.id);
+                  if (temp !== undefined) {
+                    temp.quantity = v;
+                  }
+                  return [...prev];
+                });
+              }}
+              step={0.5}
+              max={props.stock}
+            />
+          </label>
           <p className="ml-2 text-green-600">
             {`${t("crate.price")}: ${props.sellPrice} $ - ${price}$`}
           </p>
@@ -93,6 +129,7 @@ const CrateItem: React.FC<
           </button>
         </div>
       </div>
+      <p className="m-2 text-red-700">{operationError}</p>
       <hr className="m-2 " />
     </>
   );
@@ -100,6 +137,7 @@ const CrateItem: React.FC<
 
 // main crate
 const CrateModal: React.FC<CrateProps> = (props) => {
+  const [operationError, setOperationError] = useState("");
   const { t } = useTranslation();
   const dialgoRef = useRef<HTMLDialogElement>(null);
   function calcTotal() {
@@ -109,7 +147,30 @@ const CrateModal: React.FC<CrateProps> = (props) => {
   }
   // const [total, setTotal] = useState(0);
   const queryClient = useQueryClient();
-  const orderMut = api.orders.insertOne.useMutation();
+  const orderMut = api.orders.insertOne.useMutation({
+    onError(error) {
+      setOperationError(error.message);
+    },
+    onSuccess: (data) => {
+      props.setOnCrate([]);
+      // update products store
+      queryClient.setQueryData<Product[]>(
+        [["products", "getMany"], { type: "query" }],
+        (prev) => {
+          const productsTemp: Product[] = [];
+          const lookUp = new Set<string>();
+          data.products.forEach((item) => {
+            productsTemp.push(item.Product);
+            lookUp.add(item.Product.id);
+          });
+          return prev
+            ? [...prev.filter((test) => !lookUp.has(test.id)), ...productsTemp]
+            : [];
+        }
+      );
+      if (dialgoRef.current !== null) dialgoRef.current.close();
+    },
+  });
 
   return (
     <CustomModal
@@ -143,6 +204,7 @@ const CrateModal: React.FC<CrateProps> = (props) => {
             );
           })}
 
+          <p className="m-2 text-red-700">{operationError}</p>
           <footer className="flex items-center justify-between">
             <span className="text-xl text-green-700">
               {t("crate.footer.totalSpan")}: {calcTotal()}$
@@ -160,41 +222,7 @@ const CrateModal: React.FC<CrateProps> = (props) => {
                       quantity: product.quantity,
                     })),
                   },
-                  {
-                    onSuccess: (data) => {
-                      queryClient
-                        .invalidateQueries([
-                          ["orders", "getMany"],
-                          { type: "query" },
-                        ])
-                        .catch((e) => {
-                          console.log(
-                            "🪵 [crate.tsx:102] ~ token ~ \x1b[0;32me\x1b[0m = ",
-                            e
-                          );
-                        });
-                      props.setOnCrate([]);
-                      // update products store
-                      queryClient.setQueryData(
-                        [["products", "getMany"], { type: "query" }],
-                        (prev) => {
-                          const productsTemp: Product[] = [];
-                          const lookUp = new Set<string>();
-                          data.products.forEach((item) => {
-                            productsTemp.push(item.Product);
-                            lookUp.add(item.Product.id);
-                          });
-                          return [
-                            ...(prev as Product[]).filter(
-                              (test) => !lookUp.has(test.id)
-                            ),
-                            ...productsTemp,
-                          ];
-                        }
-                      );
-                      if (dialgoRef.current !== null) dialgoRef.current.close();
-                    },
-                  }
+                  {}
                 );
               }}
             >

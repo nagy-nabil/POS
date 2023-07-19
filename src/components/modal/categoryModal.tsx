@@ -197,7 +197,7 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
                 {t(`categoryModal.props.${categoryKey}`)}
                 <input
                   className="block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-                  {...register(categoryKey, { required: true })}
+                  {...register(categoryKey, {})}
                 />
                 {/* errors will return when field validation fails  */}
                 {formErrors[categoryKey] && (

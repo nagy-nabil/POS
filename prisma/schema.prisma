@@ -101,7 +101,7 @@ model Product {
     name        String
     // there a check constraint
     // alter table "Product" add constraint "stock_less_zero" check (stock >= 0);
-    stock       Int
+    stock       Float
     // there a check constraint
     //alter table "Product" add constraint "buyprice_less_zero" check ("buyPrice" > 0);
     buyPrice    Float
@@ -134,7 +134,7 @@ model ProductsOnOrder {
     order           Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
     // there a check constraint
     //alter table "ProductsOnOrder" add constraint "quntatity_zero" check (quantity > 0);
-    quantity        Int     @default(1)
+    quantity        Float   @default(1)
     // snapshot of the product at time of the order
     buyPriceAtSale  Float // Price of the product at the time of the order
     sellPriceAtSale Float // Price of the product at the time of the order
