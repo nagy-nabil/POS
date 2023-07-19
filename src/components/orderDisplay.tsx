@@ -99,7 +99,6 @@ const OrderPrint = React.forwardRef<HTMLDivElement, OrderDisplayProps>(
 const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
   const { t } = useTranslation();
   const toPrintRef = useRef<HTMLDivElement>(null);
-  // const [productsOpen, setProductsOpen] = useState(false);
   const [operationError, setOperationError] = useState("");
   const handlePrint = useReactToPrint({
     content: () => toPrintRef.current,

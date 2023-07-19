@@ -12,6 +12,7 @@ import Head from "next/head";
 import { generateInputDateValue } from "@/utils/date";
 import React from "react";
 import { CgSpinner } from "react-icons/cg";
+import { PaginationUtis, usePagination } from "@/hooks/usePagination";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   return {
@@ -62,6 +63,11 @@ const History: NextPageWithLayout = () => {
       },
     }
   );
+
+  const ordersPage = usePagination({
+    data: orderQuery.data || [],
+    length: 5,
+  });
 
   if (orderQuery.isError) {
     return <p>{JSON.stringify(orderQuery.error)}</p>;
@@ -127,7 +133,7 @@ const History: NextPageWithLayout = () => {
 
         {/* order display */}
         <div className="mt-5 flex h-screen flex-col gap-4 overflow-y-auto">
-          {orderQuery.data?.map((order) => {
+          {ordersPage.values.map((order) => {
             totalSold += order.total;
             return (
               <OrderDisplay
@@ -144,6 +150,7 @@ const History: NextPageWithLayout = () => {
         <p className="border-t-2 border-gray-400 p-3 text-2xl text-green-700">
           Total Sold: {totalSold}$
         </p>
+        <PaginationUtis {...ordersPage} />
       </div>
 
       <ReactQueryDevtools initialIsOpen={false} />

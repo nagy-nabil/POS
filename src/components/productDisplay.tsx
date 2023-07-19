@@ -7,6 +7,7 @@ import { type CrateItem } from "@/components/modal/crateModal";
 import { useAuth } from "@/hooks/useAuth";
 import Image from "next/image";
 import { useTranslation } from "react-i18next";
+import { PaginationUtis, usePagination } from "@/hooks/usePagination";
 
 type ProductProps = Pick<
   Product,
@@ -143,6 +144,10 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
     props.categoryFilter,
     props.productFilter,
   ]);
+  const productsDataPage = usePagination({
+    data: productsData || [],
+    length: 5,
+  });
 
   if (productsQuery.isError) {
     return <p>{JSON.stringify(productsQuery.error)}</p>;
@@ -199,7 +204,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
         {productsData === undefined ? (
           <LibraryDisplaySkeleton count={5} />
         ) : (
-          productsData.map((product) => {
+          productsDataPage.values.map((product) => {
             const displayProps: ProductProps = {
               onClick: () => {
                 props.setOnCrate((prev) => {
@@ -239,6 +244,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
             );
           })
         )}
+        <PaginationUtis {...productsDataPage} />
       </div>
     </div>
   );

@@ -6,11 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import CustomModal from ".";
 import { api } from "@/utils/api";
 import { type z } from "zod";
-import {
-  expenseStoreSchema,
-  expenseTypeSchema,
-  lossesSchema,
-} from "@/types/entities";
+import { lossesSchema } from "@/types/entities";
 import clsx from "clsx";
 import { MdOutlineCategory } from "react-icons/md";
 import { CgSpinner } from "react-icons/cg";

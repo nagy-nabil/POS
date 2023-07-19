@@ -82,7 +82,7 @@ export function ExpenseTypeModal(props: ExpenseTypeProps) {
                 {t(`expensesModal.typeModal.props.${typeKey}`)}
                 <input
                   className="block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-                  {...register(typeKey, { required: true })}
+                  {...register(typeKey, {})}
                 />
                 {/* errors will return when field validation fails  */}
                 {formErrors[typeKey] && (

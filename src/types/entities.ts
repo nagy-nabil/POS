@@ -29,7 +29,7 @@ export const productSchema = z.object({
 
 export const orderSchema = z.object({
   products: z.array(
-    z.object({ id: z.string().nonempty(), quantity: z.number().min(1) })
+    z.object({ id: z.string().nonempty(), quantity: z.number().gt(0) })
   ),
 });
 
