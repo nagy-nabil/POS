@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 import {
   ExpenseTypeModal,
   ExpensesStoreModal,
-} from "@/components/modal/expensisModal";
+} from "@/components/modal/expensesModal";
 import Accordion from "@/components/accordion";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
