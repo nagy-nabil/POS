@@ -23,6 +23,11 @@ export function ExpenseTypeModal(props: ExpenseTypeProps) {
   const { t } = useTranslation();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [operationError, setOperationError] = useState("");
+  const typesMut = api.expenses.expeseTypeInsertOne.useMutation({
+    onError(error) {
+      setOperationError(error.message);
+    },
+  });
 
   //FORM
   const {
@@ -50,7 +55,7 @@ export function ExpenseTypeModal(props: ExpenseTypeProps) {
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onSubmit: handleSubmit(
           (data) => {
-            console.log(data);
+            typesMut.mutate(data);
           },
           (err) => {
             console.log(
@@ -137,6 +142,7 @@ export function ExpensesStoreModal(props: ExpensesModalProps) {
   const { t } = useTranslation();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [operationError, setOperationError] = useState("");
+  const expenseTypesQuery = api.expenses.expenseTypeGetMany.useQuery();
 
   //FORM
   const {
@@ -149,6 +155,10 @@ export function ExpensesStoreModal(props: ExpensesModalProps) {
     defaultValues: { onTheFly: false, ...props.defaultValues },
     mode: "onSubmit",
   });
+
+  if (expenseTypesQuery.isError) {
+    return <>{JSON.stringify(expenseTypesQuery.error)}</>;
+  }
 
   return (
     <CustomModal
@@ -186,7 +196,8 @@ export function ExpensesStoreModal(props: ExpensesModalProps) {
             if (
               storeKey === "onTheFly" ||
               storeKey === "id" ||
-              storeKey === "remindAt"
+              storeKey === "remindAt" ||
+              storeKey === "typeId"
             )
               return null;
 
@@ -194,12 +205,11 @@ export function ExpensesStoreModal(props: ExpensesModalProps) {
               <label key={i} className="block">
                 {t(`expensesModal.storeModal.props.${storeKey}`)}
                 <input
+                  type={storeKey === "amount" ? "number" : "text"}
                   className="block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-                  {...(storeKey === "amount"
-                    ? register(storeKey, {
-                        valueAsNumber: true,
-                      })
-                    : register(storeKey))}
+                  {...register(storeKey, {
+                    valueAsNumber: storeKey === "amount",
+                  })}
                 />
                 {/* errors will return when field validation fails  */}
                 {formErrors[storeKey] && (
@@ -212,6 +222,36 @@ export function ExpensesStoreModal(props: ExpensesModalProps) {
             );
           })}
 
+          <label
+            key={"spetype"}
+            className="mb-2 block font-medium text-gray-900"
+          >
+            {t("productModal.props.category")}
+            <select
+              {...register("typeId", {})}
+              className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500
+              "
+            >
+              {expenseTypesQuery.data !== undefined
+                ? expenseTypesQuery.data.map((type) => {
+                    return (
+                      <option
+                        label={type.name}
+                        value={type.id}
+                        key={type.id}
+                        className="text-black focus:bg-red-500"
+                      />
+                    );
+                  })
+                : null}
+            </select>
+            {/* errors will return when field validation fails  */}
+            {formErrors["typeId"] && (
+              <span className="m-2 text-red-700">
+                {formErrors["typeId"].message}
+              </span>
+            )}
+          </label>
           <p className="m-2 text-red-700">{operationError}</p>
           <button
             // TODO ENABLE

@@ -45,7 +45,7 @@ export const expenseTypeSchema = z.object({
 
 export const expenseStoreSchema = z.object({
   id: z.string().nonempty().optional(),
-  name: z.string(),
+  name: z.string().min(3),
   description: z.string().min(4).optional(),
   onTheFly: z.boolean().default(false),
   amount: z.number().gt(0),

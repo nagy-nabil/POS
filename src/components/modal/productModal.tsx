@@ -277,15 +277,20 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
               <label key={i} className="block">
                 {t(`productModal.props.${productKey}`)}
                 <input
+                  type={
+                    productKey === "sellPrice" ||
+                    productKey === "stock" ||
+                    productKey === "buyPrice"
+                      ? "number"
+                      : "text"
+                  }
                   className="block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-                  {...(productKey === "sellPrice" ||
-                  productKey === "stock" ||
-                  productKey === "buyPrice"
-                    ? register(productKey, {
-                        required: true,
-                        valueAsNumber: true,
-                      })
-                    : register(productKey, { required: true }))}
+                  {...register(productKey, {
+                    valueAsNumber:
+                      productKey === "sellPrice" ||
+                      productKey === "stock" ||
+                      productKey === "buyPrice",
+                  })}
                 />
 
                 {/* errors will return when field validation fails  */}
