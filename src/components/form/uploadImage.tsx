@@ -1,6 +1,6 @@
 import { api } from "@/utils/api";
 import { useMutation } from "@tanstack/react-query";
-import React, { useEffect } from "react";
+import React from "react";
 import { BiUpload } from "react-icons/bi";
 
 export function useUploadAzure() {
@@ -31,15 +31,15 @@ export type UploadImageProps = {
    */
   onLink: (url: { sasUrl: string; blobUrl: string }) => void;
   setFileSelected: React.Dispatch<React.SetStateAction<File | undefined>>;
+  isInputDisapled: boolean;
 };
 
 export default function UploadImage(props: UploadImageProps) {
-  const sasUrl = api.helpers.uploadImage.useMutation();
-  useEffect(() => {
-    if (sasUrl.data !== undefined) {
-      props.onLink(sasUrl.data);
-    }
-  }, [sasUrl.data, props]);
+  const sasUrl = api.helpers.uploadImage.useMutation({
+    onSuccess(data) {
+      props.onLink(data);
+    },
+  });
 
   return (
     <label>
@@ -47,6 +47,7 @@ export default function UploadImage(props: UploadImageProps) {
         type="file"
         className="hidden"
         accept="image/*"
+        disabled={props.isInputDisapled}
         onChange={(event) => {
           if (
             event.target !== null &&

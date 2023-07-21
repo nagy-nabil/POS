@@ -22,6 +22,10 @@ const productKeys = productSchema.keyof().options;
 export type ProductModalProps = {
   operationType: "post" | "put";
   defaultValues: Partial<ProductT>;
+  /**
+   * function to run after success and the modal get closed
+   */
+  afterSuccess?: () => void;
 };
 
 const ProductModal: React.FC<ProductModalProps> = (props) => {
@@ -38,15 +42,6 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
     undefined
   );
 
-  // react-query
-  const categoryQuery = api.categories.getMany.useQuery(undefined, {
-    staleTime: 1000 * 50 * 60,
-  });
-  const productInsert = api.products.insertOne.useMutation();
-  const productUpdate = api.products.updateOne.useMutation();
-  const imageMut = useUploadAzure();
-  const queryClient = useQueryClient();
-
   // form hook
   const {
     register,
@@ -61,6 +56,54 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
     reValidateMode: "onSubmit",
   });
 
+  function resetModalState() {
+    setFileSelected(undefined);
+    setFileSelectedSas(undefined);
+    setErrors("");
+    formReset();
+    dialogRef.current?.close();
+  }
+
+  // react-query
+  const categoryQuery = api.categories.getMany.useQuery(undefined, {
+    staleTime: 1000 * 50 * 60,
+  });
+  const productInsert = api.products.insertOne.useMutation({
+    onSuccess: (data) => {
+      queryClient.setQueryData<Product[]>(
+        [["products", "getMany"], { type: "query" }],
+        (prev) => (prev !== undefined ? [...prev, data] : [data])
+      );
+      resetModalState();
+      if (props.afterSuccess !== undefined) {
+        props.afterSuccess();
+      }
+    },
+    onError(err) {
+      setErrors(err.message);
+    },
+  });
+  const productUpdate = api.products.updateOne.useMutation({
+    onSuccess: (data, variables) => {
+      // remove the one with the id of the input and insert the returned from the mutation
+      queryClient.setQueryData<Product[]>(
+        [["products", "getMany"], { type: "query" }],
+        (prev) =>
+          prev !== undefined
+            ? [...prev.filter((test) => test.id !== variables.id), data]
+            : [data]
+      );
+      resetModalState();
+      if (props.afterSuccess !== undefined) {
+        props.afterSuccess();
+      }
+    },
+    onError(err) {
+      setErrors(err.message);
+    },
+  });
+  const imageMut = useUploadAzure();
+  const queryClient = useQueryClient();
   const onSubmit: SubmitHandler<ProductT> = (data) => {
     if (
       props.operationType === "put" &&
@@ -72,45 +115,11 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
 
     // just puting the mut call into functions to make the poilerplate easier
     const proIns = () => {
-      productInsert.mutate(data, {
-        onSuccess: (data) => {
-          queryClient.setQueryData(
-            [["products", "getMany"], { type: "query" }],
-            (prev) => [...(prev as Product[]), data]
-          );
-          setFileSelected(undefined);
-          setFileSelectedSas(undefined);
-          setErrors("");
-          formReset();
-          dialogRef.current?.close();
-        },
-        onError(err) {
-          setErrors(err.message);
-        },
-      });
+      productInsert.mutate(data);
     };
     const proPut = () => {
       // @ts-ignore
-      productUpdate.mutate(data, {
-        onSuccess: (data, variables) => {
-          // remove the one with the id of the input and insert the returned from the mutation
-          queryClient.setQueryData(
-            [["products", "getMany"], { type: "query" }],
-            (prev) => [
-              ...(prev as Product[]).filter((test) => test.id !== variables.id),
-              data,
-            ]
-          );
-          setFileSelected(undefined);
-          setFileSelectedSas(undefined);
-          setErrors("");
-          formReset();
-          dialogRef.current?.close();
-        },
-        onError(err) {
-          setErrors(err.message);
-        },
-      });
+      productUpdate.mutate(data);
     };
 
     // set function to be run
@@ -179,6 +188,11 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
 
               {/* only show qr managment with id input */}
               <button
+                disabled={
+                  productInsert.isLoading ||
+                  productUpdate.isLoading ||
+                  imageMut.isLoading
+                }
                 type="button"
                 onClick={() => setIsQrOpen((prev) => !prev)}
               >
@@ -252,10 +266,14 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
                 key={"uploadProductImage"}
                 setFileSelected={setFileSelected}
                 onLink={(url) => {
-                  console.log("url", url);
                   setFileSelectedSas(url.sasUrl);
                   setValue("image", url.blobUrl);
                 }}
+                isInputDisapled={
+                  productInsert.isLoading ||
+                  productUpdate.isLoading ||
+                  imageMut.isLoading
+                }
               />
             </div>
             {/* errors will return when field validation fails  */}
@@ -277,15 +295,20 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
               <label key={i} className="block">
                 {t(`productModal.props.${productKey}`)}
                 <input
+                  type={
+                    productKey === "sellPrice" ||
+                    productKey === "stock" ||
+                    productKey === "buyPrice"
+                      ? "number"
+                      : "text"
+                  }
                   className="block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-                  {...(productKey === "sellPrice" ||
-                  productKey === "stock" ||
-                  productKey === "buyPrice"
-                    ? register(productKey, {
-                        required: true,
-                        valueAsNumber: true,
-                      })
-                    : register(productKey, { required: true }))}
+                  {...register(productKey, {
+                    valueAsNumber:
+                      productKey === "sellPrice" ||
+                      productKey === "stock" ||
+                      productKey === "buyPrice",
+                  })}
                 />
 
                 {/* errors will return when field validation fails  */}

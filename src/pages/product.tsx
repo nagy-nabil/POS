@@ -162,6 +162,9 @@ function Table(props: { data: Product[] }) {
               operationType="put"
               // @ts-ignore
               defaultValues={props.data[+Object.keys(rowSelection)[0]]}
+              afterSuccess={() => {
+                table.setRowSelection({});
+              }}
             />
           ) : null}
         </div>
@@ -181,7 +184,7 @@ const ProductTable: NextPageWithLayout = () => {
   const { t } = useTranslation();
   const { token, setToken } = useAuth({ noExistRedirectTo: "/signin" });
   const productsQuery = api.products.getMany.useQuery(undefined, {
-    staleTime: 1000 * 50 * 60,
+    staleTime: Infinity,
     enabled: !!token,
     retry(_failureCount, error) {
       if (error.data?.code === "UNAUTHORIZED") {

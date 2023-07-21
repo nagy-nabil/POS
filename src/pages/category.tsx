@@ -154,6 +154,9 @@ function Table(props: { data: Category[] }) {
               operationType="put"
               // @ts-ignore
               defaultValues={props.data[+Object.keys(rowSelection)[0]]}
+              afterSuccess={() => {
+                setRowSelection({});
+              }}
             />
           ) : null}
         </div>
