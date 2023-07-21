@@ -125,6 +125,22 @@
         "post": "Add",
         "put": "Update"
       }
+    },
+    "expense": {
+      "headerName": {
+        "post": "Add New Expense ",
+        "put": "Update Expense "
+      },
+      "props": {
+        "id": "ID",
+        "description": "Description",
+        "additionalAmount": "Additional Amount",
+        "store": "Expesnses Store"
+      },
+      "action": {
+        "post": "Add",
+        "put": "Update"
+      }
     }
   },
   "sidebar": {

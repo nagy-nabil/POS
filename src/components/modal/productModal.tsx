@@ -74,9 +74,9 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
     const proIns = () => {
       productInsert.mutate(data, {
         onSuccess: (data) => {
-          queryClient.setQueryData(
+          queryClient.setQueryData<Product[]>(
             [["products", "getMany"], { type: "query" }],
-            (prev) => [...(prev as Product[]), data]
+            (prev) => [...(prev ?? []), data]
           );
           setFileSelected(undefined);
           setFileSelectedSas(undefined);

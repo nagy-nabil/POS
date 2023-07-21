@@ -56,7 +56,7 @@ export const expenseStoreSchema = z.object({
 export const expensesSchema = z.object({
   id: z.string().nonempty().optional(),
   description: z.string().optional(),
-  additionalAmount: z.number().default(0),
+  additionalAmount: z.number().gte(0).default(0),
   expenseStoreIds: z.array(z.string()),
 });
 

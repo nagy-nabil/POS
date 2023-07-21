@@ -8,10 +8,10 @@ import { useAuth } from "@/hooks/useAuth";
 import Head from "next/head";
 import { useTranslation } from "react-i18next";
 import {
+  ExpenseModal,
   ExpenseTypeModal,
   ExpensesStoreModal,
 } from "@/components/modal/expensesModal";
-import Accordion from "@/components/accordion";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   console.log(
@@ -53,9 +53,13 @@ const Spending: NextPageWithLayout = () => {
           operationType="post"
           key={"expessefds"}
         />
+        <ExpenseModal
+          defaultValues={{}}
+          operationType="post"
+          key={"expsfdjs"}
+        />
         {/* TODO ADD SPENDING CONTENT*/}
         {/* {productsQuery.data && <Table data={productsQuery.data} />} */}
-        <Accordion title={<>TITLE</>} content={<>more content in here</>} />
       </div>
       <ReactQueryDevtools initialIsOpen={false} />
     </>
