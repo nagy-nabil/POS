@@ -58,6 +58,7 @@ export const lossesRouter = createTRPCRouter({
 
         const loss = await tx.loss.create({
           data: {
+            name: input.name,
             description: input.description,
             additionalAmount: input.additionalAmount,
             createdById: ctx.payload.id,
