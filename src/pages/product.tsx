@@ -181,7 +181,7 @@ const ProductTable: NextPageWithLayout = () => {
   const { t } = useTranslation();
   const { token, setToken } = useAuth({ noExistRedirectTo: "/signin" });
   const productsQuery = api.products.getMany.useQuery(undefined, {
-    staleTime: 1000 * 50 * 60,
+    staleTime: Infinity,
     enabled: !!token,
     retry(_failureCount, error) {
       if (error.data?.code === "UNAUTHORIZED") {

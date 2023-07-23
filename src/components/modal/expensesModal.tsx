@@ -382,8 +382,8 @@ export function ExpenseModal(props: ExpenseProps) {
     <CustomModal
       header={
         props.operationType === "post"
-          ? t("expensesModal.typeModal.headerName.post")
-          : t("expensesModal.typeModal.headerName.put")
+          ? t("expensesModal.expense.headerName.post")
+          : t("expensesModal.expense.headerName.put")
       }
       dialogRef={dialogRef}
       buttonAttrs={{ className: "mt-2" }}

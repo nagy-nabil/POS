@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { useTranslation } from "next-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { type SubmitHandler, useForm } from "react-hook-form";
@@ -10,6 +10,7 @@ import { lossesSchema } from "@/types/entities";
 import clsx from "clsx";
 import { MdOutlineCategory } from "react-icons/md";
 import { CgSpinner } from "react-icons/cg";
+import { Product } from "@prisma/client";
 
 // ---------------------------------------------------------------------
 export type LossesT = z.infer<typeof lossesSchema>;
@@ -18,23 +19,93 @@ export type LossesProps = {
   operationType: "post" | "put";
   defaultValues: Partial<LossesT>;
 };
+type LossItemProps = {
+  products: (LossesT["products"][number] & { name: Product["name"] })[];
+};
+
+function LossItemsTable(props: LossItemProps) {
+  return (
+    <table className="w-full text-left text-sm text-gray-500 dark:text-gray-400">
+      <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
+        <tr>
+          <th scope="col" className="px-6 py-3">
+            Product
+          </th>
+          <th scope="col" className="px-6 py-3">
+            Quantity
+          </th>
+          <th scope="col" className="px-6 py-3">
+            Utils
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {props.products.map((product, i) => {
+          return (
+            <tr
+              key={i}
+              className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
+            >
+              <td className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white">
+                {product.name}
+              </td>
+              <td className="px-6 py-4">{product.quantity}</td>
+              <td className="px-6 py-4">
+                <button className="font-medium text-blue-600 hover:underline dark:text-blue-500">
+                  delete
+                </button>
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  );
+}
 
 export default function LossesModal(props: LossesProps) {
   const { t } = useTranslation();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [operationError, setOperationError] = useState("");
+  const [selectedProductId, setSelectedProductId] = useState<string>("");
+  const [selectedQuantity, setSelectedQuantity] = useState<number>(0);
+
+  function resetSelected() {
+    setSelectedProductId("");
+    setSelectedQuantity(0);
+  }
 
   //FORM
   const {
     register,
     handleSubmit,
     formState: { errors: formErrors },
-    // reset: formReset,
+    getValues: getFormValue,
+    reset: formReset,
   } = useForm<LossesT>({
     resolver: zodResolver(lossesSchema),
-    defaultValues: props.defaultValues,
+    defaultValues: { products: [], ...props.defaultValues },
     mode: "onSubmit",
   });
+
+  function resetModalState() {
+    formReset();
+    setOperationError("");
+    dialogRef.current?.close();
+  }
+
+  const productsQuery = api.products.getMany.useQuery(undefined, {
+    staleTime: Infinity,
+  });
+
+  // only show the products that are not already added to the form
+  const selectProducts = useMemo(() => {
+    if (!productsQuery.data) return [];
+    return productsQuery.data.filter(
+      (product) =>
+        !getFormValue("products").some((p) => p.productId === product.id)
+    );
+  }, [productsQuery.data, getFormValue]);
 
   return (
     <CustomModal
@@ -62,15 +133,16 @@ export default function LossesModal(props: LossesProps) {
       }}
       buttonChildren={
         props.operationType === "post" ? (
-          <MdOutlineCategory
-            key="lossesic"
-            className="h-fit w-fit p-3 text-3xl text-green-600"
-          />
+          <p key="lossesic" className="h-fit w-fit p-3 text-3xl text-green-600">
+            insert loss
+          </p>
         ) : (
-          <MdOutlineCategory
+          <p
             key="spendingTypeiconPut"
             className="h-fit w-fit p-3 text-3xl text-yellow-400"
-          />
+          >
+            update loss
+          </p>
         )
       }
       modalChildren={
@@ -81,6 +153,7 @@ export default function LossesModal(props: LossesProps) {
               <label key={i} className="block">
                 {t(`lossesModal.props.${lossK}`)}
                 <input
+                  type={lossK === "additionalAmount" ? "number" : "text"}
                   className="block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
                   {...register(lossK, {
                     valueAsNumber: lossK === "additionalAmount",
@@ -97,14 +170,76 @@ export default function LossesModal(props: LossesProps) {
             );
           })}
 
+          {/* select products */}
+          <label key={"pros"} className="mb-2 block font-medium text-gray-900">
+            {t("lossesModal.props.products")}
+            <select
+              value={selectedProductId}
+              onChange={(e) => setSelectedProductId(e.target.value)}
+              className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500
+    "
+            >
+              {selectProducts.map((product) => {
+                return (
+                  <option
+                    label={product.name}
+                    value={product.id}
+                    key={product.id}
+                    className="text-black focus:bg-red-500"
+                  />
+                );
+              })}
+            </select>
+            <input
+              type="number"
+              value={selectedQuantity}
+              onChange={(e) => {
+                setSelectedQuantity(e.target.valueAsNumber);
+              }}
+              min={0}
+              placeholder="quantity"
+            />
+            {/* errors will return when field validation fails  */}
+            {formErrors["products"] && (
+              <span className="m-2 text-red-700">
+                {formErrors["products"].message}
+              </span>
+            )}
+          </label>
+
+          <button
+            disabled={selectedProductId === "" || selectedQuantity === 0}
+            type="button"
+            onClick={() => {
+              resetSelected();
+            }}
+          >
+            add product
+          </button>
+
+          {/* Loss Items Table */}
+          <LossItemsTable
+            products={[
+              {
+                name: "sdd",
+                productId: "121",
+                quantity: 3.1,
+              },
+              {
+                name: "sdd",
+                productId: "fsd",
+                quantity: 3.1,
+              },
+              {
+                name: "sdd",
+                productId: "fkfldnp",
+                quantity: 3.1,
+              },
+            ]}
+          />
           <p className="m-2 text-red-700">{operationError}</p>
           <button
-            // TODO ENABLE
-            // disabled={
-            //   categoryInsert.isLoading ||
-            //   categoryUpdate.isLoading ||
-            //   imageMut.isLoading
-            // }
+            disabled={productsQuery.isLoading}
             type="submit"
             className={clsx({
               "m-3 h-fit w-fit cursor-pointer rounded-lg  p-3 text-white": true,
