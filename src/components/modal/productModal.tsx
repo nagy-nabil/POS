@@ -302,6 +302,12 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
                       ? "number"
                       : "text"
                   }
+                  step={
+                    
+                    productKey === "sellPrice" ||
+                    productKey === "stock" ||
+                    productKey === "buyPrice" ? "0.01": undefined
+                  }
                   className="block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
                   {...register(productKey, {
                     valueAsNumber:
