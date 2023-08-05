@@ -1,20 +1,18 @@
-import { useTranslation } from "next-i18next";
-import { useQueryClient } from "@tanstack/react-query";
-import type { ExpenseGetMany } from "@/server/api/routers/expenses";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useRef, useState } from "react";
-import CustomModal from ".";
-import { api } from "@/utils/api";
-import { type z } from "zod";
 import {
+  expensesSchema,
   expenseStoreSchema,
   expenseTypeSchema,
-  expensesSchema,
 } from "@/types/entities";
+import { api } from "@/utils/api";
+import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
+import { useTranslation } from "next-i18next";
+import { useForm } from "react-hook-form";
 import { CgSpinner } from "react-icons/cg";
-import type { ExpenseStore, ExpenseTypes } from "@prisma/client";
+import { type z } from "zod";
+
+import CustomModal from ".";
 
 // ---------------------------------------------------------------------
 export type ExpenseTypeT = z.infer<typeof expenseTypeSchema>;
@@ -26,9 +24,9 @@ export type ExpenseTypeProps = {
 
 export function ExpenseTypeModal(props: ExpenseTypeProps) {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [operationError, setOperationError] = useState("");
+  const utils = api.useContext();
 
   //FORM
   const {
@@ -50,15 +48,10 @@ export function ExpenseTypeModal(props: ExpenseTypeProps) {
 
   const typesInsert = api.expenses.expeseTypeInsertOne.useMutation({
     onSuccess(data) {
-      queryClient.setQueryData<ExpenseTypes[]>(
-        [
-          ["expenses", "expenseTypeGetMany"],
-          {
-            type: "query",
-          },
-        ],
-        (prev) => [...(prev ?? []), data]
-      );
+      utils.expenses.expenseTypeGetMany.setData(undefined, (prev) => [
+        ...(prev ?? []),
+        data,
+      ]);
       resetModalState();
     },
     onError(error) {
@@ -163,9 +156,9 @@ export type ExpensesModalProps = {
 
 export function ExpensesStoreModal(props: ExpensesModalProps) {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [operationError, setOperationError] = useState("");
+  const utils = api.useContext();
 
   //FORM
   const {
@@ -193,15 +186,10 @@ export function ExpensesStoreModal(props: ExpensesModalProps) {
   );
   const storeInsert = api.expenses.expeseStoreInsertOne.useMutation({
     onSuccess(data) {
-      queryClient.setQueryData<ExpenseStore[]>(
-        [
-          ["expenses", "expenseStoreGetMany"],
-          {
-            type: "query",
-          },
-        ],
-        (prev) => [...(prev ?? []), data]
-      );
+      utils.expenses.expenseStoreGetMany.setData(undefined, (prev) => [
+        ...(prev ?? []),
+        data,
+      ]);
       resetModalState();
     },
     onError(error) {
@@ -332,9 +320,9 @@ export type ExpenseProps = {
 
 export function ExpenseModal(props: ExpenseProps) {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [operationError, setOperationError] = useState("");
+  const utils = api.useContext();
 
   //FORM
   const {
@@ -362,15 +350,10 @@ export function ExpenseModal(props: ExpenseProps) {
   );
   const expenseInsert = api.expenses.expenseInsertOne.useMutation({
     onSuccess(data) {
-      queryClient.setQueryData<ExpenseGetMany>(
-        [
-          ["expenses", "expenseGetMany"],
-          {
-            type: "query",
-          },
-        ],
-        (prev) => [...(prev ?? []), data]
-      );
+      utils.expenses.expenseGetMany.setData(undefined, (prev) => [
+        ...(prev ?? []),
+        data,
+      ]);
       resetModalState();
     },
     onError(error) {

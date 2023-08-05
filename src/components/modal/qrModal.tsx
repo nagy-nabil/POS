@@ -1,14 +1,15 @@
 import React, { useRef, useState } from "react";
-import CustomModal from ".";
+import { type CrateItem } from "@/components/modal/crateModal";
+import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/utils/api";
 import { type Product } from "@prisma/client";
-import { BsQrCodeScan } from "react-icons/bs";
-import { KeypadDisplay } from "../productDisplay";
-import { type CrateItem } from "@/components/modal/crateModal";
-import QrCode from "../qrcode";
-import { useAuth } from "@/hooks/useAuth";
 import { Html5QrcodeScannerState, type Html5QrcodeScanner } from "html5-qrcode";
 import { useTranslation } from "react-i18next";
+import { BsQrCodeScan } from "react-icons/bs";
+
+import CustomModal from ".";
+import { KeypadDisplay } from "../productDisplay";
+import QrCode from "../qrcode";
 
 export type QrModalProps = {
   setOnCrate: React.Dispatch<React.SetStateAction<CrateItem[]>>;
@@ -28,7 +29,7 @@ const QrModal: React.FC<QrModalProps> = (props) => {
     undefined
   );
   const productsQuery = api.products.getMany.useQuery(undefined, {
-    staleTime: 1000 * 50 * 60,
+    staleTime: Infinity,
     retry(_failureCount, error) {
       if (error.data?.code === "UNAUTHORIZED") {
         setToken("").catch((e) => {

@@ -1,21 +1,21 @@
-import { useTranslation } from "next-i18next";
-import { useQueryClient } from "@tanstack/react-query";
-import { RiAddLine } from "react-icons/ri";
-import { BiEdit } from "react-icons/bi";
-import { type SubmitHandler, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useRef, useState } from "react";
-import CustomModal from ".";
-import { api } from "@/utils/api";
-import { type z } from "zod";
 import { productSchema } from "@/types/entities";
-import { type Product } from "@prisma/client";
-import { CgSpinner } from "react-icons/cg";
-import { BsQrCodeScan } from "react-icons/bs";
-import QrCode from "../qrcode";
-import { Html5QrcodeScannerState, type Html5QrcodeScanner } from "html5-qrcode";
+import { api } from "@/utils/api";
+import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
+import { Html5QrcodeScannerState, type Html5QrcodeScanner } from "html5-qrcode";
+import { useTranslation } from "next-i18next";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { BiEdit } from "react-icons/bi";
+import { BsQrCodeScan } from "react-icons/bs";
+import { CgSpinner } from "react-icons/cg";
+import { RiAddLine } from "react-icons/ri";
+import { type z } from "zod";
+
+import CustomModal from ".";
 import UploadImage, { useUploadAzure } from "../form/uploadImage";
+import ImagePreviwe from "../imagePreview";
+import QrCode from "../qrcode";
 
 export type ProductT = z.infer<typeof productSchema>;
 const productKeys = productSchema.keyof().options;
@@ -37,16 +37,7 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
   const [fileSelectedSas, setFileSelectedSas] = useState<string | undefined>(
     undefined
   );
-
-  // react-query
-  const categoryQuery = api.categories.getMany.useQuery(undefined, {
-    staleTime: 1000 * 50 * 60,
-  });
-  const productInsert = api.products.insertOne.useMutation();
-  const productUpdate = api.products.updateOne.useMutation();
-  const imageMut = useUploadAzure();
-  const queryClient = useQueryClient();
-
+  const utils = api.useContext();
   // form hook
   const {
     register,
@@ -58,7 +49,47 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
     resolver: zodResolver(productSchema),
     defaultValues: props.defaultValues,
     mode: "onSubmit",
-    reValidateMode: "onSubmit",
+  });
+
+  function resetModalState() {
+    setFileSelected(undefined);
+    setFileSelectedSas(undefined);
+    setErrors("");
+    formReset();
+    dialogRef.current?.close();
+  }
+
+  // react-query
+  const imageMut = useUploadAzure();
+  const categoryQuery = api.categories.getMany.useQuery(undefined, {
+    staleTime: Infinity,
+  });
+  const productInsert = api.products.insertOne.useMutation({
+    onSuccess: (data) => {
+      utils.products.getMany.setData(undefined, (prev) => [
+        ...(prev ?? []),
+        data,
+      ]);
+      resetModalState();
+    },
+    onError(err) {
+      setErrors(err.message);
+    },
+  });
+
+  const productUpdate = api.products.updateOne.useMutation({
+    onSuccess: (data, variables) => {
+      // remove the one with the id of the input and insert the returned from the mutation
+      utils.products.getMany.setData(undefined, (prev) =>
+        prev
+          ? [...prev.filter((test) => test.id !== variables.id), data]
+          : [data]
+      );
+      resetModalState();
+    },
+    onError(err) {
+      setErrors(err.message);
+    },
   });
 
   const onSubmit: SubmitHandler<ProductT> = (data) => {
@@ -66,51 +97,16 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
       props.operationType === "put" &&
       (data.id === undefined || data.id === "")
     ) {
-      setErrors("id cannot be undefined or an empty string");
-      return;
+      throw new Error("cannot update product without id default value");
     }
 
     // just puting the mut call into functions to make the poilerplate easier
     const proIns = () => {
-      productInsert.mutate(data, {
-        onSuccess: (data) => {
-          queryClient.setQueryData<Product[]>(
-            [["products", "getMany"], { type: "query" }],
-            (prev) => [...(prev ?? []), data]
-          );
-          setFileSelected(undefined);
-          setFileSelectedSas(undefined);
-          setErrors("");
-          formReset();
-          dialogRef.current?.close();
-        },
-        onError(err) {
-          setErrors(err.message);
-        },
-      });
+      productInsert.mutate(data);
     };
     const proPut = () => {
       // @ts-ignore
-      productUpdate.mutate(data, {
-        onSuccess: (data, variables) => {
-          // remove the one with the id of the input and insert the returned from the mutation
-          queryClient.setQueryData(
-            [["products", "getMany"], { type: "query" }],
-            (prev) => [
-              ...(prev as Product[]).filter((test) => test.id !== variables.id),
-              data,
-            ]
-          );
-          setFileSelected(undefined);
-          setFileSelectedSas(undefined);
-          setErrors("");
-          formReset();
-          dialogRef.current?.close();
-        },
-        onError(err) {
-          setErrors(err.message);
-        },
-      });
+      productUpdate.mutate(data);
     };
 
     // set function to be run
@@ -256,6 +252,11 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
                   setFileSelectedSas(url.sasUrl);
                   setValue("image", url.blobUrl);
                 }}
+                isDisabled={
+                  productInsert.isLoading ||
+                  categoryQuery.isLoading ||
+                  imageMut.isLoading
+                }
               />
             </div>
             {/* errors will return when field validation fails  */}
@@ -264,6 +265,8 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
                 {formErrors["image"].message}
               </span>
             )}
+            {/* handle image preview for insert/update */}
+            <ImagePreviwe file={fileSelected} src={props.defaultValues.image} />
           </label>
 
           {productKeys.map((productKey, i) => {

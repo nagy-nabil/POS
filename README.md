@@ -25,3 +25,4 @@ point of sale.
 - See how's your business doing through our dashboard
 - [ ] Admin can create staff with custom permissions
 - [ ] Expenses/loses managment
+- [ ] offers

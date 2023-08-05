@@ -1,15 +1,15 @@
 import React, { useRef, useState } from "react";
+import { api } from "@/utils/api";
 import type { PaymentType, Product } from "@prisma/client";
 import clsx from "clsx";
+import { useTranslation } from "next-i18next";
+import { AiOutlineDelete } from "react-icons/ai";
+import { CgSpinner } from "react-icons/cg";
 import { HiOutlinePrinter } from "react-icons/hi";
 import { useReactToPrint } from "react-to-print";
-import { AiOutlineDelete } from "react-icons/ai";
-import { api } from "@/utils/api";
-import { CgSpinner } from "react-icons/cg";
-import { useQueryClient } from "@tanstack/react-query";
-import { useTranslation } from "next-i18next";
-import ConfirmModal from "./modal/confirm";
+
 import Accordion from "./accordion";
+import ConfirmModal from "./modal/confirm";
 
 export type OrderDisplayProps = {
   total: number;
@@ -100,34 +100,31 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
   const { t } = useTranslation();
   const toPrintRef = useRef<HTMLDivElement>(null);
   const [operationError, setOperationError] = useState("");
+  const utils = api.useContext();
+
   const handlePrint = useReactToPrint({
     content: () => toPrintRef.current,
     documentTitle: props.id,
   });
 
-  const queryClient = useQueryClient();
   const orderDelete = api.orders.delete.useMutation({
     onError(error) {
       setOperationError(error.message);
     },
     async onSuccess(data) {
-      // await queryClient.invalidateQueries([["orders", "getMany"]]);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       await props.refetch();
       // add the stock back to the products store
-      queryClient.setQueryData<Product[]>(
-        [["products", "getMany"], { type: "query" }],
-        (prev) => {
-          if (prev === undefined) return [];
-          data.products.forEach((op) => {
-            const p = prev.find((test) => test.id === op.productId);
-            if (p !== undefined) {
-              p.stock += op.quantity;
-            }
-          });
-          return [...prev];
-        }
-      );
+      utils.products.getMany.setData(undefined, (prev) => {
+        if (prev === undefined) return [];
+        data.products.forEach((op) => {
+          const p = prev.find((test) => test.id === op.productId);
+          if (p !== undefined) {
+            p.stock += op.quantity;
+          }
+        });
+        return [...prev];
+      });
     },
   });
 

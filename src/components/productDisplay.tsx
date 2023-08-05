@@ -1,13 +1,13 @@
 import React, { useMemo, useState } from "react";
-import { matchSorter } from "match-sorter";
-import { api } from "@/utils/api";
-import { type Product } from "@prisma/client";
-import { RiAddCircleLine } from "react-icons/ri";
+import Image from "next/image";
 import { type CrateItem } from "@/components/modal/crateModal";
 import { useAuth } from "@/hooks/useAuth";
-import Image from "next/image";
-import { useTranslation } from "react-i18next";
 import { PaginationUtis, usePagination } from "@/hooks/usePagination";
+import { api } from "@/utils/api";
+import { type Product } from "@prisma/client";
+import { matchSorter } from "match-sorter";
+import { useTranslation } from "react-i18next";
+import { RiAddCircleLine } from "react-icons/ri";
 
 type ProductProps = Pick<
   Product,
@@ -114,7 +114,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
     ProductDisplayProps["displayType"]
   >(props.displayType);
   const productsQuery = api.products.getMany.useQuery(undefined, {
-    staleTime: 1000 * 50 * 60,
+    staleTime: Infinity,
     retry(_failureCount, error) {
       if (error.data?.code === "UNAUTHORIZED") {
         setToken("").catch((e) => {

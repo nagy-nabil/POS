@@ -1,19 +1,19 @@
-import { CgSpinner } from "react-icons/cg";
 import React, {
   useRef,
+  useState,
   type Dispatch,
   type SetStateAction,
-  useState,
 } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { api } from "@/utils/api";
-import { FaShoppingBag } from "react-icons/fa";
-import CustomModal from ".";
-import { RiAddLine } from "react-icons/ri";
-import { AiOutlineMinus } from "react-icons/ai";
-import { MdRemoveShoppingCart } from "react-icons/md";
 import { type Product } from "@prisma/client";
 import { useTranslation } from "next-i18next";
+import { AiOutlineMinus } from "react-icons/ai";
+import { CgSpinner } from "react-icons/cg";
+import { FaShoppingBag } from "react-icons/fa";
+import { MdRemoveShoppingCart } from "react-icons/md";
+import { RiAddLine } from "react-icons/ri";
+
+import CustomModal from ".";
 
 export type CrateItem = {
   id: string;
@@ -36,6 +36,7 @@ const CrateItem: React.FC<
   const [operationError, setOperationError] = useState("");
   const { t } = useTranslation();
   const price = props.sellPrice * props.quantity;
+
   return (
     <>
       <div key={props.id} className="flex gap-1">
@@ -43,13 +44,13 @@ const CrateItem: React.FC<
         <div>
           <h3 className="text-xl">{props.name}</h3>
           <label className="my-2">
-            Quantity:
+            {t("crate.quantity")}:
             <input
               type="number"
               className="mx-2 w-20 rounded-2xl p-2 text-gray-500"
               value={props.quantity}
               onChange={(e) => {
-                const v = +e.target.value;
+                const v = e.target.valueAsNumber;
                 if (v > props.stock) {
                   setOperationError(
                     "order quantity cannot be greater than product stock"
@@ -140,13 +141,14 @@ const CrateModal: React.FC<CrateProps> = (props) => {
   const [operationError, setOperationError] = useState("");
   const { t } = useTranslation();
   const dialgoRef = useRef<HTMLDialogElement>(null);
+  const utils = api.useContext();
+
   function calcTotal() {
     let total = 0;
     props.onCrate.forEach((val) => (total += val.sellPrice * val.quantity));
     return total;
   }
-  // const [total, setTotal] = useState(0);
-  const queryClient = useQueryClient();
+
   const orderMut = api.orders.insertOne.useMutation({
     onError(error) {
       setOperationError(error.message);
@@ -154,20 +156,17 @@ const CrateModal: React.FC<CrateProps> = (props) => {
     onSuccess: (data) => {
       props.setOnCrate([]);
       // update products store
-      queryClient.setQueryData<Product[]>(
-        [["products", "getMany"], { type: "query" }],
-        (prev) => {
-          const productsTemp: Product[] = [];
-          const lookUp = new Set<string>();
-          data.products.forEach((item) => {
-            productsTemp.push(item.Product);
-            lookUp.add(item.Product.id);
-          });
-          return prev
-            ? [...prev.filter((test) => !lookUp.has(test.id)), ...productsTemp]
-            : [];
-        }
-      );
+      utils.products.getMany.setData(undefined, (prev) => {
+        const productsTemp: Product[] = [];
+        const lookUp = new Set<string>();
+        data.products.forEach((item) => {
+          productsTemp.push(item.Product);
+          lookUp.add(item.Product.id);
+        });
+        return prev
+          ? [...prev.filter((test) => !lookUp.has(test.id)), ...productsTemp]
+          : [];
+      });
       if (dialgoRef.current !== null) dialgoRef.current.close();
     },
   });

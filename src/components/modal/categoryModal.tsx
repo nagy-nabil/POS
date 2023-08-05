@@ -1,18 +1,18 @@
-import { useTranslation } from "next-i18next";
-import { useQueryClient } from "@tanstack/react-query";
-import { RiAddLine } from "react-icons/ri";
-import { type SubmitHandler, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useRef, useState } from "react";
-import CustomModal from ".";
-import { api } from "@/utils/api";
-import { type z } from "zod";
 import { categorySchema } from "@/types/entities";
-import { type Category } from "@prisma/client";
-import { CgSpinner } from "react-icons/cg";
-import { BiEdit } from "react-icons/bi";
+import { api } from "@/utils/api";
+import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
+import { useTranslation } from "next-i18next";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { BiEdit } from "react-icons/bi";
+import { CgSpinner } from "react-icons/cg";
+import { RiAddLine } from "react-icons/ri";
+import { type z } from "zod";
+
+import CustomModal from ".";
 import UploadImage, { useUploadAzure } from "../form/uploadImage";
+import ImagePreviwe from "../imagePreview";
 
 type CategoryT = z.infer<typeof categorySchema>;
 
@@ -32,11 +32,7 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
   const [fileSelectedSas, setFileSelectedSas] = useState<string | undefined>(
     undefined
   );
-
-  const categoryInsert = api.categories.insertOne.useMutation();
-  const categoryUpdate = api.categories.updateOne.useMutation();
-  const imageMut = useUploadAzure();
-  const queryClient = useQueryClient();
+  const utils = api.useContext();
 
   const {
     register,
@@ -50,6 +46,41 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
     mode: "onSubmit",
   });
 
+  function resetModalState() {
+    setFileSelected(undefined);
+    setFileSelectedSas(undefined);
+    setErrors("");
+    formReset();
+    dialogRef.current?.close();
+  }
+
+  const imageMut = useUploadAzure();
+
+  const categoryInsert = api.categories.insertOne.useMutation({
+    onSuccess: (data) => {
+      utils.categories.getMany.setData(undefined, (prev) =>
+        prev ? [...prev, data] : [data]
+      );
+      resetModalState();
+    },
+    onError(err) {
+      setErrors(err.message);
+    },
+  });
+  const categoryUpdate = api.categories.updateOne.useMutation({
+    onSuccess: (data, variables) => {
+      // remove the one with the id of the input and insert the returned from the mutation
+      utils.categories.getMany.setData(undefined, (prev) =>
+        prev
+          ? [...prev.filter((test) => test.id !== variables.id), data]
+          : [data]
+      );
+      resetModalState();
+    },
+    onError(err) {
+      setErrors(err.message);
+    },
+  });
   const onSubmit: SubmitHandler<CategoryT> = (data) => {
     if (
       props.operationType === "put" &&
@@ -61,48 +92,11 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
 
     // just saving the mut call into functions to make the poilerplate easier
     const catIns = () => {
-      categoryInsert.mutate(data, {
-        onSuccess: (data) => {
-          dialogRef.current;
-          queryClient.setQueryData(
-            [["categories", "getMany"], { type: "query" }],
-            (prev) => [...(prev as Category[]), data]
-          );
-          setFileSelected(undefined);
-          setFileSelectedSas(undefined);
-          setErrors("");
-          formReset();
-          dialogRef.current?.close();
-        },
-        onError(err) {
-          setErrors(err.message);
-        },
-      });
+      categoryInsert.mutate(data);
     };
     const catPut = () => {
       // @ts-ignore
-      categoryUpdate.mutate(data, {
-        onSuccess: (data, variables) => {
-          // remove the one with the id of the input and insert the returned from the mutation
-          queryClient.setQueryData(
-            [["categories", "getMany"], { type: "query" }],
-            (prev) => [
-              ...(prev as Category[]).filter(
-                (test) => test.id !== variables.id
-              ),
-              data,
-            ]
-          );
-          setFileSelected(undefined);
-          setFileSelectedSas(undefined);
-          setErrors("");
-          formReset();
-          dialogRef.current?.close();
-        },
-        onError(err) {
-          setErrors(err.message);
-        },
-      });
+      categoryUpdate.mutate(data);
     };
 
     // set function to be run
@@ -176,6 +170,11 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
                   setFileSelectedSas(url.sasUrl);
                   setValue("image", url.blobUrl);
                 }}
+                isDisabled={
+                  categoryInsert.isLoading ||
+                  categoryUpdate.isLoading ||
+                  imageMut.isLoading
+                }
               />
             </div>
             {/* errors will return when field validation fails  */}
@@ -184,6 +183,8 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
                 {formErrors["image"].message}
               </span>
             )}
+            {/* handle image preview for insert/update */}
+            <ImagePreviwe file={fileSelected} src={props.defaultValues.image} />
           </label>
 
           {categoryKeys.map((categoryKey, i) => {
