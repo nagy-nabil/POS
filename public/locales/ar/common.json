@@ -1,37 +1,37 @@
 {
   "header": {
     "name": "صفحة المبيعات",
-    "inputPlaceHolder": "بحث"
+    "inputPlaceHolder": "البحث"
   },
   "categoryDisplay": {
     "default": "بدون تصفية"
   },
   "productDisplay": {
     "modes": {
-      "Library": "المكتبة",
-      "keypad": { "label": "لوحة المفاتيح", "action": "أضف إلى السلة" }
+      "Library": "مكتبة",
+      "keypad": { "label": "لوحة المفاتيح", "action": "إضافة إلى السلة" }
     }
   },
   "orderDisplay": {
     "meta": {
       "createdAt": "تم الإنشاء في",
-      "total": "الإجمالي"
+      "total": "المجموع"
     },
     "table": {
       "name": "الاسم",
       "price": "السعر",
       "quantity": "الكمية",
-      "total": "الإجمالي",
+      "total": "المجموع",
       "profit": "الربح"
     }
   },
   "crate": {
-    "prefix": "لقد أضفت",
+    "prefix": "أضفت",
     "postfix": "عناصر",
     "quantity": "الكمية",
     "price": "السعر",
     "footer": {
-      "totalSpan": "الإجمالي",
+      "totalSpan": "المجموع",
       "button": "الدفع"
     }
   },
@@ -47,7 +47,7 @@
       "put": "تحديث المنتج"
     },
     "props": {
-      "id": "الرقم التعريفي",
+      "id": "المعرف",
       "name": "الاسم",
       "image": "الصورة",
       "stock": "المخزون",
@@ -75,21 +75,105 @@
       "put": "تحديث"
     }
   },
+  "lossesModal": {
+    "headerName": {
+      "post": "إضافة خسارة جديدة",
+      "put": "تحديث الخسارة"
+    },
+    "props": {
+      "id": "المعرف",
+      "name": "الاسم",
+      "description": "الوصف",
+      "additionalAmount": "المبلغ الإضافي",
+      "products": "المنتجات"
+    },
+    "action": {
+      "post": "إضافة",
+      "put": "تحديث"
+    }
+  },
+  "offerModal": {
+    "headerName": {
+      "post": "إضافة عرض جديد",
+      "put": "تحديث العرض"
+    },
+    "props": {
+      "id": "المعرف",
+      "name": "الاسم",
+      "products": "المنتجات"
+    },
+    "action": {
+      "post": "إضافة",
+      "put": "تحديث"
+    }
+  },
+  "expensesModal": {
+    "typeModal": {
+      "headerName": {
+        "post": "إضافة نوع مصروف جديد",
+        "put": "تحديث نوع المصروف"
+      },
+      "props": {
+        "name": "الاسم",
+        "id": "المعرف",
+        "description": "الوصف"
+      },
+      "action": {
+        "post": "إضافة",
+        "put": "تحديث"
+      }
+    },
+    "storeModal": {
+      "headerName": {
+        "post": "إضافة متجر مصروف جديد",
+        "put": "تحديث متجر المصروف"
+      },
+      "props": {
+        "name": "الاسم",
+        "id": "المعرف",
+        "description": "الوصف",
+        "amount": "المبلغ",
+        "remindAt": "تذكير في",
+        "typeId": "النوع"
+      },
+      "action": {
+        "post": "إضافة",
+        "put": "تحديث"
+      }
+    },
+    "expense": {
+      "headerName": {
+        "post": "إضافة مصروف جديد",
+        "put": "تحديث المصروف"
+      },
+      "props": {
+        "id": "المعرف",
+        "description": "الوصف",
+        "additionalAmount": "المبلغ الإضافي",
+        "store": "متجر المصروف"
+      },
+      "action": {
+        "post": "إضافة",
+        "put": "تحديث"
+      }
+    }
+  },
   "sidebar": {
     "header": "زاجي",
     "paths": {
       "sales": "المبيعات",
       "products": "المنتجات",
       "category": "الفئات",
-      "anal": { "index": "تحليل", "history": "تاريخ الطلبات" },
+      "anal": { "index": "التحليل", "history": "التاريخ" },
       "spendings": { "index": "المصروفات", "losses": "الخسائر" },
-      "settings": "الإعدادات"
+      "settings": "الإعدادات",
+      "offers": "العروض"
     },
     "actions": { "logout": "تسجيل الخروج" }
   },
   "table": {
     "common": {
-      "id": "الرقم التعريفي",
+      "id": "المعرف",
       "name": "الاسم",
       "createdAt": "تم الإنشاء في",
       "createdBy": "تم الإنشاء بواسطة"
@@ -98,11 +182,24 @@
       "buyPrice": "سعر الشراء",
       "sellPrice": "سعر البيع",
       "stock": "المخزون"
+    },
+    "loss": {
+      "description": "الوصف",
+      "additionalAmount": "المبلغ الإضافي",
+      "products": "المنتجات"
+    },
+    "expenses": {
+      "store": {
+        "amount": "المبلغ"
+      }
     }
   },
   "pages": {
     "product": {
       "header": "المنتجات"
+    },
+    "spending": {
+      "header": "المصروفات"
     }
   }
 }

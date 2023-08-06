@@ -2,11 +2,11 @@ import { z } from "zod";
 import { env } from "@/env.mjs";
 // import { prisma } from "@/server/db";
 import jwt from "jsonwebtoken";
-import { Role } from "@prisma/client";
+import { RoleT } from "@prisma/client";
 
 export const UserPayloadSchema = z.object({
   id: z.string(),
-  role: z.nativeEnum(Role),
+  role: z.nativeEnum(RoleT),
 });
 export type UserPayload = z.infer<typeof UserPayloadSchema>;
 

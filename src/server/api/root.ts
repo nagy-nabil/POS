@@ -1,10 +1,12 @@
-import { createTRPCRouter } from "@/server/api/trpc";
-import { productsRouter } from "@/server/api/routers/product";
-import { ordersRouter } from "@/server/api/routers/order";
 import { categoriesRouter } from "@/server/api/routers/category";
-import { usersRouter } from "@/server/api/routers/user";
-import { helpersRouter } from "@/server/api/routers/helpers";
 import { expensesRouter } from "@/server/api/routers/expenses";
+import { helpersRouter } from "@/server/api/routers/helpers";
+import { lossesRouter } from "@/server/api/routers/losses";
+import { offeresRouter } from "@/server/api/routers/offers";
+import { ordersRouter } from "@/server/api/routers/order";
+import { productsRouter } from "@/server/api/routers/product";
+import { usersRouter } from "@/server/api/routers/user";
+import { createTRPCRouter } from "@/server/api/trpc";
 
 export const appRouter = createTRPCRouter({
   products: productsRouter,
@@ -13,6 +15,8 @@ export const appRouter = createTRPCRouter({
   users: usersRouter,
   helpers: helpersRouter,
   expenses: expensesRouter,
+  losses: lossesRouter,
+  offers: offeresRouter,
 });
 
 // export type definition of API

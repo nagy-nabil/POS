@@ -51,7 +51,7 @@ const Home: NextPageWithLayout = (_props) => {
             placeHolder={t("header.inputPlaceHolder")}
           /> */}
           <DebouncedInput
-            type="text"
+            type="search"
             value={""}
             onChange={(value) => setProductFilter(value as string)}
             placeholder={t("header.inputPlaceHolder")}

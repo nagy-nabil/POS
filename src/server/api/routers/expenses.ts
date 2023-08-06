@@ -1,4 +1,5 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import type { inferRouterOutputs } from "@trpc/server";
 import {
   expenseStoreSchema,
   expenseTypeSchema,
@@ -114,17 +115,18 @@ export const expensesRouter = createTRPCRouter({
       });
     }),
 
-  expenseGetMany: protectedProcedure
-    .input(expensesSchema)
-    .query(async ({ ctx }) => {
-      return await ctx.prisma.expenses.findMany({
-        include: {
-          SpendingsOnExpenses: {
-            include: {
-              spending: true,
-            },
+  expenseGetMany: protectedProcedure.query(async ({ ctx }) => {
+    return await ctx.prisma.expenses.findMany({
+      include: {
+        SpendingsOnExpenses: {
+          include: {
+            spending: true,
           },
         },
-      });
-    }),
+      },
+    });
+  }),
 });
+
+export type ExpensesRouter = inferRouterOutputs<typeof expensesRouter>;
+export type ExpenseGetMany = ExpensesRouter["expenseGetMany"];

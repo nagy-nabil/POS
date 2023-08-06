@@ -3,14 +3,16 @@ import type { GetStaticPropsContext } from "next";
 import Head from "next/head";
 import IndeterminateCheckbox from "@/components/form/indeterminateCheckbox";
 import Layout from "@/components/layout";
+import ConfirmModal from "@/components/modal/confirm";
 import LossesModal from "@/components/modal/lossesModal";
+import OfferModal from "@/components/modal/offerModal";
 import TableBody from "@/components/table/body";
 import { fuzzyFilter } from "@/components/table/helpers";
 import TableUtils from "@/components/table/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/utils/api";
 import { dateFormater } from "@/utils/date";
-import { type Loss } from "@prisma/client";
+import type { Offer } from "@prisma/client";
 import { type RankingInfo } from "@tanstack/match-sorter-utils";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
@@ -29,8 +31,10 @@ import {
 } from "@tanstack/react-table";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "react-i18next";
+import { AiOutlineDelete } from "react-icons/ai";
+import { CgSpinner } from "react-icons/cg";
 
-import { type NextPageWithLayout } from "../_app";
+import { type NextPageWithLayout } from "./_app";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   return {
@@ -54,9 +58,9 @@ declare module "@tanstack/table-core" {
   }
 }
 
-const columnHelper = createColumnHelper<Loss>();
+const columnHelper = createColumnHelper<Offer>();
 
-function Table(props: { data: Loss[] }) {
+function Table(props: { data: Offer[] }) {
   const { t } = useTranslation();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -101,14 +105,6 @@ function Table(props: { data: Loss[] }) {
         cell: (info) => info.getValue(),
         filterFn: "fuzzy",
       }),
-      columnHelper.accessor("description", {
-        header: () => <span>{t("table.loss.description")}</span>,
-        cell: (info) => info.getValue(),
-      }),
-      columnHelper.accessor("additionalAmount", {
-        header: () => <span>{t("table.loss.additionalAmount")}</span>,
-        cell: (info) => info.getValue(),
-      }),
       columnHelper.accessor("createdAt", {
         header: () => <span>{t("table.common.createdAt")}</span>,
         cell: (info) => dateFormater.format(info.getValue()),
@@ -147,6 +143,22 @@ function Table(props: { data: Loss[] }) {
     },
   });
 
+  const utils = api.useContext();
+  const offerDelete = api.offers.delete.useMutation({
+    onSuccess(_, variables) {
+      setRowSelection({});
+      utils.offers.index.setData(undefined, (prev) =>
+        prev
+          ? [
+              ...prev.filter(
+                (i) => variables.findIndex((i2) => i.id === i2) === -1
+              ),
+            ]
+          : []
+      );
+    },
+  });
+
   if (typeof window === "undefined") return null;
 
   return (
@@ -154,15 +166,41 @@ function Table(props: { data: Loss[] }) {
       <div className="w-screen">
         {/* item utils*/}
         <div className="flex justify-start gap-3">
-          {/* <ProductModal defaultValues={{}} operationType="post" />
+          <OfferModal defaultValues={{}} operationType="post" />
           {Object.keys(rowSelection).length === 1 ? (
-            <ProductModal
-              key={"updateProduct"}
-              operationType="put"
+            <OfferModal
+              key={"offermodal"}
               // @ts-ignore
               defaultValues={props.data[+Object.keys(rowSelection)[0]]}
             />
-          ) : null} */}
+          ) : null}
+          <ConfirmModal
+            bodyMessage="Are you sure you want to delete this offer, you cannot undo?"
+            header="Delete Offer"
+            onOk={() => {
+              console.log("will delete");
+              offerDelete.mutate(
+                Object.keys(rowSelection).map(
+                  (itm) => props.data[+itm]?.id as string
+                )
+              );
+            }}
+            onCancel={() => {
+              console.log("cancel");
+            }}
+            buttonChildren={
+              offerDelete.isLoading ? (
+                <CgSpinner className="animate-spin text-2xl" />
+              ) : (
+                <AiOutlineDelete className="m-auto h-fit w-fit    p-2 text-3xl" />
+              )
+            }
+            buttonAttrs={{
+              disabled:
+                offerDelete.isLoading || Object.keys(rowSelection).length === 0,
+              className: "text-red-600 disabled:text-gray-500",
+            }}
+          />
         </div>
 
         <div className="w-full overflow-x-auto">
@@ -176,21 +214,10 @@ function Table(props: { data: Loss[] }) {
   );
 }
 
-const Spending: NextPageWithLayout = () => {
+const OfferPage: NextPageWithLayout = () => {
   const { t } = useTranslation();
-  const { token, setToken } = useAuth({ noExistRedirectTo: "/signin" });
-  const lossQuery = api.losses.getMany.useQuery(undefined, {
+  const offerQuery = api.offers.index.useQuery(undefined, {
     staleTime: Infinity,
-    enabled: !!token,
-    retry(_failureCount, error) {
-      if (error.data?.code === "UNAUTHORIZED") {
-        setToken("").catch((e) => {
-          throw e;
-        });
-        return false;
-      }
-      return true;
-    },
   });
 
   return (
@@ -202,15 +229,14 @@ const Spending: NextPageWithLayout = () => {
         <header className="mt-2 flex items-center justify-around">
           <h1 className="text-4xl">{t("pages.spending.header")}</h1>
         </header>
-        <LossesModal defaultValues={{}} operationType="post" />
-        {lossQuery.data && <Table data={lossQuery.data} />}
+        {offerQuery.data && <Table data={offerQuery.data} />}
       </div>
       <ReactQueryDevtools initialIsOpen={false} />
     </>
   );
 };
 
-Spending.getLayout = function getLayout(page: ReactElement) {
+OfferPage.getLayout = function getLayout(page: ReactElement) {
   return (
     <>
       <Layout>{page}</Layout>
@@ -218,4 +244,4 @@ Spending.getLayout = function getLayout(page: ReactElement) {
   );
 };
 
-export default Spending;
+export default OfferPage;

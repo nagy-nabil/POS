@@ -75,6 +75,38 @@
       "put": "Update"
     }
   },
+  "lossesModal": {
+    "headerName": {
+      "post": "Add New Loss",
+      "put": "Update Loss"
+    },
+    "props": {
+      "id": "ID",
+      "name": "Name",
+      "description": "Description",
+      "additionalAmount": "Additional Amount",
+      "products": "Products"
+    },
+    "action": {
+      "post": "Add",
+      "put": "Update"
+    }
+  },
+  "offerModal": {
+    "headerName": {
+      "post": "Add New Offer",
+      "put": "Update Offer"
+    },
+    "props": {
+      "id": "ID",
+      "name": "Name",
+      "products": "Products"
+    },
+    "action": {
+      "post": "Add",
+      "put": "Update"
+    }
+  },
   "expensesModal": {
     "typeModal": {
       "headerName": {
@@ -108,6 +140,22 @@
         "post": "Add",
         "put": "Update"
       }
+    },
+    "expense": {
+      "headerName": {
+        "post": "Add New Expense ",
+        "put": "Update Expense "
+      },
+      "props": {
+        "id": "ID",
+        "description": "Description",
+        "additionalAmount": "Additional Amount",
+        "store": "Expesnses Store"
+      },
+      "action": {
+        "post": "Add",
+        "put": "Update"
+      }
     }
   },
   "sidebar": {
@@ -118,7 +166,8 @@
       "category": "Categories",
       "anal": { "index": "Analysis", "history": "History" },
       "spendings": { "index": "spendings", "losses": "Losses" },
-      "settings": "Settings"
+      "settings": "Settings",
+      "offers": "Offers"
     },
     "actions": { "logout": "Log out" }
   },
@@ -133,6 +182,16 @@
       "buyPrice": "Buy Price",
       "sellPrice": "Sell Price",
       "stock": "Stock"
+    },
+    "loss": {
+      "description": "Description",
+      "additionalAmount": "Additional Amount",
+      "products": "Products"
+    },
+    "expenses": {
+      "store": {
+        "amount": "Amount"
+      }
     }
   },
   "pages": {

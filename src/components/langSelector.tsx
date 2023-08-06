@@ -1,6 +1,6 @@
-import React, { useMemo, useCallback } from "react";
-import { useTranslation } from "next-i18next";
+import React, { useCallback, useMemo } from "react";
 import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
 
 const LanguageSwitcher: React.FC<{
   /**
@@ -15,10 +15,6 @@ const LanguageSwitcher: React.FC<{
   const router = useRouter();
   // locales contains all configured locales
   const locales = router.locales ?? [currentLanguage];
-  console.log(
-    "🪵 [langSelector.tsx:17] ~ token ~ \x1b[0;32mlocales\x1b[0m = ",
-    locales
-  );
 
   // return the language name in the selected language
   const languageNames = useMemo(() => {

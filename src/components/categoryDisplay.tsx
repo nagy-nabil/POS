@@ -29,7 +29,7 @@ export function CategoryDisplaySkeleton(props: { count: number }) {
 const CategoryDisplay: React.FC<CategoryDisplayProps> = (props) => {
   const { t } = useTranslation();
   const categoryQuery = api.categories.getMany.useQuery(undefined, {
-    staleTime: 1000 * 50 * 60,
+    staleTime: Infinity,
   });
 
   // if (categoryQuery.isLoading) return <p>loading ...</p>;

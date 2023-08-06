@@ -26,10 +26,21 @@ export const productSchema = z.object({
   sellPrice: z.number().gt(0),
   categoryId: z.string().nonempty(),
 });
+export const productOnOfferSchema = z.object({
+  productId: z.string().nonempty(),
+  quantity: z.number().min(0),
+  price: z.number().gt(0),
+});
+
+export const offerSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(3),
+  products: z.array(productOnOfferSchema).nonempty(),
+});
 
 export const orderSchema = z.object({
   products: z.array(
-    z.object({ id: z.string().nonempty(), quantity: z.number().min(1) })
+    z.object({ id: z.string().nonempty(), quantity: z.number().gt(0) })
   ),
 });
 
@@ -45,7 +56,7 @@ export const expenseTypeSchema = z.object({
 
 export const expenseStoreSchema = z.object({
   id: z.string().nonempty().optional(),
-  name: z.string(),
+  name: z.string().min(3),
   description: z.string().min(4).optional(),
   onTheFly: z.boolean().default(false),
   amount: z.number().gt(0),
@@ -56,6 +67,19 @@ export const expenseStoreSchema = z.object({
 export const expensesSchema = z.object({
   id: z.string().nonempty().optional(),
   description: z.string().optional(),
-  additionalAmount: z.number().default(0),
+  additionalAmount: z.number().gte(0).default(0),
   expenseStoreIds: z.array(z.string()),
+});
+
+export const productsOnLossSchema = z.object({
+  productId: z.string().nonempty(),
+  quantity: z.number().gt(0),
+});
+
+export const lossesSchema = z.object({
+  id: z.string().nonempty().optional(),
+  name: z.string().optional(),
+  description: z.string().optional(),
+  additionalAmount: z.number().default(0),
+  products: z.array(productsOnLossSchema).nonempty(),
 });

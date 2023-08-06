@@ -1,36 +1,36 @@
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import CategoryModal from "@/components/modal/categoryModal";
-import { useMemo, type ReactElement } from "react";
-import Layout from "@/components/layout";
-import { type NextPageWithLayout } from "./_app";
-import { useAuth } from "@/hooks/useAuth";
+import React, { useMemo, type ReactElement } from "react";
 import { type GetStaticPropsContext } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import Head from "next/head";
+import IndeterminateCheckbox from "@/components/form/indeterminateCheckbox";
+import Layout from "@/components/layout";
+import CategoryModal from "@/components/modal/categoryModal";
+import TableBody from "@/components/table/body";
+import { fuzzyFilter } from "@/components/table/helpers";
+import TableUtils from "@/components/table/utils";
+import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/utils/api";
+import { dateFormater } from "@/utils/date";
+import { type Category } from "@prisma/client";
+import { type RankingInfo } from "@tanstack/match-sorter-utils";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  type SortingState,
   createColumnHelper,
-  type FilterFn,
-  type ColumnFiltersState,
-  getFilteredRowModel,
+  getCoreRowModel,
+  getFacetedMinMaxValues,
   getFacetedRowModel,
   getFacetedUniqueValues,
-  getFacetedMinMaxValues,
+  getFilteredRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+  type ColumnFiltersState,
+  type FilterFn,
+  type SortingState,
 } from "@tanstack/react-table";
-import { type RankingInfo } from "@tanstack/match-sorter-utils";
-import React from "react";
-import { type Category } from "@prisma/client";
-import { dateFormater } from "@/utils/date";
-import { fuzzyFilter } from "@/components/table/helpers";
-import IndeterminateCheckbox from "@/components/form/indeterminateCheckbox";
-import TableBody from "@/components/table/body";
-import TableUtils from "@/components/table/utils";
-import Head from "next/head";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "react-i18next";
+
+import { type NextPageWithLayout } from "./_app";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   return {
@@ -175,7 +175,7 @@ function Table(props: { data: Category[] }) {
 const Category: NextPageWithLayout = () => {
   const { token, setToken } = useAuth({ noExistRedirectTo: "/signin" });
   const categoryQuery = api.categories.getMany.useQuery(undefined, {
-    staleTime: 1000 * 50 * 60,
+    staleTime: Infinity,
     enabled: !!token,
     retry(_failureCount, error) {
       if (error.data?.code === "UNAUTHORIZED") {

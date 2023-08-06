@@ -11,25 +11,81 @@ datasource db {
 }
 
 model User {
-    id                 String         @id @default(cuid())
-    userName           String         @unique
-    email              String         @unique
-    password           String
-    role               Role           @default(STAFF)
-    createdAt          DateTime       @default(now())
-    phone              String
-    activationsStatus  Boolean        @default(false)
-    activationToken    String?
-    resetPasswordToken String?
-    predecessorId      String?
-    predecessor        User?          @relation("creator", fields: [predecessorId], references: [id])
-    successors         User[]         @relation("creator")
-    category           Category[]
-    products           Product[]
-    orders             Order[]
-    ExpenseTypes       ExpenseTypes[]
-    ExpenseStore       ExpenseStore[]
-    Expenses           Expenses[]
+    id                  String            @id @default(cuid())
+    userName            String            @unique
+    email               String            @unique
+    password            String
+    role                RoleT             @default(STAFF)
+    createdAt           DateTime          @default(now())
+    phone               String
+    activationsStatus   Boolean           @default(false)
+    activationToken     String?
+    resetPasswordToken  String?
+    predecessorId       String?
+    predecessor         User?             @relation("creator", fields: [predecessorId], references: [id])
+    successors          User[]            @relation("creator")
+    category            Category[]
+    products            Product[]
+    orders              Order[]
+    ExpenseTypes        ExpenseTypes[]
+    ExpenseStore        ExpenseStore[]
+    Expenses            Expenses[]
+    Losses              Loss[]
+    /// roles user in
+    roles               UserRoles[]
+    /// roles this user created
+    rolesCreated        Role[]
+    permissionsAssigned RolePermissions[]
+    Permission          Permission[]
+    Offers              Offer[]           @relation("createdBy")
+    OffersDeleted       Offer[]           @relation("deletedBy")
+}
+
+// RBAC
+
+model Role {
+    id              String            @id @default(cuid())
+    title           String            @unique
+    description     String?
+    createdAt       DateTime          @default(now())
+    createdBy       User              @relation(fields: [createdById], references: [id])
+    createdById     String
+    /// many to many describe users in this role
+    usersOnRole     UserRoles[]
+    RolePermissions RolePermissions[]
+}
+
+// TODO should the permissions be hard coded?
+model Permission {
+    id              String            @id @default(cuid())
+    title           String            @unique
+    description     String?
+    createdAt       DateTime          @default(now())
+    createdBy       User              @relation(fields: [createdById], references: [id])
+    createdById     String
+    RolePermissions RolePermissions[]
+}
+
+model RolePermissions {
+    role         Role       @relation(fields: [roleId], references: [id])
+    roleId       String
+    permission   Permission @relation(fields: [permissionId], references: [id])
+    permissionId String
+    createdAt    DateTime   @default(now())
+    /// who assigned this permission to this role
+    createdBy    User       @relation(fields: [createdById], references: [id])
+    createdById  String
+
+    @@id([permissionId, roleId])
+}
+
+model UserRoles {
+    user   User   @relation(fields: [userId], references: [id])
+    userId String
+    Role   Role   @relation(fields: [roleId], references: [id])
+    roleId String
+
+    @@id([userId, roleId])
 }
 
 model Category {
@@ -43,24 +99,27 @@ model Category {
 }
 
 model Product {
-    id          String            @id @default(cuid())
-    name        String
+    id              String            @id @default(cuid())
+    name            String
     // there a check constraint
     // alter table "Product" add constraint "stock_less_zero" check (stock >= 0);
-    stock       Int
+    stock           Float
     // there a check constraint
     //alter table "Product" add constraint "buyprice_less_zero" check ("buyPrice" > 0);
-    buyPrice    Float
+    buyPrice        Float
     // there a check constraint
     //alter table "Product" add constraint "sellprice_less_zero" check ("sellPrice" > 0);
-    sellPrice   Float
-    image       String
-    createdAt   DateTime          @default(now())
-    createdBy   User              @relation(fields: [createdById], references: [id])
-    createdById String
-    category    Category          @relation(fields: [categoryId], references: [id])
-    categoryId  String
-    orders      ProductsOnOrder[]
+    sellPrice       Float
+    image           String
+    createdAt       DateTime          @default(now())
+    createdBy       User              @relation(fields: [createdById], references: [id])
+    createdById     String
+    category        Category          @relation(fields: [categoryId], references: [id])
+    categoryId      String
+    orders          ProductsOnOrder[]
+    losses          ProductsOnLoss[]
+    ProductsOnOffer ProductsOnOffer[]
+    OffersOnOrder   OffersOnOrder[]
 }
 
 model Order {
@@ -70,6 +129,7 @@ model Order {
     createdById String
     createdBy   User              @relation(fields: [createdById], references: [id])
     products    ProductsOnOrder[]
+    offers      OffersOnOrder[]
 }
 
 model ProductsOnOrder {
@@ -79,12 +139,52 @@ model ProductsOnOrder {
     order           Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
     // there a check constraint
     //alter table "ProductsOnOrder" add constraint "quntatity_zero" check (quantity > 0);
-    quantity        Int     @default(1)
+    quantity        Float   @default(1)
     // snapshot of the product at time of the order
     buyPriceAtSale  Float // Price of the product at the time of the order
     sellPriceAtSale Float // Price of the product at the time of the order
 
     @@id([productId, orderId])
+}
+
+model Offer {
+    id          String            @id @default(cuid())
+    createdAt   DateTime          @default(now())
+    createdById String
+    createdBy   User              @relation("createdBy", fields: [createdById], references: [id])
+    name        String
+    deletedAt   DateTime?
+    deletedById String?
+    deletedBy   User?             @relation("deletedBy", fields: [deletedById], references: [id])
+    products    ProductsOnOffer[]
+}
+
+model ProductsOnOffer {
+    productId String
+    Product   Product @relation(fields: [productId], references: [id])
+    offerId   String
+    offer     Offer   @relation(fields: [offerId], references: [id])
+    // there a check constraint
+    //alter table "ProductsOnOffer" add constraint "quntatity_zero" check (quantity > 0);
+    quantity  Float   @default(1)
+    /// this quantity price in the offer
+    // there a check constraint
+    //alter table "ProductsOnOffer" add constraint "quntatity_zero" check (quantity > 0);
+    price     Float
+
+    @@id([productId, offerId])
+}
+
+model OffersOnOrder {
+    offerId  String
+    Offer    Product @relation(fields: [offerId], references: [id])
+    orderId  String
+    order    Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+    // there a check constraint
+    //alter table "ProductsOnOffer" add constraint "quntatity_zero" check (quantity > 0);
+    quantity Float   @default(1)
+
+    @@id([offerId, orderId])
 }
 
 // EXPENSES/LOSSES
@@ -140,7 +240,31 @@ model SpendingsOnExpenses {
     @@id([spendingId, expenseId])
 }
 
-enum Role {
+model Loss {
+    id               String           @id @default(cuid())
+    name             String?
+    description      String?
+    additionalAmount Float            @default(0)
+    createdAt        DateTime         @default(now())
+    createdBy        User             @relation(fields: [createdById], references: [id])
+    createdById      String
+    products         ProductsOnLoss[]
+}
+
+model ProductsOnLoss {
+    lossId          String
+    loss            Loss    @relation(fields: [lossId], references: [id], onDelete: Cascade)
+    productId       String
+    Product         Product @relation(fields: [productId], references: [id])
+    quantity        Float
+    // snapshot of the product at time of the order
+    buyPriceAtLoss  Float // Price of the product at the time of the order
+    sellPriceAtLoss Float // Price of the product at the time of the order
+
+    @@id([productId, lossId])
+}
+
+enum RoleT {
     SUPERADMIN
     ADMIN
     STAFF
