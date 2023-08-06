@@ -1,8 +1,8 @@
-import z from "zod";
-import { PrismaClient } from "@prisma/client";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { orderSchema } from "@/types/entities";
+import { PrismaClient } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
+import z from "zod";
 
 export const ordersRouter = createTRPCRouter({
   insertOne: protectedProcedure
@@ -129,6 +129,9 @@ export const ordersRouter = createTRPCRouter({
             },
           },
         },
+        orderBy: {
+          createdAt: "desc",
+        },
       });
 
       const ordersWithTotal = orders.map((order) => {
@@ -144,7 +147,13 @@ export const ordersRouter = createTRPCRouter({
           total: totalPrice,
         };
       });
-      return ordersWithTotal;
+
+      // calc total for all orders
+      let t = 0;
+      ordersWithTotal.forEach((i) => {
+        t += i.total;
+      });
+      return { orders: ordersWithTotal, total: t };
     }),
   /**
    * @param id string

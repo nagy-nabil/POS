@@ -26,6 +26,17 @@ export const productSchema = z.object({
   sellPrice: z.number().gt(0),
   categoryId: z.string().nonempty(),
 });
+export const productOnOfferSchema = z.object({
+  productId: z.string().nonempty(),
+  quantity: z.number().min(0),
+  price: z.number().gt(0),
+});
+
+export const offerSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(3),
+  products: z.array(productOnOfferSchema).nonempty(),
+});
 
 export const orderSchema = z.object({
   products: z.array(
