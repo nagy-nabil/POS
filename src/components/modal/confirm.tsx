@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+
 import CustomModal, { type CustomModalProps } from ".";
 
 export type ConfirmModalProps = {
@@ -10,6 +11,7 @@ export type ConfirmModalProps = {
   onCancel?: () => void;
   onOk: () => void;
   buttonChildren: CustomModalProps["buttonChildren"];
+  buttonAttrs: CustomModalProps["buttonAttrs"];
 };
 /**
  * buttons inside a form using method="dialog" can close a dialog without JavaScript and pass data.
@@ -26,7 +28,7 @@ export default function ConfirmModal(props: ConfirmModalProps) {
   return (
     <CustomModal
       header={props.header}
-      buttonAttrs={{}}
+      buttonAttrs={props.buttonAttrs}
       dialogAttrs={{
         onClose(event) {
           console.log(

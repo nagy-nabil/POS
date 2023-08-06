@@ -1,18 +1,18 @@
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { useTranslation } from "next-i18next";
-import { api } from "@/utils/api";
-import { type NextPageWithLayout } from "../_app";
-import { useState, type ReactElement } from "react";
+import React, { useState, type ReactElement } from "react";
+import type { GetStaticPropsContext } from "next";
+import Head from "next/head";
 import Layout from "@/components/layout";
 import OrderDisplay from "@/components/orderDisplay";
 import { useAuth } from "@/hooks/useAuth";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import type { GetStaticPropsContext } from "next";
-import Head from "next/head";
-import { generateInputDateValue } from "@/utils/date";
-import React from "react";
-import { CgSpinner } from "react-icons/cg";
 import { PaginationUtis, usePagination } from "@/hooks/usePagination";
+import { api } from "@/utils/api";
+import { generateInputDateValue } from "@/utils/date";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { CgSpinner } from "react-icons/cg";
+
+import { type NextPageWithLayout } from "../_app";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   return {
@@ -43,7 +43,6 @@ const History: NextPageWithLayout = () => {
     localTimestamp.setHours(23, 59, 59, 999);
     return localTimestamp;
   });
-  let totalSold = 0;
 
   const orderQuery = api.orders.getMany.useQuery(
     {
@@ -65,8 +64,8 @@ const History: NextPageWithLayout = () => {
   );
 
   const ordersPage = usePagination({
-    data: orderQuery.data || [],
-    length: 5,
+    data: orderQuery.data?.orders || [],
+    length: 10,
   });
 
   if (orderQuery.isError) {
@@ -134,7 +133,6 @@ const History: NextPageWithLayout = () => {
         {/* order display */}
         <div className="mt-5 flex h-screen flex-col gap-4 overflow-y-auto">
           {ordersPage.values.map((order) => {
-            totalSold += order.total;
             return (
               <OrderDisplay
                 key={order.id}
@@ -143,12 +141,12 @@ const History: NextPageWithLayout = () => {
               />
             );
           })}
-          {orderQuery.data?.length === 0
+          {orderQuery.data?.orders.length === 0
             ? "no orders try adding one from sales page"
             : null}
         </div>
         <p className="border-t-2 border-gray-400 p-3 text-2xl text-green-700">
-          Total Sold: {totalSold}$
+          Total Sold: {orderQuery.data?.total || 0}$
         </p>
         <PaginationUtis {...ordersPage} />
       </div>

@@ -1,18 +1,20 @@
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useAuth } from "@/hooks/useAuth";
-import { RiMenu4Fill, RiCloseLine, RiLogoutBoxLine } from "react-icons/ri";
+import { useTranslation } from "next-i18next";
 import {
-  AiOutlineShoppingCart,
-  AiOutlineSetting,
   AiOutlineHistory,
+  AiOutlineSetting,
+  AiOutlineShoppingCart,
 } from "react-icons/ai";
-import { LuBarChart3 } from "react-icons/lu";
+import { BiSolidOffer } from "react-icons/bi";
 import { CiShoppingTag } from "react-icons/ci";
 import { GiTakeMyMoney } from "react-icons/gi";
+import { LuBarChart3 } from "react-icons/lu";
 import { MdMoneyOff, MdOutlineCategory } from "react-icons/md";
-import React, { useMemo, useState } from "react";
-import { useRouter } from "next/router";
-import { useTranslation } from "next-i18next";
+import { RiCloseLine, RiLogoutBoxLine, RiMenu4Fill } from "react-icons/ri";
+
 import Accordion from "./accordion";
 
 export type PathItem = {
@@ -104,6 +106,12 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           href: "/product",
 
           icon: <CiShoppingTag key="product" className={iconClasses} />,
+        },
+        {
+          label: t("sidebar.paths.offers"),
+          href: "/offers",
+
+          icon: <BiSolidOffer key="offers" className={iconClasses} />,
         },
         {
           label: t("sidebar.paths.category"),

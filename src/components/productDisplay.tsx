@@ -146,7 +146,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
   ]);
   const productsDataPage = usePagination({
     data: productsData || [],
-    length: 5,
+    length: 10,
   });
 
   if (productsQuery.isError) {

@@ -1,14 +1,15 @@
 import React, { useMemo, useRef, useState } from "react";
-import { useTranslation } from "next-i18next";
-import { useForm, useFieldArray } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import CustomModal from ".";
-import { api } from "@/utils/api";
-import { type z } from "zod";
 import { lossesSchema } from "@/types/entities";
-import clsx from "clsx";
-import { CgSpinner } from "react-icons/cg";
+import { api } from "@/utils/api";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { type Product } from "@prisma/client";
+import clsx from "clsx";
+import { useTranslation } from "next-i18next";
+import { useFieldArray, useForm } from "react-hook-form";
+import { CgSpinner } from "react-icons/cg";
+import { type z } from "zod";
+
+import CustomModal from ".";
 
 // ---------------------------------------------------------------------
 export type LossesT = z.infer<typeof lossesSchema>;
@@ -51,6 +52,7 @@ function LossItemsTable(props: LossItemProps) {
               <td className="px-6 py-4">{product.quantity}</td>
               <td className="px-6 py-4">
                 <button
+                  type="button"
                   className="font-medium text-blue-600 hover:underline dark:text-blue-500"
                   onClick={() => {
                     props.removeFn(i);

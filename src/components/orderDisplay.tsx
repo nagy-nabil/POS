@@ -151,6 +151,7 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
               </button>
 
               <ConfirmModal
+                buttonAttrs={{}}
                 bodyMessage="Are you sure you want to delete this order, you cannot undo?"
                 header="Delete Order"
                 onOk={() => {
