@@ -4,6 +4,7 @@ import React, {
   type Dispatch,
   type SetStateAction,
 } from "react";
+import { useCartDec, useCartSet } from "@/hooks/useCart";
 import { api } from "@/utils/api";
 import { type Product } from "@prisma/client";
 import { useTranslation } from "next-i18next";
@@ -36,7 +37,8 @@ const CrateItem: React.FC<
   const [operationError, setOperationError] = useState("");
   const { t } = useTranslation();
   const price = props.sellPrice * props.quantity;
-
+  const crate = useCartDec();
+  const crateSet = useCartSet();
   return (
     <>
       <div key={props.id} className="flex gap-1">
@@ -62,6 +64,11 @@ const CrateItem: React.FC<
                   return;
                 }
                 setOperationError("");
+                crateSet.mutate({
+                  id: props.id,
+                  quantity: v,
+                  type: 0,
+                });
                 props.setOnCrate((prev) => {
                   const temp = prev.find((temp) => temp.id === props.id);
                   if (temp !== undefined) {
@@ -95,6 +102,10 @@ const CrateItem: React.FC<
             type="button"
             className="h-fit w-fit rounded-lg bg-yellow-300 p-1"
             onClick={() => {
+              crate.mutate({
+                id: props.id,
+                type: 0,
+              });
               props.setOnCrate((prev) => {
                 const temp = prev.find((temp) => temp.id === props.id);
                 if (temp !== undefined) {

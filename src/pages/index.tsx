@@ -1,20 +1,22 @@
+import { useState, type ReactElement } from "react";
 import type { GetStaticPropsContext } from "next";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { type ReactElement, useState } from "react";
-import CrateModal, { type CrateProps } from "@/components/modal/crateModal";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { useTranslation } from "next-i18next";
-import { useAuth } from "@/hooks/useAuth";
+import Head from "next/head";
 // import { RiSearch2Line } from "react-icons/ri";
 // import InputWithIcon from "@/components/form/inputWithIcon";
 import CategoryDisplay from "@/components/categoryDisplay";
-import ProductDisplay from "@/components/productDisplay";
+import DebouncedInput from "@/components/form/debouncedInput";
+import Layout from "@/components/layout";
+import CrateModal, { type CrateProps } from "@/components/modal/crateModal";
 import ProductModal from "@/components/modal/productModal";
 import QrModal from "@/components/modal/qrModal";
+import ProductDisplay from "@/components/productDisplay";
+import { useAuth } from "@/hooks/useAuth";
+import { useCart } from "@/hooks/useCart";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+
 import type { NextPageWithLayout } from "./_app";
-import Layout from "@/components/layout";
-import Head from "next/head";
-import DebouncedInput from "@/components/form/debouncedInput";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   return {
@@ -35,6 +37,7 @@ const Home: NextPageWithLayout = (_props) => {
   const [categoryFilter, setCategoryFilter] = useState("");
   const [onCrate, setOnCrate] = useState<CrateProps["onCrate"]>([]);
   const [productFilter, setProductFilter] = useState("");
+  const cart = useCart();
 
   if (!token) return <p>loading token...</p>;
 

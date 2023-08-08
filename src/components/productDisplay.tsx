@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import Image from "next/image";
 import { type CrateItem } from "@/components/modal/crateModal";
 import { useAuth } from "@/hooks/useAuth";
+import { useCartAdd } from "@/hooks/useCart";
 import { PaginationUtis, usePagination } from "@/hooks/usePagination";
 import { api } from "@/utils/api";
 import { type Product } from "@prisma/client";
@@ -108,6 +109,7 @@ export type ProductDisplayProps = {
 
 // main component
 const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
+  const cart = useCartAdd();
   const { t } = useTranslation();
   const { setToken } = useAuth({ redirectAfterSet: "/signin" });
   const [displayType, setDisplayType] = useState<
@@ -207,6 +209,10 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
           productsDataPage.values.map((product) => {
             const displayProps: ProductProps = {
               onClick: () => {
+                cart.mutate({
+                  id: product.id,
+                  type: 0,
+                });
                 props.setOnCrate((prev) => {
                   // check if the item already exist in the crate it exist increase the qunatity
                   let newItem: CrateItem;
