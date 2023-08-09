@@ -1,6 +1,6 @@
-import z from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { productSchema } from "@/types/entities";
+import z from "zod";
 
 export const productsRouter = createTRPCRouter({
   insertOne: protectedProcedure
@@ -26,7 +26,11 @@ export const productsRouter = createTRPCRouter({
   }),
 
   getMany: protectedProcedure.query(({ ctx }) => {
-    return ctx.prisma.product.findMany();
+    return ctx.prisma.product.findMany({
+      orderBy: {
+        stock: "desc",
+      },
+    });
   }),
   updateOne: protectedProcedure
     .input(productSchema.extend({ id: z.string() }))

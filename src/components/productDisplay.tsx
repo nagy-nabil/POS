@@ -133,8 +133,9 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
         if (props.categoryFilter === "") return true;
         else return val.categoryId === props.categoryFilter;
       });
-      return matchSorter(d, props.productFilter, { keys: ["name", "id"] });
-      // return d;
+      return props.productFilter === ""
+        ? d
+        : matchSorter(d, props.productFilter, { keys: ["name", "id"] });
     }
     return productsQuery.data;
   }, [
@@ -145,8 +146,8 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
     props.productFilter,
   ]);
   const productsDataPage = usePagination({
-    data: productsData || [],
-    length: 10,
+    data: productsData ?? [],
+    length: 20,
   });
 
   if (productsQuery.isError) {
