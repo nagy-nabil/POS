@@ -64,8 +64,8 @@ const History: NextPageWithLayout = () => {
   );
 
   const ordersPage = usePagination({
-    data: orderQuery.data?.orders || [],
-    length: 10,
+    data: orderQuery.data?.orders ?? [],
+    length: 20,
   });
 
   if (orderQuery.isError) {

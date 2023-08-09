@@ -1,5 +1,5 @@
-import { type FnReturn } from "@/types/utils";
 import { useMemo, useState } from "react";
+import { type FnReturn } from "@/types/utils";
 import {
   AiOutlineDoubleLeft,
   AiOutlineDoubleRight,
@@ -27,10 +27,7 @@ export function usePagination<T>(props: UsePaginationProps<T>) {
   const values = useMemo<T[]>(() => {
     if (props.data.length === 0) return [];
     if (curPage < 0 || curPage >= pagesNum) {
-      setCurPage(1);
-      throw new Error(
-        `usePagination: page number must be between 0 : ${pagesNum - 1}`
-      );
+      setCurPage(0);
     }
     if (props.length < 0)
       throw new Error(
