@@ -37,7 +37,7 @@ async function main() {
     },
   });
   const products = await prisma.product.createMany({
-    data: new Array(10).fill(0).map(() => {
+    data: new Array(400).fill(0).map(() => {
       return {
         createdById: admin.id,
         name: faker.commerce.productName(),

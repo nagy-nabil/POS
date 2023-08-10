@@ -6,12 +6,11 @@ import Head from "next/head";
 import CategoryDisplay from "@/components/categoryDisplay";
 import DebouncedInput from "@/components/form/debouncedInput";
 import Layout from "@/components/layout";
-import CrateModal, { type CrateProps } from "@/components/modal/crateModal";
+import { CartModal } from "@/components/modal/cartModal";
 import ProductModal from "@/components/modal/productModal";
 import QrModal from "@/components/modal/qrModal";
 import ProductDisplay from "@/components/productDisplay";
 import { useAuth } from "@/hooks/useAuth";
-import { useCart } from "@/hooks/useCart";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
@@ -35,9 +34,7 @@ const Home: NextPageWithLayout = (_props) => {
   const { token } = useAuth({ noExistRedirectTo: "/signin" });
   const { t } = useTranslation();
   const [categoryFilter, setCategoryFilter] = useState("");
-  const [onCrate, setOnCrate] = useState<CrateProps["onCrate"]>([]);
   const [productFilter, setProductFilter] = useState("");
-  const cart = useCart();
 
   if (!token) return <p>loading token...</p>;
 
@@ -62,10 +59,9 @@ const Home: NextPageWithLayout = (_props) => {
           />
           <ProductModal operationType="post" defaultValues={{}} />
         </header>
-        <main>
+        <main className="h-full w-full">
           <CategoryDisplay setCategoryFilter={setCategoryFilter} />
           <ProductDisplay
-            setOnCrate={setOnCrate}
             categoryFilter={categoryFilter}
             productFilter={productFilter}
             displayType="keypad"
@@ -73,8 +69,8 @@ const Home: NextPageWithLayout = (_props) => {
         </main>
 
         <footer className="fixed bottom-4 left-4 flex w-11/12 items-center justify-between gap-2">
-          <CrateModal onCrate={onCrate} setOnCrate={setOnCrate} />
-          <QrModal setOnCrate={setOnCrate} key="qrModal" />
+          <CartModal />
+          <QrModal key="qrModal" />
         </footer>
       </div>
       <ReactQueryDevtools initialIsOpen={false} />

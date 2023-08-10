@@ -25,7 +25,7 @@ export type CartT = {
 /**
  * cart will only hold id and quantity of the item, any other data needed for those items the user of this hook should query for it, i guess this approach is better for memeory usage
  */
-export function useCart() {
+function useCart() {
   return useQuery<CartT, Error, CartT>({
     queryKey: CART_KEY,
     staleTime: Infinity,
@@ -42,7 +42,7 @@ export function useCart() {
  * @param id
  * @param type CartItemTypes: 0 => product, 1 => offer
  */
-export function useCartAdd() {
+function useCartInc() {
   const queryClient = useQueryClient();
 
   return useMutation<void, Error, { id: CartItem["id"]; type: CartItemTypes }>({
@@ -80,7 +80,7 @@ export function useCartAdd() {
   });
 }
 
-export function useCartDec() {
+function useCartDec() {
   const queryClient = useQueryClient();
 
   return useMutation<void, Error, { id: CartItem["id"]; type: CartItemTypes }>({
@@ -132,7 +132,10 @@ export function useCartDec() {
   });
 }
 
-export function useCartRemove() {
+/**
+ * remove single item from cart
+ */
+function useCartRemove() {
   const queryClient = useQueryClient();
 
   return useMutation<void, Error, { id: CartItem["id"]; type: CartItemTypes }>({
@@ -148,12 +151,12 @@ export function useCartRemove() {
         if (variables.type === CartItemTypes.product) {
           return {
             ...prev,
-            products: [...prev.products.filter((i) => i.id !== variables.id)],
+            products: prev.products.filter((i) => i.id !== variables.id),
           };
         } else {
           return {
             ...prev,
-            offers: [...prev.offers.filter((i) => i.id !== variables.id)],
+            offers: prev.offers.filter((i) => i.id !== variables.id),
           };
         }
       });
@@ -161,7 +164,10 @@ export function useCartRemove() {
   });
 }
 
-export function useCartClear() {
+/**
+ * remove all items from cart
+ */
+function useCartClear() {
   const queryClient = useQueryClient();
 
   return useMutation<void, Error, void>({
@@ -177,7 +183,7 @@ export function useCartClear() {
   });
 }
 
-export function useCartSet() {
+function useCartSet() {
   const queryClient = useQueryClient();
 
   return useMutation<
@@ -224,3 +230,12 @@ export function useCartSet() {
     },
   });
 }
+
+export {
+  useCart,
+  useCartInc,
+  useCartDec,
+  useCartRemove,
+  useCartClear,
+  useCartSet,
+};

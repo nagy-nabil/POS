@@ -1,6 +1,6 @@
-import z from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { categorySchema } from "@/types/entities";
+import z from "zod";
 
 export const categoriesRouter = createTRPCRouter({
   insertOne: protectedProcedure

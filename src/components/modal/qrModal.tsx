@@ -1,5 +1,4 @@
 import React, { useRef, useState } from "react";
-import { type CrateItem } from "@/components/modal/crateModal";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/utils/api";
 import { type Product } from "@prisma/client";
@@ -11,11 +10,7 @@ import CustomModal from ".";
 import { KeypadDisplay } from "../productDisplay";
 import QrCode from "../qrcode";
 
-export type QrModalProps = {
-  setOnCrate: React.Dispatch<React.SetStateAction<CrateItem[]>>;
-};
-
-const QrModal: React.FC<QrModalProps> = (props) => {
+function QrModal() {
   const { t } = useTranslation();
   const dialgoRef = useRef(null);
   const { setToken } = useAuth({ redirectAfterSet: "/signin" });
@@ -92,37 +87,11 @@ const QrModal: React.FC<QrModalProps> = (props) => {
           ) : null}
 
           {scannerRead !== undefined ? (
-            <KeypadDisplay
-              {...scannerRead}
-              width="w-3/4"
-              onClick={() => {
-                props.setOnCrate((prev) => {
-                  // check if the item already exist in the crate it exist increase the qunatity
-                  let newItem: CrateItem;
-                  const temp = prev.find((val) => val.id === scannerRead.id);
-                  if (temp !== undefined) {
-                    newItem = temp;
-                    newItem.quantity++;
-                  } else {
-                    newItem = {
-                      id: scannerRead.id,
-                      name: scannerRead.name,
-                      quantity: 1,
-                      stock: scannerRead.stock,
-                      sellPrice: scannerRead.sellPrice,
-                    };
-                  }
-                  return [
-                    ...prev.filter((val) => val.id !== scannerRead.id),
-                    newItem,
-                  ];
-                });
-              }}
-            />
+            <KeypadDisplay {...scannerRead} />
           ) : null}
         </div>
       }
     />
   );
-};
+}
 export default QrModal;
