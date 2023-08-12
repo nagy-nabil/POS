@@ -56,13 +56,14 @@ export function CartUtils(props: CartUtilsProps) {
       >
         <AiOutlineMinus />
       </button>
-      {/* SET */}
+      {/* SET: disabled with offer, you get the whole offer or not*/}
       <label className="my-2">
         <input
           type="number"
           max={props.stock}
           step={0.5}
           value={props.quantity}
+          disabled={props.type === CartItemTypes.offer}
           className="mx-2 w-20 rounded-2xl p-2 text-gray-500 border-2 border-gray-500"
           onChange={(e) => {
             const v = e.target.valueAsNumber;
@@ -138,8 +139,13 @@ export const KeypadDisplay: React.FC<ProductProps> = (props) => {
       <div className="w-full h-16">
         <h2 className="text-2xl text-ellipsis line-clamp-2 ">{props.name}</h2>
       </div>
-      <span className="text-green-500">price: {props.sellPrice}$</span>
-      <span className="text-gray-500">Quantity: {props.stock}</span>
+      <span className="text-green-700">piece price: {props.sellPrice}$</span>
+      <span className="text-green-700 line-clamp-1">
+        order price: {(props.quantity || 0) * props.sellPrice}$
+      </span>
+      <span className="text-gray-500">
+        Stock: {props.stock - (props?.quantity || 0)}
+      </span>
       {props.quantity !== undefined ? (
         <div className="m-auto h-32 overflow-y-auto">
           <CartUtils
@@ -190,7 +196,9 @@ export const LibraryDisplay: React.FC<ProductProps> = (props) => {
             </h2>
           </div>
           <p>
-            <span className="text-gray-500 text-xl">{props.stock} : </span>
+            <span className="text-gray-500 text-xl">
+              {props.stock - (props.quantity || 0)} :{" "}
+            </span>
             <span className="text-green-500 text-xl"> {props.sellPrice}$</span>
           </p>
           {props.quantity !== undefined && (

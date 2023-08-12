@@ -4,12 +4,11 @@ import Head from "next/head";
 import IndeterminateCheckbox from "@/components/form/indeterminateCheckbox";
 import Layout from "@/components/layout";
 import ConfirmModal from "@/components/modal/confirm";
-import LossesModal from "@/components/modal/lossesModal";
 import OfferModal from "@/components/modal/offerModal";
+import { OfferDisplay } from "@/components/offerDisplay";
 import TableBody from "@/components/table/body";
 import { fuzzyFilter } from "@/components/table/helpers";
 import TableUtils from "@/components/table/utils";
-import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/utils/api";
 import { dateFormater } from "@/utils/date";
 import type { Offer } from "@prisma/client";
@@ -215,7 +214,6 @@ function Table(props: { data: Offer[] }) {
 }
 
 const OfferPage: NextPageWithLayout = () => {
-  const { t } = useTranslation();
   const offerQuery = api.offers.index.useQuery(undefined, {
     staleTime: Infinity,
   });
@@ -225,11 +223,12 @@ const OfferPage: NextPageWithLayout = () => {
       <Head>
         <link rel="manifest" href="/app.webmanifest" />
       </Head>
-      <div className="w-screen">
+      <div className="w-screen  h-screen">
         <header className="mt-2 flex items-center justify-around">
-          <h1 className="text-4xl">{t("pages.spending.header")}</h1>
+          <h1 className="text-4xl">Offers</h1>
         </header>
         {offerQuery.data && <Table data={offerQuery.data} />}
+        <OfferDisplay />
       </div>
       <ReactQueryDevtools initialIsOpen={false} />
     </>

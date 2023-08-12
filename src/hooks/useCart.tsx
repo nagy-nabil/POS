@@ -50,9 +50,13 @@ function useCartInc() {
     async mutationFn(variables) {
       queryClient.setQueryData<CartT>(CART_KEY, (prev) => {
         if (!prev) {
+          const item: CartItem = {
+            id: variables.id,
+            quantity: 1,
+          };
           return {
-            offers: [],
-            products: [],
+            offers: variables.type === CartItemTypes.offer ? [item] : [],
+            products: variables.type === CartItemTypes.product ? [item] : [],
           };
         }
         let old: undefined | CartItem = undefined;

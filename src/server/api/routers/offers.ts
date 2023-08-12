@@ -1,20 +1,30 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { offerSchema } from "@/types/entities";
+import type { inferRouterOutputs } from "@trpc/server";
 import { z } from "zod";
 
 export const offeresRouter = createTRPCRouter({
   index: protectedProcedure.query(async ({ ctx }) => {
-    return await ctx.prisma.offer.findMany({
+    const offers = await ctx.prisma.offer.findMany({
       where: {
         deletedAt: null,
       },
       include: {
-        products: {
-          include: {
-            Product: true,
-          },
-        },
+        products: true,
       },
+    });
+    // calc sum of each offer price
+    return offers.map((offer) => {
+      const price = offer.products.reduce((prev, product) => {
+        return prev + product.price;
+      }, 0);
+      return {
+        ...offer,
+        /**
+         * total offer price
+         */
+        price,
+      };
     });
   }),
 
@@ -60,3 +70,6 @@ export const offeresRouter = createTRPCRouter({
       });
     }),
 });
+
+export type OffersRouter = inferRouterOutputs<typeof offeresRouter>;
+export type OfferIndex = OffersRouter["index"];

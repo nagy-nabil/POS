@@ -7,13 +7,19 @@ import { CgSpinner } from "react-icons/cg";
 import { FaShoppingBag } from "react-icons/fa";
 
 import CustomModal from ".";
+import { OfferItem, OfferItemProps } from "../offerDisplay";
 import { LibraryDisplay } from "../productDisplay";
 
 // main crate
 export function CartModal() {
   const cart = useCart();
   const cartClear = useCartClear();
-  const products = api.products.getMany.useQuery();
+  const products = api.products.getMany.useQuery(undefined, {
+    staleTime: Infinity,
+  });
+  const offers = api.offers.index.useQuery(undefined, {
+    staleTime: Infinity,
+  });
   const { t } = useTranslation();
   const [operationError, setOperationError] = useState("");
   const dialgoRef = useRef<HTMLDialogElement>(null);
@@ -41,7 +47,12 @@ export function CartModal() {
     },
   });
 
-  if (products.isLoading || products.isError) {
+  if (
+    products.isLoading ||
+    products.isError ||
+    offers.isError ||
+    offers.isLoading
+  ) {
     return null;
   }
 
@@ -50,6 +61,11 @@ export function CartModal() {
     total +=
       (products.data.find((i) => item.id === i.id)?.sellPrice || 0) *
       item.quantity;
+  });
+
+  cart.data.offers.forEach((offer) => {
+    total +=
+      (offers.data.find((i) => i.id === offer.id)?.price || 0) * offer.quantity;
   });
 
   function calcItemsLen() {
@@ -81,7 +97,8 @@ export function CartModal() {
       formAttrs={{}}
       modalChildren={
         <div className="flex flex-col w-full h-full">
-          {/* render crate items */}
+          {/* render cart products*/}
+          <h1 className="text-3xl">Products</h1>
           {cart.data.products.map((val) => {
             const product = products.data.find((i) => i.id === val.id);
             if (!product) {
@@ -94,6 +111,31 @@ export function CartModal() {
                   {...product}
                   quantity={val.quantity}
                 />
+              </div>
+            );
+          })}
+
+          {/* render cart offers*/}
+          <h1 className="text-3xl">Offers</h1>
+          {cart.data.offers.map((item) => {
+            const offer = offers.data.find((i) => i.id === item.id);
+            if (!offer) {
+              return null;
+            }
+            // form offer with products
+            const tempOffer: OfferItemProps = {
+              ...offer,
+              quantity: item.quantity,
+              products: offer.products.map((i) => ({
+                ...i,
+                product: products.data.find(
+                  (i2) => i2.id === i.productId
+                ) as Product,
+              })),
+            };
+            return (
+              <div key={offer.id} className="w-11/12 overflow-hidden">
+                <OfferItem key={item.id} {...tempOffer} />
               </div>
             );
           })}
