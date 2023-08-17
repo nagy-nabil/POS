@@ -7,7 +7,6 @@ import LossesModal from "@/components/modal/lossesModal";
 import TableBody from "@/components/table/body";
 import { fuzzyFilter } from "@/components/table/helpers";
 import TableUtils from "@/components/table/utils";
-import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/utils/api";
 import { dateFormater } from "@/utils/date";
 import { type Loss } from "@prisma/client";
@@ -178,15 +177,10 @@ function Table(props: { data: Loss[] }) {
 
 const Spending: NextPageWithLayout = () => {
   const { t } = useTranslation();
-  const { token, setToken } = useAuth({ noExistRedirectTo: "/signin" });
   const lossQuery = api.losses.getMany.useQuery(undefined, {
     staleTime: Infinity,
-    enabled: !!token,
     retry(_failureCount, error) {
       if (error.data?.code === "UNAUTHORIZED") {
-        setToken("").catch((e) => {
-          throw e;
-        });
         return false;
       }
       return true;

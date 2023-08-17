@@ -11,7 +11,6 @@ import {
 import TableBody from "@/components/table/body";
 import { fuzzyFilter } from "@/components/table/helpers";
 import TableUtils from "@/components/table/utils";
-import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/utils/api";
 import { dateFormater } from "@/utils/date";
 import type { Expenses, ExpenseStore, ExpenseTypes } from "@prisma/client";
@@ -412,17 +411,12 @@ function ExpenseTable(props: { data: Expenses[] }) {
 
 const Spending: NextPageWithLayout = () => {
   const { t } = useTranslation();
-  const { token, setToken } = useAuth({ noExistRedirectTo: "/signin" });
   const expenseTypesQuery = api.expenses.expenseTypeGetMany.useQuery(
     undefined,
     {
       staleTime: Infinity,
-      enabled: !!token,
       retry(_failureCount, error) {
         if (error.data?.code === "UNAUTHORIZED") {
-          setToken("").catch((e) => {
-            throw e;
-          });
           return false;
         }
         return true;
@@ -433,12 +427,8 @@ const Spending: NextPageWithLayout = () => {
     undefined,
     {
       staleTime: Infinity,
-      enabled: !!token,
       retry(_failureCount, error) {
         if (error.data?.code === "UNAUTHORIZED") {
-          setToken("").catch((e) => {
-            throw e;
-          });
           return false;
         }
         return true;
@@ -447,12 +437,8 @@ const Spending: NextPageWithLayout = () => {
   );
   const expenseQuery = api.expenses.expenseGetMany.useQuery(undefined, {
     staleTime: Infinity,
-    enabled: !!token,
     retry(_failureCount, error) {
       if (error.data?.code === "UNAUTHORIZED") {
-        setToken("").catch((e) => {
-          throw e;
-        });
         return false;
       }
       return true;

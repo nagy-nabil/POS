@@ -1,19 +1,19 @@
-import LanguageSwitcher from "@/components/langSelector";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import type { GetStaticPropsContext } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { type NextPageWithLayout } from "./_app";
 import { type ReactElement } from "react";
-import Layout from "@/components/layout";
-import { type SubmitHandler, useForm } from "react-hook-form";
-import { loginSchema } from "@/types/entities";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { api } from "@/utils/api";
-import { z } from "zod";
-import { CgSpinner } from "react-icons/cg";
-import { useAuth } from "@/hooks/useAuth";
+import type { GetStaticPropsContext } from "next";
 import Head from "next/head";
+import LanguageSwitcher from "@/components/langSelector";
+import Layout from "@/components/layout";
+import { loginSchema } from "@/types/entities";
+import { api } from "@/utils/api";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useForm, type SubmitHandler } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { CgSpinner } from "react-icons/cg";
+import { z } from "zod";
+
+import { type NextPageWithLayout } from "./_app";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   return {
@@ -46,7 +46,6 @@ type PasswordFormT = z.infer<typeof passwordForm>;
 
 const Settings: NextPageWithLayout = () => {
   const { t } = useTranslation("settings");
-  const {} = useAuth({ noExistRedirectTo: "/signin" });
   const userNameUpdate = api.users.updateUserName.useMutation();
   const passwordUpdate = api.users.updatePassword.useMutation();
 

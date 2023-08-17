@@ -1,6 +1,5 @@
 import React, { useRef, useState } from "react";
 import { type CrateItem } from "@/components/modal/crateModal";
-import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/utils/api";
 import { type Product } from "@prisma/client";
 import { Html5QrcodeScannerState, type Html5QrcodeScanner } from "html5-qrcode";
@@ -18,7 +17,6 @@ export type QrModalProps = {
 const QrModal: React.FC<QrModalProps> = (props) => {
   const { t } = useTranslation();
   const dialgoRef = useRef(null);
-  const { setToken } = useAuth({ redirectAfterSet: "/signin" });
   // i don't know if this a good design or even valid react code but i want to keep ref to the scanner
   // to make using it in this component easier
   const scannerRef = useRef<Html5QrcodeScanner | undefined>(undefined);
@@ -32,9 +30,6 @@ const QrModal: React.FC<QrModalProps> = (props) => {
     staleTime: Infinity,
     retry(_failureCount, error) {
       if (error.data?.code === "UNAUTHORIZED") {
-        setToken("").catch((e) => {
-          throw e;
-        });
         return false;
       }
       return true;

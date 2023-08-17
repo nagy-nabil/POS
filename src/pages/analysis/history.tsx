@@ -3,7 +3,6 @@ import type { GetStaticPropsContext } from "next";
 import Head from "next/head";
 import Layout from "@/components/layout";
 import OrderDisplay from "@/components/orderDisplay";
-import { useAuth } from "@/hooks/useAuth";
 import { PaginationUtis, usePagination } from "@/hooks/usePagination";
 import { api } from "@/utils/api";
 import { generateInputDateValue } from "@/utils/date";
@@ -29,7 +28,6 @@ export async function getStaticProps({ locale }: GetStaticPropsContext) {
 
 const History: NextPageWithLayout = () => {
   const { t } = useTranslation("analysis");
-  const { setToken } = useAuth({ noExistRedirectTo: "/signin" });
 
   // always would be the time at midnight(start of a day)
   const [fromDate, setFromDate] = useState<Date>(() => {
@@ -53,9 +51,6 @@ const History: NextPageWithLayout = () => {
       enabled: false,
       retry(_failureCount, error) {
         if (error.data?.code === "UNAUTHORIZED") {
-          setToken("").catch((e) => {
-            throw e;
-          });
           return false;
         }
         return true;

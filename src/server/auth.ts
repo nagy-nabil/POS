@@ -1,13 +1,17 @@
-import { z } from "zod";
+import { GetServerSidePropsContext } from "next";
 import { env } from "@/env.mjs";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { RoleT } from "@prisma/client";
 // import { prisma } from "@/server/db";
 import jwt from "jsonwebtoken";
-import { RoleT } from "@prisma/client";
+import { getServerSession } from "next-auth";
+import { z } from "zod";
 
 export const UserPayloadSchema = z.object({
   id: z.string(),
   role: z.nativeEnum(RoleT),
 });
+
 export type UserPayload = z.infer<typeof UserPayloadSchema>;
 
 /**
@@ -40,3 +44,15 @@ export function verifyToken(token: string): UserPayload {
   UserPayloadSchema.parse(payload);
   return payload as UserPayload;
 }
+
+/**
+ * Wrapper for `getServerSession` so that you don't need to import the `authOptions` in every file.
+ *
+ * @see https://next-auth.js.org/configuration/nextjs
+ */
+export const getServerAuthSession = (ctx: {
+  req: GetServerSidePropsContext["req"];
+  res: GetServerSidePropsContext["res"];
+}) => {
+  return getServerSession(ctx.req, ctx.res, authOptions);
+};

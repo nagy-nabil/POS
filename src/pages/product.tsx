@@ -1,36 +1,35 @@
+import React, { useMemo, type ReactElement } from "react";
+import { type GetStaticPropsContext } from "next";
+import Head from "next/head";
+import IndeterminateCheckbox from "@/components/form/indeterminateCheckbox";
+import Layout from "@/components/layout";
+import ProductModal from "@/components/modal/productModal";
+import TableBody from "@/components/table/body";
+import { fuzzyFilter } from "@/components/table/helpers";
+import TableUtils from "@/components/table/utils";
 import { api } from "@/utils/api";
+import { dateFormater } from "@/utils/date";
+import { type Product } from "@prisma/client";
+import { type RankingInfo } from "@tanstack/match-sorter-utils";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  type SortingState,
   createColumnHelper,
-  type FilterFn,
-  type ColumnFiltersState,
-  getFilteredRowModel,
+  getCoreRowModel,
+  getFacetedMinMaxValues,
   getFacetedRowModel,
   getFacetedUniqueValues,
-  getFacetedMinMaxValues,
+  getFilteredRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+  type ColumnFiltersState,
+  type FilterFn,
+  type SortingState,
 } from "@tanstack/react-table";
-import { type RankingInfo } from "@tanstack/match-sorter-utils";
-import React from "react";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { type NextPageWithLayout } from "./_app";
-import Layout from "@/components/layout";
-import { useMemo, type ReactElement } from "react";
-import { type Product } from "@prisma/client";
-import { useAuth } from "@/hooks/useAuth";
-import ProductModal from "@/components/modal/productModal";
-import { type GetStaticPropsContext } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { dateFormater } from "@/utils/date";
-import { fuzzyFilter } from "@/components/table/helpers";
-import IndeterminateCheckbox from "@/components/form/indeterminateCheckbox";
-import TableUtils from "@/components/table/utils";
-import TableBody from "@/components/table/body";
-import Head from "next/head";
 import { useTranslation } from "react-i18next";
+
+import { type NextPageWithLayout } from "./_app";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   return {
@@ -182,15 +181,10 @@ function Table(props: { data: Product[] }) {
 
 const ProductTable: NextPageWithLayout = () => {
   const { t } = useTranslation();
-  const { token, setToken } = useAuth({ noExistRedirectTo: "/signin" });
   const productsQuery = api.products.getMany.useQuery(undefined, {
     staleTime: Infinity,
-    enabled: !!token,
     retry(_failureCount, error) {
       if (error.data?.code === "UNAUTHORIZED") {
-        setToken("").catch((e) => {
-          throw e;
-        });
         return false;
       }
       return true;

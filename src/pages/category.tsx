@@ -7,7 +7,6 @@ import CategoryModal from "@/components/modal/categoryModal";
 import TableBody from "@/components/table/body";
 import { fuzzyFilter } from "@/components/table/helpers";
 import TableUtils from "@/components/table/utils";
-import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/utils/api";
 import { dateFormater } from "@/utils/date";
 import { type Category } from "@prisma/client";
@@ -173,15 +172,10 @@ function Table(props: { data: Category[] }) {
 }
 
 const Category: NextPageWithLayout = () => {
-  const { token, setToken } = useAuth({ noExistRedirectTo: "/signin" });
   const categoryQuery = api.categories.getMany.useQuery(undefined, {
     staleTime: Infinity,
-    enabled: !!token,
     retry(_failureCount, error) {
       if (error.data?.code === "UNAUTHORIZED") {
-        setToken("").catch((e) => {
-          throw e;
-        });
         return false;
       }
       return true;

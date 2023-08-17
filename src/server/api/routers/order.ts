@@ -55,7 +55,7 @@ export const ordersRouter = createTRPCRouter({
 
         const order = await tx.order.create({
           data: {
-            createdById: ctx.payload.id,
+            createdById: ctx.session.user.id,
             products: {
               create: createCluse,
             },

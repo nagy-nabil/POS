@@ -1,10 +1,10 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import type { inferRouterOutputs } from "@trpc/server";
 import {
+  expensesSchema,
   expenseStoreSchema,
   expenseTypeSchema,
-  expensesSchema,
 } from "@/types/entities";
+import type { inferRouterOutputs } from "@trpc/server";
 import { z } from "zod";
 
 export const expensesRouter = createTRPCRouter({
@@ -20,7 +20,7 @@ export const expensesRouter = createTRPCRouter({
         data: {
           name: input.name,
           description: input.description,
-          createdById: ctx.payload.id,
+          createdById: ctx.session.user.id,
         },
       });
       return type;
@@ -48,7 +48,7 @@ export const expensesRouter = createTRPCRouter({
           onTheFly: input.onTheFly,
           amount: input.amount,
           remindAt: input.remindAt,
-          createdById: ctx.payload.id,
+          createdById: ctx.session.user.id,
           typeId: input.typeId,
         },
       });
@@ -83,7 +83,7 @@ export const expensesRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const expense = await ctx.prisma.expenses.create({
         data: {
-          createdById: ctx.payload.id,
+          createdById: ctx.session.user.id,
           additionalAmount: input.additionalAmount,
           description: input.description,
           SpendingsOnExpenses: {

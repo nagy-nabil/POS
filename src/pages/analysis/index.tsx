@@ -1,17 +1,17 @@
+import React, { type ReactElement } from "react";
+import type { GetStaticPropsContext } from "next";
+import dynamic from "next/dynamic";
+import Head from "next/head";
+import Layout from "@/components/layout";
+import { api } from "@/utils/api";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useTranslation } from "next-i18next";
-import { api } from "@/utils/api";
-import { type NextPageWithLayout } from "../_app";
-import { type ReactElement } from "react";
-import Layout from "@/components/layout";
-import { useAuth } from "@/hooks/useAuth";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import type { GetStaticPropsContext } from "next";
-import Head from "next/head";
-import React from "react";
 // import * as charts from "react-charts";
-import type { Chart as ChartType, AxisOptions } from "react-charts";
-import dynamic from "next/dynamic";
+import type { AxisOptions, Chart as ChartType } from "react-charts";
+
+import { type NextPageWithLayout } from "../_app";
+
 const Chart = dynamic(() => import("react-charts").then((mod) => mod.Chart), {
   ssr: false,
 }) as typeof ChartType;
@@ -89,7 +89,6 @@ function ChartLine(props: {
 
 const Anal: NextPageWithLayout = () => {
   const { t } = useTranslation("analysis");
-  const { setToken } = useAuth({ noExistRedirectTo: "/signin" });
   const profitPrimaryAxis = React.useMemo(
     (): AxisOptions<DateSum> => ({
       getValue: (datum) => datum.date,
@@ -117,9 +116,6 @@ const Anal: NextPageWithLayout = () => {
   const anal = api.orders.anal.useQuery(undefined, {
     retry(_failureCount, error) {
       if (error.data?.code === "UNAUTHORIZED") {
-        setToken("").catch((e) => {
-          throw e;
-        });
         return false;
       }
       return true;

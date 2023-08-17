@@ -10,7 +10,7 @@ export const productsRouter = createTRPCRouter({
         data: {
           ...input,
           id: input.id === "" ? undefined : input.id,
-          createdById: ctx.payload.id,
+          createdById: ctx.session.user.id,
           categoryId: input.categoryId,
         },
       });
