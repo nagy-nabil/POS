@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import type { GetStaticPropsContext, NextPage } from "next";
+import type { GetStaticPropsContext } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { Input } from "@/components/ui/input";
 import { loginSchema } from "@/types/entities";
-import { api } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { signIn, useSession } from "next-auth/react";
@@ -13,6 +12,8 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { CgSpinner } from "react-icons/cg";
 import { type z } from "zod";
+
+import { type NextPageWithProps } from "./_app";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   return {
@@ -27,14 +28,13 @@ export async function getStaticProps({ locale }: GetStaticPropsContext) {
 type LoginT = z.infer<typeof loginSchema>;
 // const loginKeys = loginSchema.keyof().options;
 
-const SignIn: NextPage = () => {
+const SignIn: NextPageWithProps = () => {
   const router = useRouter();
   const { status } = useSession({
     required: false,
   });
   const [errors, setErrors] = useState("");
   const { t } = useTranslation("sign");
-  const apiUtils = api.useContext();
 
   const {
     register,
@@ -52,7 +52,6 @@ const SignIn: NextPage = () => {
       setErrors(t("error"));
       return;
     }
-    await apiUtils.invalidate();
     // if (signin?.ok === true) {
     //   await router.push("/");
     // }
@@ -142,5 +141,7 @@ const SignIn: NextPage = () => {
     </>
   );
 };
+
+SignIn.pageConfig = {};
 
 export default SignIn;
