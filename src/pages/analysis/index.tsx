@@ -1,8 +1,7 @@
-import React, { type ReactElement } from "react";
+import React from "react";
 import type { GetStaticPropsContext } from "next";
 import dynamic from "next/dynamic";
 import Head from "next/head";
-import Layout from "@/components/layout";
 import { api } from "@/utils/api";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useTranslation } from "next-i18next";
@@ -10,7 +9,7 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 // import * as charts from "react-charts";
 import type { AxisOptions, Chart as ChartType } from "react-charts";
 
-import { type NextPageWithLayout } from "../_app";
+import { type NextPageWithProps } from "../_app";
 
 const Chart = dynamic(() => import("react-charts").then((mod) => mod.Chart), {
   ssr: false,
@@ -87,7 +86,7 @@ function ChartLine(props: {
   );
 }
 
-const Anal: NextPageWithLayout = () => {
+const Anal: NextPageWithProps = () => {
   const { t } = useTranslation("analysis");
   const profitPrimaryAxis = React.useMemo(
     (): AxisOptions<DateSum> => ({
@@ -177,12 +176,9 @@ const Anal: NextPageWithLayout = () => {
   );
 };
 
-Anal.getLayout = function getLayout(page: ReactElement) {
-  return (
-    <>
-      <Layout>{page}</Layout>
-    </>
-  );
+Anal.pageConfig = {
+  authed: true,
+  defaultLayout: true,
 };
 
 export default Anal;

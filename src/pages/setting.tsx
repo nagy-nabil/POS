@@ -1,8 +1,6 @@
-import { type ReactElement } from "react";
 import type { GetStaticPropsContext } from "next";
 import Head from "next/head";
 import LanguageSwitcher from "@/components/langSelector";
-import Layout from "@/components/layout";
 import { loginSchema } from "@/types/entities";
 import { api } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,7 +11,7 @@ import { useTranslation } from "react-i18next";
 import { CgSpinner } from "react-icons/cg";
 import { z } from "zod";
 
-import { type NextPageWithLayout } from "./_app";
+import { type NextPageWithProps } from "./_app";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   return {
@@ -44,7 +42,7 @@ const passwordForm = loginSchema
   );
 type PasswordFormT = z.infer<typeof passwordForm>;
 
-const Settings: NextPageWithLayout = () => {
+const Settings: NextPageWithProps = () => {
   const { t } = useTranslation("settings");
   const userNameUpdate = api.users.updateUserName.useMutation();
   const passwordUpdate = api.users.updatePassword.useMutation();
@@ -204,12 +202,9 @@ const Settings: NextPageWithLayout = () => {
   );
 };
 
-Settings.getLayout = function getLayout(page: ReactElement) {
-  return (
-    <>
-      <Layout>{page}</Layout>
-    </>
-  );
+Settings.pageConfig = {
+  authed: true,
+  defaultLayout: true,
 };
 
 export default Settings;

@@ -1,6 +1,7 @@
 import { env } from "@/env.mjs";
 import { prisma } from "@/server/db";
-import { RoleT } from "@prisma/client";
+import { loginSchema } from "@/types/entities";
+import { type RoleT } from "@prisma/client";
 import bcrypt from "bcrypt";
 import NextAuth, { type AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -50,51 +51,63 @@ export const authOptions: AuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        username: { label: "Username", type: "text", placeholder: "username" },
+        userName: { label: "Username", type: "text", placeholder: "username" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials, _req) {
-        if (!credentials) return null;
+        const login = loginSchema.safeParse(credentials);
+        if (login.success) {
+          const user = await prisma.user.findFirst({
+            where: {
+              userName: login.data.userName,
+            },
+            select: {
+              id: true,
+              userName: true,
+              password: true,
+              role: true,
+            },
+          });
 
-        const user = await prisma.user.findFirst({
-          where: {
-            userName: credentials.username,
-          },
-          select: {
-            id: true,
-            userName: true,
-            password: true,
-            role: true,
-          },
-        });
+          if (!user) {
+            return null;
+          }
 
-        if (!user) {
-          return null;
+          const match = await bcrypt.compare(
+            login.data.password,
+            user.password
+          );
+
+          if (!match) {
+            return null;
+          }
+          const u = {
+            id: user.id,
+            name: user.userName,
+            role: user.role,
+          };
+
+          // Any object returned will be saved in `user` property of the JWT
+          return u;
         }
-
-        const match = await bcrypt.compare(credentials.password, user.password);
-
-        if (!match) {
-          return null;
-        }
-        const u = {
-          id: user.id,
-          name: user.userName,
-          role: user.role,
-        };
-
-        // Any object returned will be saved in `user` property of the JWT
-        return u;
+        return null;
       },
     }),
   ],
   debug: env.NODE_ENV === "development",
   callbacks: {
+    // eslint-disable-next-line @typescript-eslint/require-await
     async session(params) {
-      params.session.user.id = params.token.sub;
-      params.session.user.userName = params.token.name;
+      if (params.token.sub && params.token.name) {
+        params.session.user.id = params.token.sub;
+        params.session.user.userName = params.token.name;
+      }
       return params.session;
     },
+  },
+  pages: {
+    signIn: "/signin",
+    // signOut: "api/auth/signin",
   },
 };
 

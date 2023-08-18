@@ -1,8 +1,7 @@
-import React, { useMemo, type ReactElement } from "react";
+import React, { useMemo } from "react";
 import { type GetStaticPropsContext } from "next";
 import Head from "next/head";
 import IndeterminateCheckbox from "@/components/form/indeterminateCheckbox";
-import Layout from "@/components/layout";
 import ProductModal from "@/components/modal/productModal";
 import TableBody from "@/components/table/body";
 import { fuzzyFilter } from "@/components/table/helpers";
@@ -29,7 +28,7 @@ import {
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "react-i18next";
 
-import { type NextPageWithLayout } from "./_app";
+import { type NextPageWithProps } from "./_app";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   return {
@@ -179,7 +178,7 @@ function Table(props: { data: Product[] }) {
   );
 }
 
-const ProductTable: NextPageWithLayout = () => {
+const ProductTable: NextPageWithProps = () => {
   const { t } = useTranslation();
   const productsQuery = api.products.getMany.useQuery(undefined, {
     staleTime: Infinity,
@@ -207,12 +206,9 @@ const ProductTable: NextPageWithLayout = () => {
   );
 };
 
-ProductTable.getLayout = function getLayout(page: ReactElement) {
-  return (
-    <>
-      <Layout>{page}</Layout>
-    </>
-  );
+ProductTable.pageConfig = {
+  authed: true,
+  defaultLayout: true,
 };
 
 export default ProductTable;

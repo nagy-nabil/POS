@@ -1,21 +1,19 @@
-import { useState, type ReactElement } from "react";
+import { useState } from "react";
 import type { GetStaticPropsContext } from "next";
 import Head from "next/head";
 // import { RiSearch2Line } from "react-icons/ri";
 // import InputWithIcon from "@/components/form/inputWithIcon";
 import CategoryDisplay from "@/components/categoryDisplay";
 import DebouncedInput from "@/components/form/debouncedInput";
-import Layout from "@/components/layout";
 import CrateModal, { type CrateProps } from "@/components/modal/crateModal";
 import ProductModal from "@/components/modal/productModal";
 import QrModal from "@/components/modal/qrModal";
 import ProductDisplay from "@/components/productDisplay";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { useSession } from "next-auth/react";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
-import type { NextPageWithLayout } from "./_app";
+import type { NextPageWithProps } from "./_app";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   return {
@@ -30,14 +28,11 @@ export async function getStaticProps({ locale }: GetStaticPropsContext) {
   };
 }
 
-const Home: NextPageWithLayout = (_props) => {
-  const session = useSession();
+const Home: NextPageWithProps = (_props) => {
   const { t } = useTranslation();
   const [categoryFilter, setCategoryFilter] = useState("");
   const [onCrate, setOnCrate] = useState<CrateProps["onCrate"]>([]);
   const [productFilter, setProductFilter] = useState("");
-
-  // if (!token) return <p>loading token...</p>;
 
   return (
     <>
@@ -80,11 +75,9 @@ const Home: NextPageWithLayout = (_props) => {
   );
 };
 
-Home.getLayout = function getLayout(page: ReactElement) {
-  return (
-    <>
-      <Layout>{page}</Layout>
-    </>
-  );
+Home.pageConfig = {
+  authed: true,
+  defaultLayout: true,
 };
+
 export default Home;

@@ -1,8 +1,7 @@
-import React, { useMemo, type ReactElement } from "react";
+import React, { useMemo } from "react";
 import type { GetStaticPropsContext } from "next";
 import Head from "next/head";
 import IndeterminateCheckbox from "@/components/form/indeterminateCheckbox";
-import Layout from "@/components/layout";
 import LossesModal from "@/components/modal/lossesModal";
 import TableBody from "@/components/table/body";
 import { fuzzyFilter } from "@/components/table/helpers";
@@ -29,7 +28,7 @@ import {
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "react-i18next";
 
-import { type NextPageWithLayout } from "../_app";
+import { type NextPageWithProps } from "../_app";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   return {
@@ -175,7 +174,7 @@ function Table(props: { data: Loss[] }) {
   );
 }
 
-const Spending: NextPageWithLayout = () => {
+const Spending: NextPageWithProps = () => {
   const { t } = useTranslation();
   const lossQuery = api.losses.getMany.useQuery(undefined, {
     staleTime: Infinity,
@@ -204,12 +203,9 @@ const Spending: NextPageWithLayout = () => {
   );
 };
 
-Spending.getLayout = function getLayout(page: ReactElement) {
-  return (
-    <>
-      <Layout>{page}</Layout>
-    </>
-  );
+Spending.pageConfig = {
+  authed: true,
+  defaultLayout: true,
 };
 
 export default Spending;

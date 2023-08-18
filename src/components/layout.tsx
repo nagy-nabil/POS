@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { signOut, useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import { useTranslation } from "next-i18next";
 import {
   AiOutlineHistory,
@@ -189,7 +189,14 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         <button
           type="button"
           className=" mt-4  flex h-fit w-fit items-center gap-3 rounded-2xl p-2 text-2xl text-white"
-          onClick={() => signOut()}
+          onClick={async () => {
+            const data = await signOut({ redirect: false });
+            console.log(
+              "🪵 [layout.tsx:194] ~ token ~ \x1b[0;32mdata\x1b[0m = ",
+              data
+            );
+            // await router.push("/signin");
+          }}
         >
           <RiLogoutBoxLine className="h-fit w-fit rounded-2xl bg-gray-800 p-3 text-white " />{" "}
           Log out

@@ -1,8 +1,8 @@
-import React, { useState, type ReactElement } from "react";
+import React, { useState } from "react";
 import type { GetStaticPropsContext } from "next";
 import Head from "next/head";
-import Layout from "@/components/layout";
 import OrderDisplay from "@/components/orderDisplay";
+import { Accordion } from "@/components/ui/accordion";
 import { PaginationUtis, usePagination } from "@/hooks/usePagination";
 import { api } from "@/utils/api";
 import { generateInputDateValue } from "@/utils/date";
@@ -11,7 +11,7 @@ import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { CgSpinner } from "react-icons/cg";
 
-import { type NextPageWithLayout } from "../_app";
+import { type NextPageWithProps } from "../_app";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   return {
@@ -26,7 +26,7 @@ export async function getStaticProps({ locale }: GetStaticPropsContext) {
   };
 }
 
-const History: NextPageWithLayout = () => {
+const History: NextPageWithProps = () => {
   const { t } = useTranslation("analysis");
 
   // always would be the time at midnight(start of a day)
@@ -127,15 +127,17 @@ const History: NextPageWithLayout = () => {
 
         {/* order display */}
         <div className="mt-5 flex h-screen flex-col gap-4 overflow-y-auto">
-          {ordersPage.values.map((order) => {
-            return (
-              <OrderDisplay
-                key={order.id}
-                {...order}
-                refetch={orderQuery.refetch}
-              />
-            );
-          })}
+          <Accordion type="multiple">
+            {ordersPage.values.map((order) => {
+              return (
+                <OrderDisplay
+                  key={order.id}
+                  {...order}
+                  refetch={orderQuery.refetch}
+                />
+              );
+            })}
+          </Accordion>
           {orderQuery.data?.orders.length === 0
             ? "no orders try adding one from sales page"
             : null}
@@ -151,12 +153,9 @@ const History: NextPageWithLayout = () => {
   );
 };
 
-History.getLayout = function getLayout(page: ReactElement) {
-  return (
-    <>
-      <Layout>{page}</Layout>
-    </>
-  );
+History.pageConfig = {
+  authed: true,
+  defaultLayout: true,
 };
 
 export default History;
