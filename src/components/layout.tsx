@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { api } from "@/utils/api";
+import { useQueryClient } from "@tanstack/react-query";
 import { signOut } from "next-auth/react";
 import { useTranslation } from "next-i18next";
 import {
@@ -92,7 +92,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { t } = useTranslation();
   const [sidebarVisible, setSidebarVisible] = useState(false);
   // used to describe sidebar items
-  const apiUtils = api.useContext();
+  const queryClient = useQueryClient();
 
   const iconClasses = "w-fit h-fit text-white bg-gray-800 p-3 rounded-2xl ";
   const sidebar = useMemo<PathsListProps>(
@@ -194,7 +194,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           className=" mt-4  flex h-fit w-fit items-center gap-3 rounded-2xl p-2 text-2xl text-white"
           onClick={async () => {
             await signOut({ redirect: false });
-            await apiUtils.invalidate();
+            queryClient.clear();
           }}
         >
           <RiLogoutBoxLine className="h-fit w-fit rounded-2xl bg-gray-800 p-3 text-white " />{" "}
