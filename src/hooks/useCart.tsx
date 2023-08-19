@@ -1,14 +1,10 @@
+import type { CartItem, CartProduct, CartT } from "@/types/entities";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-const CART_KEY = ["cart"] as const;
-
 /**
- * this information enough to describe products/offers
+ * key used in react query cache
  */
-export type CartItem = {
-  id: string;
-  quantity: number;
-};
+const CART_KEY = ["cart"] as const;
 
 export const CartItemTypes = {
   product: 0,
@@ -16,11 +12,6 @@ export const CartItemTypes = {
 } as const;
 
 export type CartItemTypes = (typeof CartItemTypes)[keyof typeof CartItemTypes];
-
-export type CartT = {
-  products: CartItem[];
-  offers: CartItem[];
-};
 
 /**
  * cart will only hold id and quantity of the item, any other data needed for those items the user of this hook should query for it, i guess this approach is better for memeory usage
@@ -37,57 +28,149 @@ function useCart() {
   });
 }
 
+type CartProductIncVar = {
+  id: CartProduct["id"];
+  /**
+   * do you want this increase to be for single item or this quantity is increased due to offer
+   *
+   * default is false
+   */
+  fromOffer?: boolean;
+  /**
+   * increase by this quantity or default increase by one
+   */
+  quantity?: number;
+};
+
 /**
- *
+ * increase product quantity by one or by custom quantity, if not in the cart add it
  * @param id
- * @param type CartItemTypes: 0 => product, 1 => offer
  */
-function useCartInc() {
+function useCartProductInc() {
   const queryClient = useQueryClient();
 
-  return useMutation<void, Error, { id: CartItem["id"]; type: CartItemTypes }>({
+  return useMutation<void, Error, CartProductIncVar>({
     // eslint-disable-next-line @typescript-eslint/require-await
     async mutationFn(variables) {
       queryClient.setQueryData<CartT>(CART_KEY, (prev) => {
+        const { fromOffer = false, id, quantity = 1 } = variables;
+
+        // handle if the cart have not been inited yet
         if (!prev) {
-          const item: CartItem = {
-            id: variables.id,
-            quantity: 1,
+          const item: CartProduct = {
+            id,
+            quantity: fromOffer ? 0 : quantity,
+            quantityFromOffers: fromOffer ? quantity : 0,
           };
+
           return {
-            offers: variables.type === CartItemTypes.offer ? [item] : [],
-            products: variables.type === CartItemTypes.product ? [item] : [],
+            offers: [],
+            products: [item],
           };
         }
-        let old: undefined | CartItem = undefined;
-        if (variables.type === CartItemTypes.product) {
-          old = prev.products.find((i) => i.id === variables.id);
-          return {
-            ...prev,
-            products: [
-              ...prev.products.filter((i) => i.id !== variables.id),
-              { id: variables.id, quantity: (old?.quantity || 0) + 1 },
-            ],
-          };
-        } else {
-          old = prev.offers.find((i) => i.id === variables.id);
-          return {
-            ...prev,
-            offers: [
-              ...prev.offers.filter((i) => i.id !== variables.id),
-              { id: variables.id, quantity: (old?.quantity || 0) + 1 },
-            ],
-          };
-        }
+
+        // inc the quantity, if not found add it to the cart
+        const old = prev.products.find((i) => i.id === id) ?? {
+          id: "",
+          quantity: 0,
+          quantityFromOffers: 0,
+        };
+
+        const item: CartT["products"][number] = {
+          id,
+          quantity: !fromOffer ? quantity + old.quantity : old.quantity,
+          quantityFromOffers: fromOffer
+            ? quantity + old.quantityFromOffers
+            : old.quantityFromOffers,
+        };
+
+        return {
+          ...prev,
+          products: [
+            ...prev.products.filter((i) => i.id !== variables.id),
+            item,
+          ],
+        };
       });
     },
   });
 }
 
-function useCartDec() {
+type CartOfferIncVar = {
+  id: CartItem["id"];
+  /**
+   * increase by this quantity or default increase by one
+   */
+  quantity?: number;
+  /**
+   * offer products with their quantity, that's just to keep those hooks add/remove from the cart without any fetching logic
+   */
+  products: CartItem[];
+};
+
+/**
+ *
+ * @param id
+ */
+function useCarOffertInc() {
+  const queryClient = useQueryClient();
+  const productInc = useCartProductInc();
+
+  return useMutation<void, Error, CartOfferIncVar>({
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async mutationFn(variables) {
+      queryClient.setQueryData<CartT>(CART_KEY, (prev) => {
+        const { id, products, quantity = 1 } = variables;
+
+        // inc all products quantity
+        products.forEach((product) =>
+          productInc.mutate({
+            id: product.id,
+            fromOffer: true,
+            quantity: product.quantity,
+          })
+        );
+
+        if (!prev) {
+          const item: CartItem = {
+            id,
+            quantity,
+          };
+
+          return {
+            offers: [item],
+            products: [],
+          };
+        }
+
+        const old = prev.offers.find((i) => i.id === id) ?? {
+          id: "",
+          quantity: 0,
+        };
+
+        const item: CartT["offers"][number] = {
+          id: variables.id,
+          quantity: old.quantity + quantity,
+        };
+
+        return {
+          ...prev,
+          offers: [...prev.offers.filter((i) => i.id !== id), item],
+        };
+      });
+    },
+  });
+}
+
+/**
+ * decrease product quantity by one or by custom amount
+ *
+ * remove the item from the cart if (product.quantity === 0 && product.quantityFromOffers === 0)
+ */
+function useCarProductDec() {
   const queryClient = useQueryClient();
 
-  return useMutation<void, Error, { id: CartItem["id"]; type: CartItemTypes }>({
+  return useMutation<void, Error, CartProductIncVar>({
     // eslint-disable-next-line @typescript-eslint/require-await
     async mutationFn(variables) {
       queryClient.setQueryData<CartT>(CART_KEY, (prev) => {
@@ -97,40 +180,82 @@ function useCartDec() {
             products: [],
           };
         }
-        let old: undefined | CartItem = undefined;
-        if (variables.type === CartItemTypes.product) {
-          old = prev.products.find((i) => i.id === variables.id);
-          if (!old) return { ...prev };
-          if (old.quantity === 1) {
-            return {
-              ...prev,
-              products: [...prev.products.filter((i) => i.id !== variables.id)],
-            };
-          }
+
+        const { id, fromOffer = false, quantity = 1 } = variables;
+
+        const old = prev.products.find((i) => i.id === id);
+
+        // cannot decrease value that doesn't exist
+        if (!old) return { ...prev };
+
+        const item: CartT["products"][number] = {
+          id,
+          quantity: !fromOffer ? old.quantity - quantity : old.quantity,
+          quantityFromOffers: fromOffer
+            ? old.quantityFromOffers - quantity
+            : old.quantityFromOffers,
+        };
+
+        const newProducts = prev.products.filter((i) => i.id !== id);
+        return {
+          ...prev,
+          products:
+            item.quantity <= 0 && item.quantityFromOffers <= 0
+              ? newProducts
+              : [...newProducts, item],
+        };
+      });
+    },
+  });
+}
+
+/**
+ * decrease product quantity by one or by custom amount
+ *
+ * remove the item from the cart if (product.quantity === 0 && product.quantityFromOffers === 0)
+ */
+function useCarOfferDec() {
+  const queryClient = useQueryClient();
+  const productDec = useCarProductDec();
+
+  return useMutation<void, Error, CartOfferIncVar>({
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async mutationFn(variables) {
+      queryClient.setQueryData<CartT>(CART_KEY, (prev) => {
+        if (!prev) {
           return {
-            ...prev,
-            products: [
-              ...prev.products.filter((i) => i.id !== variables.id),
-              { id: variables.id, quantity: old.quantity - 1 },
-            ],
-          };
-        } else {
-          old = prev.offers.find((i) => i.id === variables.id);
-          if (!old) return { ...prev };
-          if (old.quantity === 1) {
-            return {
-              ...prev,
-              offers: [...prev.offers.filter((i) => i.id !== variables.id)],
-            };
-          }
-          return {
-            ...prev,
-            offers: [
-              ...prev.offers.filter((i) => i.id !== variables.id),
-              { id: variables.id, quantity: old.quantity - 1 },
-            ],
+            offers: [],
+            products: [],
           };
         }
+
+        const { id, quantity = 1, products } = variables;
+
+        const old = prev.offers.find((i) => i.id === id);
+
+        // cannot decrease value that doesn't exist
+        if (!old) return { ...prev };
+
+        //dec products
+        products.forEach((product) =>
+          productDec.mutate({
+            id: product.id,
+            fromOffer: true,
+            quantity: product.quantity * quantity,
+          })
+        );
+
+        const item: CartT["offers"][number] = {
+          id,
+          quantity: old.quantity - quantity,
+        };
+
+        const newOffers = prev.offers.filter((i) => i.id !== id);
+
+        return {
+          ...prev,
+          offers: item.quantity <= 0 ? newOffers : [...newOffers, item],
+        };
       });
     },
   });
@@ -139,33 +264,52 @@ function useCartDec() {
 /**
  * remove single item from cart
  */
-function useCartRemove() {
+function useCartRemoveProduct() {
   const queryClient = useQueryClient();
+  const productDec = useCarProductDec();
 
-  return useMutation<void, Error, { id: CartItem["id"]; type: CartItemTypes }>({
+  return useMutation<void, Error, { id: CartItem["id"] }>({
     // eslint-disable-next-line @typescript-eslint/require-await
     async mutationFn(variables) {
-      queryClient.setQueryData<CartT>(CART_KEY, (prev) => {
-        if (!prev) {
-          return {
-            offers: [],
-            products: [],
-          };
-        }
-        if (variables.type === CartItemTypes.product) {
-          return {
-            ...prev,
-            products: prev.products.filter((i) => i.id !== variables.id),
-          };
-        } else {
-          return {
-            ...prev,
-            offers: prev.offers.filter((i) => i.id !== variables.id),
-          };
-        }
+      const { id } = variables;
+      const old = queryClient
+        .getQueryData<CartT>(CART_KEY)
+        ?.products.find((i) => i.id === id);
+      if (!old) return;
+      productDec.mutate({
+        id,
+        quantity: old.quantity,
       });
     },
   });
+}
+
+/**
+ * remove single item from cart
+ */
+function useCartRemoveOffer() {
+  const queryClient = useQueryClient();
+  const offerDec = useCarOfferDec();
+
+  return useMutation<void, Error, { id: CartItem["id"]; products: CartItem[] }>(
+    {
+      // eslint-disable-next-line @typescript-eslint/require-await
+      async mutationFn(variables) {
+        const { id, products } = variables;
+        const old = queryClient
+          .getQueryData<CartT>(CART_KEY)
+          ?.offers.find((i) => i.id === id);
+
+        if (!old) return;
+
+        offerDec.mutate({
+          id,
+          quantity: old.quantity,
+          products,
+        });
+      },
+    }
+  );
 }
 
 /**
@@ -187,59 +331,62 @@ function useCartClear() {
   });
 }
 
-function useCartSet() {
-  const queryClient = useQueryClient();
+// function useCartSet() {
+//   const queryClient = useQueryClient();
 
-  return useMutation<
-    void,
-    Error,
-    { id: CartItem["id"]; type: CartItemTypes; quantity: number }
-  >({
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async mutationFn(variables) {
-      if (variables.quantity < 0) {
-        throw new Error("Cart: CANNOT SET ITEM QUANTITY LESS THAN ZERO");
-      }
-      queryClient.setQueryData<CartT>(CART_KEY, (prev) => {
-        if (!prev) {
-          return {
-            offers: [],
-            products: [],
-          };
-        }
-        if (variables.type === CartItemTypes.product) {
-          return {
-            ...prev,
-            products: [
-              ...prev.products.filter((i) => i.id !== variables.id),
-              {
-                id: variables.id,
-                quantity: variables.quantity,
-              },
-            ],
-          };
-        } else {
-          return {
-            ...prev,
-            offers: [
-              ...prev.offers.filter((i) => i.id !== variables.id),
-              {
-                id: variables.id,
-                quantity: variables.quantity,
-              },
-            ],
-          };
-        }
-      });
-    },
-  });
-}
+//   return useMutation<
+//     void,
+//     Error,
+//     { id: CartItem["id"]; type: CartItemTypes; quantity: number }
+//   >({
+//     // eslint-disable-next-line @typescript-eslint/require-await
+//     async mutationFn(variables) {
+//       if (variables.quantity < 0) {
+//         throw new Error("Cart: CANNOT SET ITEM QUANTITY LESS THAN ZERO");
+//       }
+//       queryClient.setQueryData<CartT>(CART_KEY, (prev) => {
+//         if (!prev) {
+//           return {
+//             offers: [],
+//             products: [],
+//           };
+//         }
+//         if (variables.type === CartItemTypes.product) {
+//           return {
+//             ...prev,
+//             products: [
+//               ...prev.products.filter((i) => i.id !== variables.id),
+//               {
+//                 id: variables.id,
+//                 quantity: variables.quantity,
+//               },
+//             ],
+//           };
+//         } else {
+//           return {
+//             ...prev,
+//             offers: [
+//               ...prev.offers.filter((i) => i.id !== variables.id),
+//               {
+//                 id: variables.id,
+//                 quantity: variables.quantity,
+//               },
+//             ],
+//           };
+//         }
+//       });
+//     },
+//   });
+// }
 
 export {
   useCart,
-  useCartInc,
-  useCartDec,
-  useCartRemove,
+  CART_KEY,
+  useCarOfferDec,
+  useCarOffertInc,
+  useCarProductDec,
   useCartClear,
-  useCartSet,
+  useCartProductInc,
+  useCartRemoveOffer,
+  useCartRemoveProduct,
 };

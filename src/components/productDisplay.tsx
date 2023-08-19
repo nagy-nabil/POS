@@ -1,14 +1,18 @@
 import React, { useMemo, useState } from "react";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
 import {
   CartItemTypes,
+  useCarOfferDec,
+  useCarOffertInc,
+  useCarProductDec,
   useCart,
-  useCartDec,
-  useCartInc,
-  useCartRemove,
-  useCartSet,
+  useCartProductInc,
+  useCartRemoveOffer,
+  useCartRemoveProduct,
 } from "@/hooks/useCart";
 import { PaginationUtis, usePagination } from "@/hooks/usePagination";
+import { type CartItem } from "@/types/entities";
 import { api } from "@/utils/api";
 import { type Product } from "@prisma/client";
 import { matchSorter } from "match-sorter";
@@ -23,40 +27,65 @@ export type CartUtilsProps = {
   quantity: number;
   type: CartItemTypes;
   setError: (value: React.SetStateAction<string>) => void;
+  /**
+   * for the offer may be remove it from here?
+   */
+  products?: CartItem[];
 };
 /**
  * Cart utils component, render increase/decrease/remove/set buttons
  */
 export function CartUtils(props: CartUtilsProps) {
-  const cartInc = useCartInc();
-  const cartDec = useCartDec();
-  const cartSet = useCartSet();
-  const cartRemove = useCartRemove();
+  const cartIncPro = useCartProductInc();
+  const cartIncoffer = useCarOffertInc();
+
+  const cartDecPro = useCarProductDec();
+  const cartDecOffer = useCarOfferDec();
+
+  // const cartSet = useCartSet();
+
+  const cartRemovePro = useCartRemoveProduct();
+  const cartRemoveOffer = useCartRemoveOffer();
+
+  const { id, quantity, setError, stock, type, products } = props;
 
   return (
     <div className="flex items-center gap-1 flex-wrap">
       {/* REMOVE */}
-      <button
+      <Button
         type="button"
-        className="h-fit w-fit rounded-lg bg-red-300 p-3"
+        size={"icon"}
+        variant={"destructive"}
         onClick={() => {
-          cartRemove.mutate({ id: props.id, type: props.type });
+          if (type === CartItemTypes.product) {
+            cartRemovePro.mutate({ id });
+          } else if (type === CartItemTypes.offer && products) {
+            cartRemoveOffer.mutate({ id, products });
+          }
         }}
       >
         <MdRemoveShoppingCart />
-      </button>
+      </Button>
+
       {/* DECREASE */}
-      <button
+      <Button
         type="button"
-        className="h-fit w-fit rounded-lg bg-yellow-300 p-3"
+        size={"icon"}
+        variant={"outline"}
+        className="p-3"
         onClick={() => {
-          cartDec.mutate({ id: props.id, type: props.type });
+          if (type === CartItemTypes.product) {
+            cartDecPro.mutate({ id });
+          } else if (type === CartItemTypes.offer && products) {
+            cartDecOffer.mutate({ id, products });
+          }
         }}
       >
         <AiOutlineMinus />
-      </button>
+      </Button>
+
       {/* SET: disabled with offer, you get the whole offer or not*/}
-      <label className="my-2">
+      {/* <label className="my-2">
         <input
           type="number"
           max={props.stock}
@@ -93,18 +122,25 @@ export function CartUtils(props: CartUtilsProps) {
             });
           }}
         />
-      </label>
+      </label> */}
+
       {/* INCREASE */}
-      <button
+      <Button
         type="button"
+        size={"icon"}
+        variant={"outline"}
         disabled={props.quantity >= props.stock}
-        className="h-fit w-fit rounded-lg bg-green-300 p-3 disabled:bg-gray-500"
+        className=" bg-green-300  disabled:bg-gray-500"
         onClick={() => {
-          cartInc.mutate({ id: props.id, type: props.type });
+          if (type === CartItemTypes.product) {
+            cartIncPro.mutate({ id });
+          } else if (type === CartItemTypes.offer && products) {
+            cartIncoffer.mutate({ id, products });
+          }
         }}
       >
         <RiAddLine />
-      </button>
+      </Button>
     </div>
   );
 }
@@ -121,7 +157,7 @@ type ProductProps = Pick<
 
 export const KeypadDisplay: React.FC<ProductProps> = (props) => {
   const { t } = useTranslation();
-  const cartInc = useCartInc();
+  const cartInc = useCartProductInc();
   const [error, setError] = useState("");
 
   return (
@@ -159,9 +195,7 @@ export const KeypadDisplay: React.FC<ProductProps> = (props) => {
         <button
           type="button"
           disabled={props.stock <= 0}
-          onClick={() =>
-            cartInc.mutate({ id: props.id, type: CartItemTypes.product })
-          }
+          onClick={() => cartInc.mutate({ id: props.id })}
           className="mb-2 mr-2 rounded-xl bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:bg-gray-600"
         >
           {t("productDisplay.modes.keypad.action")}
@@ -173,7 +207,7 @@ export const KeypadDisplay: React.FC<ProductProps> = (props) => {
 };
 
 export const LibraryDisplay: React.FC<ProductProps> = (props) => {
-  const cartInc = useCartInc();
+  const cartInc = useCartProductInc();
   const [error, setError] = useState("");
 
   return (
@@ -215,9 +249,7 @@ export const LibraryDisplay: React.FC<ProductProps> = (props) => {
         {props.quantity === undefined && (
           <button
             disabled={props.stock <= 0}
-            onClick={() =>
-              cartInc.mutate({ id: props.id, type: CartItemTypes.product })
-            }
+            onClick={() => cartInc.mutate({ id: props.id })}
             className=" rounded-xl py-2.5 text-2xl font-medium text-gray-700 focus:outline-none disabled:text-gray-400"
           >
             <RiAddCircleLine />
@@ -362,11 +394,11 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
                 ?.quantity,
             };
             return displayType === "keypad" ? (
-              <div className="w-5/12">
+              <div className="w-3/6 px-1" key={product.id}>
                 <KeypadDisplay key={product.id} {...displayProps} />
               </div>
             ) : (
-              <div className="w-11/12 h-1/4 overflow-hidden">
+              <div className="w-11/12 h-1/4 overflow-hidden" key={product.id}>
                 <LibraryDisplay key={product.id} {...displayProps} />
               </div>
             );

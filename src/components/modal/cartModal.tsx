@@ -7,7 +7,7 @@ import { CgSpinner } from "react-icons/cg";
 import { FaShoppingBag } from "react-icons/fa";
 
 import CustomModal from ".";
-import { OfferItem, OfferItemProps } from "../offerDisplay";
+import { OfferItem, type OfferItemProps } from "../offerDisplay";
 import { LibraryDisplay } from "../productDisplay";
 
 // main crate
@@ -40,7 +40,7 @@ export function CartModal() {
           lookUp.add(item.Product.id);
         });
         return prev
-          ? [...prev.filter((test) => !lookUp.has(test.id)), ...productsTemp]
+          ? [...productsTemp, ...prev.filter((test) => !lookUp.has(test.id))]
           : [];
       });
       if (dialgoRef.current !== null) dialgoRef.current.close();
@@ -68,9 +68,9 @@ export function CartModal() {
       (offers.data.find((i) => i.id === offer.id)?.price || 0) * offer.quantity;
   });
 
-  function calcItemsLen() {
-    return cart.data.offers.length + cart.data.products.length;
-  }
+  const itemsLen =
+    cart.data.offers.length +
+    cart.data.products.reduce((prev, cur) => prev + cur.quantity, 0);
 
   return (
     <CustomModal
@@ -81,7 +81,7 @@ export function CartModal() {
         <>
           <span>
             {" "}
-            {t("crate.prefix")} {calcItemsLen()} {t("crate.postfix")}
+            {t("crate.prefix")} {itemsLen} {t("crate.postfix")}
           </span>
           <span>
             <FaShoppingBag className="inline" /> ${total}
@@ -117,25 +117,38 @@ export function CartModal() {
 
           {/* render cart offers*/}
           <h1 className="text-3xl">Offers</h1>
-          {cart.data.offers.map((item) => {
-            const offer = offers.data.find((i) => i.id === item.id);
+          {cart.data.offers.map((offerOnCart) => {
+            const offer = offers.data.find((i) => i.id === offerOnCart.id);
             if (!offer) {
               return null;
             }
             // form offer with products
             const tempOffer: OfferItemProps = {
               ...offer,
-              quantity: item.quantity,
-              products: offer.products.map((i) => ({
-                ...i,
-                product: products.data.find(
-                  (i2) => i2.id === i.productId
-                ) as Product,
-              })),
+              quantity: offerOnCart.quantity,
+              products: offer.products.map((productOnOffer) => {
+                const productData = products.data.find(
+                  (product) => product.id === productOnOffer.productId
+                ) as Product;
+                const productOnCart = cart.data.products.find(
+                  (product) => product.id === productOnOffer.productId
+                ) ?? {
+                  id: "",
+                  quantity: 0,
+                  quantityFromOffers: 0,
+                };
+
+                return {
+                  ...productOnOffer,
+                  product: productData,
+                  quantityOnCart:
+                    productOnCart.quantity + productOnCart.quantityFromOffers,
+                };
+              }),
             };
             return (
               <div key={offer.id} className="w-11/12 overflow-hidden">
-                <OfferItem key={item.id} {...tempOffer} />
+                <OfferItem key={offerOnCart.id} {...tempOffer} />
               </div>
             );
           })}
@@ -153,7 +166,7 @@ export function CartModal() {
               onClick={() => {
                 orderMut.mutate(
                   {
-                    products: cart.data.products,
+                    ...cart.data,
                   },
                   {}
                 );

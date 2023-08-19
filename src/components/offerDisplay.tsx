@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CartItemTypes, useCart, useCartInc } from "@/hooks/useCart";
+import { CartItemTypes, useCarOffertInc, useCart } from "@/hooks/useCart";
 import type { OfferIndex } from "@/server/api/routers/offers";
 import { api } from "@/utils/api";
 import { type Product } from "@prisma/client";
@@ -9,23 +9,33 @@ import { CartUtils } from "./productDisplay";
 
 // form type of offer with product data(join type)
 export type OfferItemProps = Omit<OfferIndex[number], "products"> & {
-  products: (OfferIndex[number]["products"][number] & { product: Product })[];
+  products: (OfferIndex[number]["products"][number] & {
+    product: Product;
+    /**
+     * quantity of the single product on the cart.
+     *
+     * we need it calc the stock of offer corectlly which is min(product groups), suppose to cart.quantity+ cart.quantityFromOffers
+     */
+    quantityOnCart: number;
+  })[];
 } & {
   /**
-   * indicate is the offer in the cart
+   * indicate is the offer in the cart, if exist how many
    */
   quantity?: number;
 };
 
 function OfferItem(props: OfferItemProps) {
   const { t } = useTranslation();
-  const cartInc = useCartInc();
+  const cartInc = useCarOffertInc();
   const [error, setError] = useState("");
 
   // offer stock is the min between how many group you can form from each product
   const offerStock = Math.min(
     ...props.products.map((product) =>
-      Math.floor(product.product.stock / product.quantity)
+      Math.floor(
+        (product.product.stock - product.quantityOnCart) / product.quantity
+      )
     )
   );
 
@@ -35,7 +45,7 @@ function OfferItem(props: OfferItemProps) {
         <h2 className="text-2xl text-ellipsis line-clamp-2 ">{props.name}</h2>
       </div>
       <span className="text-green-500">price: {props.price}$</span>
-      <span className="text-gray-500">Quantity: {offerStock}</span>
+      <span className="text-gray-500">Stock: {offerStock}</span>
       <div className="w-full overflow-x-auto">
         <table className="w-full text-left text-sm text-gray-500 ">
           <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
@@ -77,6 +87,10 @@ function OfferItem(props: OfferItemProps) {
             quantity={props.quantity}
             type={CartItemTypes.offer}
             setError={setError}
+            products={props.products.map((i) => ({
+              id: i.productId,
+              quantity: i.quantity,
+            }))}
           />
         </div>
       ) : (
@@ -84,7 +98,13 @@ function OfferItem(props: OfferItemProps) {
           type="button"
           disabled={offerStock <= 0}
           onClick={() =>
-            cartInc.mutate({ id: props.id, type: CartItemTypes.offer })
+            cartInc.mutate({
+              id: props.id,
+              products: props.products.map((i) => ({
+                id: i.productId,
+                quantity: i.quantity,
+              })),
+            })
           }
           className="mb-2 mr-2 rounded-xl bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:bg-gray-600"
         >
@@ -113,13 +133,29 @@ function OfferDisplay() {
         // form offer with products
         const tempOffer: OfferItemProps = {
           ...offer,
-          quantity: cart.data.offers.find((i) => i.id === offer.id)?.quantity,
-          products: offer.products.map((i) => ({
-            ...i,
-            product: products.data.find(
-              (i2) => i2.id === i.productId
-            ) as Product,
-          })),
+          quantity: cart.data.offers.find(
+            (cartOffer) => cartOffer.id === offer.id
+          )?.quantity,
+
+          products: offer.products.map((productOnOffer) => {
+            const productData = products.data.find(
+              (product) => product.id === productOnOffer.productId
+            ) as Product;
+            const productOnCart = cart.data.products.find(
+              (product) => product.id === productOnOffer.productId
+            ) ?? {
+              id: "",
+              quantity: 0,
+              quantityFromOffers: 0,
+            };
+
+            return {
+              ...productOnOffer,
+              product: productData,
+              quantityOnCart:
+                productOnCart.quantity + productOnCart.quantityFromOffers,
+            };
+          }),
         };
         return (
           <div key={offer.id} className="w-full">

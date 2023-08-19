@@ -51,7 +51,14 @@ export const offeresRouter = createTRPCRouter({
           },
         },
       });
-      return o;
+
+      const price = o.products.reduce((prev, product) => {
+        return prev + product.price;
+      }, 0);
+      return {
+        ...o,
+        price,
+      };
     }),
 
   delete: protectedProcedure
