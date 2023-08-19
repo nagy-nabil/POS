@@ -189,66 +189,68 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
             />
           </div>
           <p className="my-2 text-red-500">{operationError}</p>
-          <table
-            className={clsx({
-              " w-full text-left text-sm text-gray-400 transition-all delay-75 ":
-                true,
-            })}
-          >
-            <thead className=" bg-gray-700 text-xs  uppercase text-gray-400">
-              <tr>
-                <th scope="col" className="px-4 py-2">
-                  {t("orderDisplay.table.name")}
-                </th>
-                <th scope="col" className="px-4 py-2">
-                  {t("orderDisplay.table.price")}
-                </th>
-                <th scope="col" className="px-4 py-2">
-                  {t("orderDisplay.table.quantity")}
-                </th>
-                <th scope="col" className="px-4 py-2">
-                  {t("orderDisplay.table.total")}
-                </th>
-                <th scope="col" className="px-4 py-2">
-                  {t("orderDisplay.table.profit")}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {props.products.map((product) => {
-                const profit =
-                  product.quantity *
-                  (product.sellPriceAtSale - product.buyPriceAtSale);
-                totalProfit += profit;
-                return (
-                  <tr
-                    className="bg-white dark:bg-gray-800"
-                    key={product.Product.id}
-                  >
-                    <th
-                      scope="row"
-                      className="whitespace-nowrap px-4 py-2 font-medium text-gray-900 dark:text-white"
-                    >
-                      {product.Product.name}
-                    </th>
-                    <td className="px-4 py-2">{product.sellPriceAtSale}$</td>
-                    <td className="px-4 py-2">{product.quantity}</td>
-                    <td className="px-4 py-2">
-                      {product.quantity * product.sellPriceAtSale}$
-                    </td>
-                    <td className="px-4 py-2">{profit} $</td>
-                  </tr>
-                );
+          <div className="w-full overflow-x-auto">
+            <table
+              className={clsx({
+                " w-full text-left text-sm text-gray-400 transition-all delay-75 ":
+                  true,
               })}
-              <tr className="bg-white dark:bg-gray-800">
-                <td className="px-4 py-2"></td>
-                <td className="px-4 py-2"></td>
-                <td className="px-4 py-2"></td>
-                <td className="px-4 py-2">{props.total}</td>
-                <td className="px-4 py-2">{totalProfit}</td>
-              </tr>
-            </tbody>
-          </table>
+            >
+              <thead className=" bg-gray-700 text-xs  uppercase text-gray-400">
+                <tr>
+                  <th scope="col" className="px-4 py-2">
+                    {t("orderDisplay.table.name")}
+                  </th>
+                  <th scope="col" className="px-4 py-2">
+                    {t("orderDisplay.table.price")}
+                  </th>
+                  <th scope="col" className="px-4 py-2">
+                    {t("orderDisplay.table.quantity")}
+                  </th>
+                  <th scope="col" className="px-4 py-2">
+                    {t("orderDisplay.table.total")}
+                  </th>
+                  <th scope="col" className="px-4 py-2">
+                    {t("orderDisplay.table.profit")}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {props.products.map((product) => {
+                  const profit =
+                    product.quantity *
+                    (product.sellPriceAtSale - product.buyPriceAtSale);
+                  totalProfit += profit;
+                  return (
+                    <tr
+                      className="bg-white dark:bg-gray-800"
+                      key={product.Product.id}
+                    >
+                      <th
+                        scope="row"
+                        className="whitespace-nowrap px-4 py-2 font-medium text-gray-900 dark:text-white"
+                      >
+                        {product.Product.name}
+                      </th>
+                      <td className="px-4 py-2">{product.sellPriceAtSale}$</td>
+                      <td className="px-4 py-2">{product.quantity}</td>
+                      <td className="px-4 py-2">
+                        {product.quantity * product.sellPriceAtSale}$
+                      </td>
+                      <td className="px-4 py-2">{profit} $</td>
+                    </tr>
+                  );
+                })}
+                <tr className="bg-white dark:bg-gray-800">
+                  <td className="px-4 py-2"></td>
+                  <td className="px-4 py-2"></td>
+                  <td className="px-4 py-2"></td>
+                  <td className="px-4 py-2">{props.total}</td>
+                  <td className="px-4 py-2">{totalProfit}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </AccordionContent>
     </AccordionItem>
