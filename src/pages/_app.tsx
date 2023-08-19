@@ -12,12 +12,14 @@ import "@/styles/globals.css";
 import Head from "next/head";
 import Layout from "@/components/layout";
 
+type LayoutT = (page: ReactElement) => ReactElement;
+
 export type NextPageWithProps<P = object, IP = P> = NextPage<P, IP> & {
   /**
    * define all custom config page can define
    */
-  pageConfig: {
-    layout?: (page: ReactElement) => ReactElement;
+  pageConfig?: {
+    layout?: LayoutT;
     /**
      * is the page public or protected
      */
@@ -33,7 +35,7 @@ type CustomAppProps = AppProps<{ session: Session | null }> & {
   Component: NextPageWithProps;
 };
 
-const defaultLayout: NextPageWithProps["pageConfig"]["layout"] = (page) => {
+const defaultLayout: LayoutT = (page) => {
   return <Layout>{page}</Layout>;
 };
 
@@ -76,12 +78,12 @@ const MyApp = ({ Component, pageProps }: CustomAppProps) => {
   }, []);
 
   // Use the layout defined at the page level, if available
-  const getLayout: NextPageWithProps["pageConfig"]["layout"] = Component
-    .pageConfig.layout
-    ? Component.pageConfig.layout
-    : Component.pageConfig.defaultLayout
-    ? defaultLayout
-    : (page) => page;
+  const getLayout: LayoutT =
+    Component.pageConfig && Component.pageConfig.layout
+      ? Component.pageConfig.layout
+      : Component.pageConfig && Component.pageConfig.defaultLayout
+      ? defaultLayout
+      : (page) => page;
 
   return (
     <>
@@ -89,13 +91,12 @@ const MyApp = ({ Component, pageProps }: CustomAppProps) => {
         <title>Zagy | POS</title>
       </Head>
       <SessionProvider session={pageProps.session}>
-        {Component.pageConfig.authed ? (
+        {Component.pageConfig && Component.pageConfig.authed ? (
           <Authed>{getLayout(<Component {...pageProps} />)}</Authed>
         ) : (
           getLayout(<Component {...pageProps} />)
         )}
         {}
-        {/* {ConstructPage(appProps)} */}
       </SessionProvider>
     </>
   );

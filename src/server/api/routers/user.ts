@@ -2,11 +2,11 @@ import { env } from "@/env.mjs";
 import {
   createTRPCRouter,
   protectedProcedure,
-  publicProcedure,
+  // publicProcedure,
 } from "@/server/api/trpc";
-import { newToken } from "@/server/auth";
+// import { newToken } from "@/server/auth";
 import { loginSchema, userSchema } from "@/types/entities";
-import { TRPCError } from "@trpc/server";
+// import { TRPCError } from "@trpc/server";
 import bcrypt from "bcrypt";
 
 // here suppose to add logic to add new org members and so on

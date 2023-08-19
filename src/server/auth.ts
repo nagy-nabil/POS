@@ -1,4 +1,4 @@
-import { GetServerSidePropsContext } from "next";
+import { type GetServerSidePropsContext } from "next";
 import { env } from "@/env.mjs";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { RoleT } from "@prisma/client";

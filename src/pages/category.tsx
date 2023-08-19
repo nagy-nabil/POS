@@ -202,4 +202,4 @@ CategoryPage.pageConfig = {
   defaultLayout: true,
 };
 
-export default Category;
+export default CategoryPage;
