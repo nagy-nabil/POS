@@ -1,8 +1,7 @@
-import React, { useMemo, useState, type ReactElement } from "react";
+import React, { useMemo, useState } from "react";
 import type { GetStaticPropsContext } from "next";
 import Head from "next/head";
 import IndeterminateCheckbox from "@/components/form/indeterminateCheckbox";
-import Layout from "@/components/layout";
 import {
   ExpenseModal,
   ExpensesStoreModal,
@@ -11,7 +10,6 @@ import {
 import TableBody from "@/components/table/body";
 import { fuzzyFilter } from "@/components/table/helpers";
 import TableUtils from "@/components/table/utils";
-import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/utils/api";
 import { dateFormater } from "@/utils/date";
 import type { Expenses, ExpenseStore, ExpenseTypes } from "@prisma/client";
@@ -34,7 +32,7 @@ import {
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "react-i18next";
 
-import { type NextPageWithLayout } from "../_app";
+import { type NextPageWithProps } from "../_app";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   return {
@@ -410,19 +408,14 @@ function ExpenseTable(props: { data: Expenses[] }) {
   );
 }
 
-const Spending: NextPageWithLayout = () => {
+const Spending: NextPageWithProps = () => {
   const { t } = useTranslation();
-  const { token, setToken } = useAuth({ noExistRedirectTo: "/signin" });
   const expenseTypesQuery = api.expenses.expenseTypeGetMany.useQuery(
     undefined,
     {
       staleTime: Infinity,
-      enabled: !!token,
       retry(_failureCount, error) {
         if (error.data?.code === "UNAUTHORIZED") {
-          setToken("").catch((e) => {
-            throw e;
-          });
           return false;
         }
         return true;
@@ -433,12 +426,8 @@ const Spending: NextPageWithLayout = () => {
     undefined,
     {
       staleTime: Infinity,
-      enabled: !!token,
       retry(_failureCount, error) {
         if (error.data?.code === "UNAUTHORIZED") {
-          setToken("").catch((e) => {
-            throw e;
-          });
           return false;
         }
         return true;
@@ -447,12 +436,8 @@ const Spending: NextPageWithLayout = () => {
   );
   const expenseQuery = api.expenses.expenseGetMany.useQuery(undefined, {
     staleTime: Infinity,
-    enabled: !!token,
     retry(_failureCount, error) {
       if (error.data?.code === "UNAUTHORIZED") {
-        setToken("").catch((e) => {
-          throw e;
-        });
         return false;
       }
       return true;
@@ -492,12 +477,9 @@ const Spending: NextPageWithLayout = () => {
   );
 };
 
-Spending.getLayout = function getLayout(page: ReactElement) {
-  return (
-    <>
-      <Layout>{page}</Layout>
-    </>
-  );
+Spending.pageConfig = {
+  authed: true,
+  defaultLayout: true,
 };
 
 export default Spending;

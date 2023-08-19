@@ -1,6 +1,6 @@
-import z from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { categorySchema } from "@/types/entities";
+import z from "zod";
 
 export const categoriesRouter = createTRPCRouter({
   insertOne: protectedProcedure
@@ -10,7 +10,7 @@ export const categoriesRouter = createTRPCRouter({
         data: {
           image: input.image,
           name: input.name,
-          createdById: ctx.payload.id,
+          createdById: ctx.session.user.id,
         },
       });
       return category;

@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from "react";
 import Image from "next/image";
 import { type CrateItem } from "@/components/modal/crateModal";
-import { useAuth } from "@/hooks/useAuth";
 import { PaginationUtis, usePagination } from "@/hooks/usePagination";
 import { api } from "@/utils/api";
 import { type Product } from "@prisma/client";
@@ -109,7 +108,6 @@ export type ProductDisplayProps = {
 // main component
 const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
   const { t } = useTranslation();
-  const { setToken } = useAuth({ redirectAfterSet: "/signin" });
   const [displayType, setDisplayType] = useState<
     ProductDisplayProps["displayType"]
   >(props.displayType);
@@ -117,9 +115,6 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
     staleTime: Infinity,
     retry(_failureCount, error) {
       if (error.data?.code === "UNAUTHORIZED") {
-        setToken("").catch((e) => {
-          throw e;
-        });
         return false;
       }
       return true;
