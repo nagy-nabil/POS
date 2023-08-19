@@ -174,15 +174,15 @@ export const KeypadDisplay: React.FC<ProductProps> = (props) => {
       <div className="w-full h-16">
         <h2 className="text-2xl text-ellipsis line-clamp-2 ">{props.name}</h2>
       </div>
-      <span className="text-green-700">piece price: {props.sellPrice}$</span>
-      <span className="text-green-700 line-clamp-1">
+      <span className="text-green-800">piece price: {props.sellPrice}$</span>
+      <span className="text-green-800 line-clamp-1">
         order price: {(props.quantity || 0) * props.sellPrice}$
       </span>
       <span className="text-gray-500">
         Stock: {props.stock - (props?.quantity || 0)}
       </span>
       {props.quantity !== undefined ? (
-        <div className="m-auto h-32 overflow-y-auto">
+        <div className="m-auto overflow-y-auto">
           <CartUtils
             id={props.id}
             stock={props.stock}
@@ -192,14 +192,15 @@ export const KeypadDisplay: React.FC<ProductProps> = (props) => {
           />
         </div>
       ) : (
-        <button
+        <Button
           type="button"
+          variant={"default"}
           disabled={props.stock <= 0}
           onClick={() => cartInc.mutate({ id: props.id })}
-          className="mb-2 mr-2 rounded-xl bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:bg-gray-600"
+          className=" disabled:bg-gray-600"
         >
           {t("productDisplay.modes.keypad.action")}
-        </button>
+        </Button>
       )}
       <p className="m-2 text-red-700">{error}</p>
     </div>

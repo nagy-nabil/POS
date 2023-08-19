@@ -11,6 +11,7 @@ import "@/styles/globals.css";
 
 import Head from "next/head";
 import Layout from "@/components/layout";
+import { ThemeProvider } from "@/components/theme-provider";
 
 type LayoutT = (page: ReactElement) => ReactElement;
 
@@ -91,12 +92,14 @@ const MyApp = ({ Component, pageProps }: CustomAppProps) => {
         <title>Zagy | POS</title>
       </Head>
       <SessionProvider session={pageProps.session}>
-        {Component.pageConfig && Component.pageConfig.authed ? (
-          <Authed>{getLayout(<Component {...pageProps} />)}</Authed>
-        ) : (
-          getLayout(<Component {...pageProps} />)
-        )}
-        {}
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {Component.pageConfig && Component.pageConfig.authed ? (
+            <Authed>{getLayout(<Component {...pageProps} />)}</Authed>
+          ) : (
+            getLayout(<Component {...pageProps} />)
+          )}
+          {}
+        </ThemeProvider>
       </SessionProvider>
     </>
   );

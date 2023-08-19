@@ -12,17 +12,7 @@ export const ordersRouter = createTRPCRouter({
       const prisma = new PrismaClient();
       const res = await prisma.$transaction(async (tx) => {
         let totalPrice = 0;
-        // get offers products
-        const offersProducts = await tx.offer.findMany({
-          where: {
-            id: {
-              in: input.offers.map((i) => i.id),
-            },
-          },
-          select: {
-            products: true,
-          },
-        });
+
         // decrease products stock by quntity
         // TODO make it in single query
         // https://stackoverflow.com/questions/18797608/update-multiple-rows-in-same-query-using-postgresql
@@ -35,12 +25,6 @@ export const ordersRouter = createTRPCRouter({
             })
           )
         );
-
-        // TODO check this if condition
-        // make sure that returned products length is the as the requested or there's missing error
-        if (products.length !== input.products.length) {
-          throw new TRPCError({ code: "BAD_REQUEST" });
-        }
 
         // construct the create clause for the order and make sure stock gte requested qunatity or throw error
         const createCluse: {
@@ -69,6 +53,12 @@ export const ordersRouter = createTRPCRouter({
             createdById: ctx.session.user.id,
             products: {
               create: createCluse,
+            },
+            offers: {
+              create: input.offers.map((i) => ({
+                offerId: i.id,
+                quantity: i.quantity,
+              })),
             },
           },
           include: {

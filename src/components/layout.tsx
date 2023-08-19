@@ -1,9 +1,28 @@
 import React, { useMemo, useState } from "react";
-import Link from "next/link";
+import Link, { type LinkProps } from "next/link";
 import { useRouter } from "next/router";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { cn } from "@/utils/shadcn/shadcn";
 import { useQueryClient } from "@tanstack/react-query";
+import { Moon, Sun } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useTranslation } from "next-i18next";
+import { useTheme } from "next-themes";
 import {
   AiOutlineHistory,
   AiOutlineSetting,
@@ -14,7 +33,7 @@ import { CiShoppingTag } from "react-icons/ci";
 import { GiTakeMyMoney } from "react-icons/gi";
 import { LuBarChart3 } from "react-icons/lu";
 import { MdMoneyOff, MdOutlineCategory } from "react-icons/md";
-import { RiCloseLine, RiLogoutBoxLine, RiMenu4Fill } from "react-icons/ri";
+import { RiLogoutBoxLine, RiMenu4Fill } from "react-icons/ri";
 
 import Accordion from "./accordion";
 
@@ -88,14 +107,73 @@ export function PathsList(props: PathsListProps) {
   );
 }
 
-const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+interface MobileLinkProps extends LinkProps {
+  onOpenChange?: (open: boolean) => void;
+  children: React.ReactNode;
+  className?: string;
+}
+
+function MobileLink({
+  href,
+  onOpenChange,
+  className,
+  children,
+  ...props
+}: MobileLinkProps) {
+  const router = useRouter();
+
+  return (
+    <Link
+      href={href}
+      onClick={async () => {
+        await router.push(href.toString());
+        onOpenChange?.(false);
+      }}
+      className={cn(className)}
+      {...props}
+    >
+      {children}
+    </Link>
+  );
+}
+
+export function ModeToggle() {
+  const { setTheme } = useTheme();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="icon">
+          <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+          <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          <span className="sr-only">Toggle theme</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => setTheme("light")}>
+          Light
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("dark")}>
+          Dark
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("system")}>
+          System
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+export function Nav() {
+  const [open, setOpen] = React.useState(false);
+
   const { t } = useTranslation();
   const [sidebarVisible, setSidebarVisible] = useState(false);
   // used to describe sidebar items
   const queryClient = useQueryClient();
 
   const iconClasses = "w-fit h-fit text-white bg-gray-800 p-3 rounded-2xl ";
-  const sidebar = useMemo<PathsListProps>(
+  const sidebarLinks = useMemo<PathsListProps>(
     () => ({
       paths: [
         {
@@ -153,61 +231,56 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     }),
     [t]
   );
-
   return (
-    <div className="flex h-screen w-screen scroll-smooth">
-      <button
-        type="button"
-        onClick={() => {
-          setSidebarVisible((prev) => !prev);
-        }}
-        className="fixed left-0 top-0 m-3 text-3xl"
-      >
-        <RiMenu4Fill />
-      </button>
-      <aside
-        className={
-          (sidebarVisible ? "absolute " : "hidden ") +
-          "min-w-1/3 z-50 mr-5 flex  h-screen  w-5/6 flex-col justify-start overflow-y-auto rounded-r-lg bg-gray-950 p-2 lg:w-1/5"
-        }
-        aria-label="Sidebar"
-      >
-        <header className="m-4 mb-6 flex justify-between">
-          <Link href={"/"} className="">
-            <span className="self-center whitespace-nowrap text-2xl font-semibold text-white">
-              Zagy
-            </span>
-          </Link>
-          <button
-            type="button"
-            className="rounded-lg border-2 border-gray-600 text-3xl text-white md:hidden"
-            onClick={() => {
-              setSidebarVisible((prev) => !prev);
-            }}
-          >
-            <RiCloseLine />
-          </button>
-        </header>
-        <PathsList {...sidebar} />
-        <button
-          type="button"
-          className=" mt-4  flex h-fit w-fit items-center gap-3 rounded-2xl p-2 text-2xl text-white"
-          onClick={async () => {
-            await signOut({ redirect: false });
-            queryClient.clear();
-          }}
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button
+          variant="ghost"
+          className="mr-2 px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden"
         >
-          <RiLogoutBoxLine className="h-fit w-fit rounded-2xl bg-gray-800 p-3 text-white " />{" "}
-          Log out
-        </button>
-      </aside>
-      {/* add overlay when sidebar is active on small screens */}
-      {sidebarVisible && (
-        <div
-          className="z-49 fixed left-0 top-0 h-full w-full bg-gray-900 opacity-80 md:hidden"
-          onClick={() => setSidebarVisible(false)}
-        />
-      )}
+          <RiMenu4Fill className="h-5 w-5" />
+          <span className="sr-only">Toggle Menu</span>
+        </Button>
+      </SheetTrigger>
+
+      <SheetContent side="left" className="pr-0">
+        <MobileLink
+          href="/"
+          className="flex items-center"
+          onOpenChange={setOpen}
+        >
+          <span className="self-center whitespace-nowrap text-2xl font-semibold text-white">
+            Zagy
+          </span>
+        </MobileLink>
+
+        <ScrollArea className="my-4 h-[calc(100vh-8rem)] pb-10 pl-6">
+          <div className="flex flex-col space-y-3">
+            <PathsList {...sidebarLinks} />
+            <Button
+              type="button"
+              className=" mt-4  flex h-fit w-fit items-center gap-3 rounded-2xl p-2 text-2xl text-white"
+              onClick={async () => {
+                await signOut({ redirect: false });
+                queryClient.clear();
+              }}
+            >
+              <RiLogoutBoxLine className="h-fit w-fit rounded-2xl bg-gray-800 p-3 text-white " />{" "}
+              {t("sidebar.actions.logout")}
+            </Button>
+          </div>
+        </ScrollArea>
+      </SheetContent>
+    </Sheet>
+  );
+}
+const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return (
+    <div className="flex flex-col h-screen w-screen scroll-smooth">
+      <header className="w-full">
+        <Nav />
+        <ModeToggle />
+      </header>
       {children}
     </div>
   );

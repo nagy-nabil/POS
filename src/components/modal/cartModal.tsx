@@ -167,6 +167,12 @@ export function CartModal() {
                 orderMut.mutate(
                   {
                     ...cart.data,
+                    products: cart.data.products.map((item) => {
+                      return {
+                        id: item.id,
+                        quantity: item.quantity + item.quantityFromOffers,
+                      };
+                    }),
                   },
                   {}
                 );
