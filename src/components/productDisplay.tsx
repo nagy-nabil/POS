@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from "react";
 import Image from "next/image";
-import { useAuth } from "@/hooks/useAuth";
 import {
   CartItemTypes,
   useCart,
@@ -260,7 +259,6 @@ export type ProductDisplayProps = {
 const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
   const { t } = useTranslation();
   const cart = useCart();
-  const { setToken } = useAuth({ redirectAfterSet: "/signin" });
   const [displayType, setDisplayType] = useState<
     ProductDisplayProps["displayType"]
   >(props.displayType);
@@ -268,9 +266,6 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
     staleTime: Infinity,
     retry(_failureCount, error) {
       if (error.data?.code === "UNAUTHORIZED") {
-        setToken("").catch((e) => {
-          throw e;
-        });
         return false;
       }
       return true;

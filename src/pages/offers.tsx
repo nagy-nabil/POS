@@ -1,8 +1,7 @@
-import React, { useMemo, type ReactElement } from "react";
+import React, { useMemo } from "react";
 import type { GetStaticPropsContext } from "next";
 import Head from "next/head";
 import IndeterminateCheckbox from "@/components/form/indeterminateCheckbox";
-import Layout from "@/components/layout";
 import ConfirmModal from "@/components/modal/confirm";
 import OfferModal from "@/components/modal/offerModal";
 import { OfferDisplay } from "@/components/offerDisplay";
@@ -33,7 +32,7 @@ import { useTranslation } from "react-i18next";
 import { AiOutlineDelete } from "react-icons/ai";
 import { CgSpinner } from "react-icons/cg";
 
-import { type NextPageWithLayout } from "./_app";
+import { type NextPageWithProps } from "./_app";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   return {
@@ -213,7 +212,8 @@ function Table(props: { data: Offer[] }) {
   );
 }
 
-const OfferPage: NextPageWithLayout = () => {
+const OfferPage: NextPageWithProps = () => {
+  const { t } = useTranslation();
   const offerQuery = api.offers.index.useQuery(undefined, {
     staleTime: Infinity,
   });
@@ -235,12 +235,9 @@ const OfferPage: NextPageWithLayout = () => {
   );
 };
 
-OfferPage.getLayout = function getLayout(page: ReactElement) {
-  return (
-    <>
-      <Layout>{page}</Layout>
-    </>
-  );
+OfferPage.pageConfig = {
+  authed: true,
+  defaultLayout: true,
 };
 
 export default OfferPage;

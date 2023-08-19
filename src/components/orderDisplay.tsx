@@ -1,4 +1,9 @@
 import React, { useRef, useState } from "react";
+import {
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { api } from "@/utils/api";
 import type { PaymentType, Product } from "@prisma/client";
 import clsx from "clsx";
@@ -8,7 +13,7 @@ import { CgSpinner } from "react-icons/cg";
 import { HiOutlinePrinter } from "react-icons/hi";
 import { useReactToPrint } from "react-to-print";
 
-import Accordion from "./accordion";
+// import Accordion from "./accordion";
 import ConfirmModal from "./modal/confirm";
 
 export type OrderDisplayProps = {
@@ -131,46 +136,60 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
   let totalProfit = 0;
 
   return (
-    <div className="flex flex-col">
-      <Accordion
-        content={
-          <div className="flex flex-col">
-            <div
+    <AccordionItem value={props.id}>
+      <AccordionTrigger>
+        <div className="flex flex-col gap-2">
+          <p className="w-full overflow-hidden text-left text-xl font-bold text-orange-700">
+            # {props.id}
+          </p>
+          <span className="text-left">
+            {t("orderDisplay.meta.createdAt")}:{" "}
+            {props.createdAt.toLocaleString("en-GB")}
+          </span>
+          <span className="text-lg font-bold text-green-600">
+            {t("orderDisplay.meta.total")}: {props.total} $
+          </span>
+        </div>
+      </AccordionTrigger>
+      <AccordionContent>
+        <div className="flex flex-col">
+          <div
+            className={clsx({
+              " flex justify-center gap-2 ": true,
+            })}
+          >
+            <button
+              type="button"
+              onClick={handlePrint}
               className={clsx({
-                " flex justify-center gap-2 ": true,
+                "my-3 focus:outline-none": true,
               })}
             >
-              <button
-                type="button"
-                onClick={handlePrint}
-                className={clsx({
-                  "my-3 focus:outline-none": true,
-                })}
-              >
-                <HiOutlinePrinter className="m-auto h-fit w-fit rounded-lg border-2 border-black p-2 text-3xl text-gray-500" />
-              </button>
+              <HiOutlinePrinter className="m-auto h-fit w-fit rounded-lg border-2 border-black p-2 text-3xl text-gray-500" />
+            </button>
 
-              <ConfirmModal
-                buttonAttrs={{}}
-                bodyMessage="Are you sure you want to delete this order, you cannot undo?"
-                header="Delete Order"
-                onOk={() => {
-                  console.log("will delete");
-                  orderDelete.mutate(props.id);
-                }}
-                onCancel={() => {
-                  console.log("cancel");
-                }}
-                buttonChildren={
-                  orderDelete.isLoading ? (
-                    <CgSpinner className="animate-spin text-2xl" />
-                  ) : (
-                    <AiOutlineDelete className="m-auto h-fit w-fit rounded-lg border-2 border-black p-2 text-3xl text-red-600" />
-                  )
-                }
-              />
-            </div>
-            <p className="my-2 text-red-500">{operationError}</p>
+            <ConfirmModal
+              buttonAttrs={{}}
+              bodyMessage="Are you sure you want to delete this order, you cannot undo?"
+              header="Delete Order"
+              onOk={() => {
+                console.log("will delete");
+                orderDelete.mutate(props.id);
+              }}
+              onCancel={() => {
+                console.log("cancel");
+              }}
+              buttonChildren={
+                orderDelete.isLoading ? (
+                  <CgSpinner className="animate-spin text-2xl" />
+                ) : (
+                  <AiOutlineDelete className="m-auto h-fit w-fit rounded-lg border-2 border-black p-2 text-3xl text-red-600" />
+                )
+              }
+            />
+          </div>
+          <p className="my-2 text-red-500">{operationError}</p>
+          <div className="w-full overflow-x-auto">
             <table
               className={clsx({
                 " w-full text-left text-sm text-gray-400 transition-all delay-75 ":
@@ -232,28 +251,9 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
               </tbody>
             </table>
           </div>
-        }
-        title={
-          <div className="flex flex-col gap-2">
-            <p className="w-full overflow-hidden text-left text-xl font-bold text-orange-700">
-              # {props.id}
-            </p>
-            <span className="text-left">
-              {t("orderDisplay.meta.createdAt")}:{" "}
-              {props.createdAt.toLocaleString("en-GB")}
-            </span>
-            <span className="text-lg font-bold text-green-600">
-              {t("orderDisplay.meta.total")}: {props.total} $
-            </span>
-          </div>
-        }
-      />
-
-      <div className="hidden">
-        <OrderPrint {...props} ref={toPrintRef} />
-      </div>
-      <hr className="m-auto mt-2 h-[0.5px] w-11/12 border-none bg-gray-500" />
-    </div>
+        </div>
+      </AccordionContent>
+    </AccordionItem>
   );
 };
 

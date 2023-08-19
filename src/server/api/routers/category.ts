@@ -10,7 +10,7 @@ export const categoriesRouter = createTRPCRouter({
         data: {
           image: input.image,
           name: input.name,
-          createdById: ctx.payload.id,
+          createdById: ctx.session.user.id,
         },
       });
       return category;

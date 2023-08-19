@@ -34,7 +34,7 @@ export const offeresRouter = createTRPCRouter({
       const o = await ctx.prisma.offer.create({
         data: {
           name: input.name,
-          createdById: ctx.payload.id,
+          createdById: ctx.session.user.id,
           products: {
             create: input.products.map((p) => ({
               productId: p.productId,
@@ -65,7 +65,7 @@ export const offeresRouter = createTRPCRouter({
         },
         data: {
           deletedAt: new Date(),
-          deletedById: ctx.payload.id,
+          deletedById: ctx.session.user.id,
         },
       });
     }),

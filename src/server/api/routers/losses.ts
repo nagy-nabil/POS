@@ -61,7 +61,7 @@ export const lossesRouter = createTRPCRouter({
             name: input.name,
             description: input.description,
             additionalAmount: input.additionalAmount,
-            createdById: ctx.payload.id,
+            createdById: ctx.session.user.id,
             products: {
               create: createCluse,
             },
