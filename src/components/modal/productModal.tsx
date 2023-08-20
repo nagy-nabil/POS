@@ -90,7 +90,7 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
       // remove the one with the id of the input and insert the returned from the mutation
       utils.products.getMany.setData(undefined, (prev) =>
         prev
-          ? [...prev.filter((test) => test.id !== variables.id), data]
+          ? [...prev.filter((test) => test.id !== variables.productId), data]
           : [data]
       );
       resetModalState();
@@ -116,8 +116,11 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
       productInsert.mutate(data);
     };
     const proPut = () => {
-      // @ts-ignore
-      productUpdate.mutate(data);
+      productUpdate.mutate({
+        productId: props.defaultValues.id || "",
+        // @ts-ignore
+        product: data,
+      });
     };
 
     // set function to be run

@@ -33,13 +33,21 @@ export const productsRouter = createTRPCRouter({
     });
   }),
   updateOne: protectedProcedure
-    .input(productSchema.extend({ id: z.string() }))
+    .input(
+      z.object({
+        /**
+         * id to be updated
+         */
+        productId: z.string().nonempty(),
+        product: productSchema.extend({ id: z.string() }),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       return await ctx.prisma.product.update({
         where: {
-          id: input.id,
+          id: input.productId,
         },
-        data: input,
+        data: input.product,
       });
     }),
 
