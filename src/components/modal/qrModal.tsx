@@ -1,26 +1,16 @@
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef } from "react";
+import { useCartProductInc } from "@/hooks/useCart";
 import { api } from "@/utils/api";
-import { type Product } from "@prisma/client";
-import { Html5QrcodeScannerState, type Html5QrcodeScanner } from "html5-qrcode";
-import { useTranslation } from "react-i18next";
+import { type Html5QrcodeResult, type Html5QrcodeScanner } from "html5-qrcode";
+// import { useTranslation } from "react-i18next";
 import { BsQrCodeScan } from "react-icons/bs";
 
 import CustomModal from ".";
-import { KeypadDisplay } from "../productDisplay";
 import QrCode from "../qrcode";
 
-function QrModal() {
-  const { t } = useTranslation();
+export default function QrModal() {
+  // const { t } = useTranslation();
   const dialgoRef = useRef(null);
-  // i don't know if this a good design or even valid react code but i want to keep ref to the scanner
-  // to make using it in this component easier
-  const scannerRef = useRef<Html5QrcodeScanner | undefined>(undefined);
-  // from the react docs => Do not write or read ref.current during rendering.
-  // so i use those state to sync the render with the scanner
-  const [isScannerPaused, setIsScannerPaused] = useState(false);
-  const [scannerRead, setScannerRead] = useState<Product | undefined>(
-    undefined
-  );
   const productsQuery = api.products.getMany.useQuery(undefined, {
     staleTime: Infinity,
     retry(_failureCount, error) {
@@ -30,6 +20,21 @@ function QrModal() {
       return true;
     },
   });
+
+  const { mutate } = useCartProductInc();
+
+  const qrcodeSuccessCallback = useCallback(
+    (text: string, _: Html5QrcodeResult, __: Html5QrcodeScanner) => {
+      if (!productsQuery.data) return;
+      const match = productsQuery.data.find((val) => val.id === text);
+      if (match !== undefined) {
+        mutate({
+          id: match.id,
+        });
+      }
+    },
+    [productsQuery.data, mutate]
+  );
 
   if (productsQuery.isLoading) return <p>loading ...</p>;
   else if (productsQuery.isError) {
@@ -50,43 +55,11 @@ function QrModal() {
         <div className="flex flex-col items-center gap-4">
           <QrCode
             qrId="orderQr"
-            fps={15}
-            qrcodeSuccessCallback={(text, _, scanner) => {
-              scannerRef.current = scanner;
-              const match = productsQuery.data.find((val) => val.id === text);
-              if (match !== undefined) {
-                scanner.pause(true);
-                setIsScannerPaused(true);
-                setScannerRead(match);
-              }
-            }}
+            fps={30}
+            qrcodeSuccessCallback={qrcodeSuccessCallback}
           />
-
-          {isScannerPaused === true ? (
-            <button
-              className="h-fit w-fit rounded-2xl bg-gray-600 p-2"
-              onClick={() => {
-                if (scannerRef.current === undefined) return;
-                if (
-                  scannerRef.current.getState() ===
-                  Html5QrcodeScannerState.PAUSED
-                ) {
-                  scannerRef.current.resume();
-                }
-                setScannerRead(undefined);
-                setIsScannerPaused(false);
-              }}
-            >
-              {t("qrModal.utils.scan")}
-            </button>
-          ) : null}
-
-          {scannerRead !== undefined ? (
-            <KeypadDisplay {...scannerRead} />
-          ) : null}
         </div>
       }
     />
   );
 }
-export default QrModal;
