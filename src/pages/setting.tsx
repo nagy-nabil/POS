@@ -42,7 +42,7 @@ const passwordForm = loginSchema
   );
 type PasswordFormT = z.infer<typeof passwordForm>;
 
-const Settings: NextPageWithProps = () => {
+const SettingsPage: NextPageWithProps = () => {
   const { t } = useTranslation("settings");
   const userNameUpdate = api.users.updateUserName.useMutation();
   const passwordUpdate = api.users.updatePassword.useMutation();
@@ -81,7 +81,7 @@ const Settings: NextPageWithProps = () => {
       <Head>
         <link rel="manifest" href="/app.webmanifest" />
       </Head>
-      <div className="flex h-screen w-full flex-col content-between justify-items-center p-12 align-middle ">
+      <div className="flex h-fit w-full flex-col content-between justify-items-center px-12 align-middle ">
         <h2 className="mb-3 text-3xl font-bold">{t("appSettings.header")}</h2>
         <label className="flex flex-col gap-3">
           {t("appSettings.settings.changeLang.header")}
@@ -202,9 +202,9 @@ const Settings: NextPageWithProps = () => {
   );
 };
 
-Settings.pageConfig = {
+SettingsPage.pageConfig = {
   authed: true,
   defaultLayout: true,
 };
 
-export default Settings;
+export default SettingsPage;

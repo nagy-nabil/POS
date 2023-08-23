@@ -450,9 +450,6 @@ const Spending: NextPageWithProps = () => {
         <link rel="manifest" href="/app.webmanifest" />
       </Head>
       <div className="w-screen">
-        <header className="mt-2 flex items-center justify-around">
-          <h1 className="text-4xl">{t("pages.spending.header")}</h1>
-        </header>
         <ExpenseTypeModal
           defaultValues={{}}
           operationType="post"

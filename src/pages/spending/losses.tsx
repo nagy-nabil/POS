@@ -175,7 +175,6 @@ function Table(props: { data: Loss[] }) {
 }
 
 const Spending: NextPageWithProps = () => {
-  const { t } = useTranslation();
   const lossQuery = api.losses.getMany.useQuery(undefined, {
     staleTime: Infinity,
     retry(_failureCount, error) {
@@ -192,9 +191,6 @@ const Spending: NextPageWithProps = () => {
         <link rel="manifest" href="/app.webmanifest" />
       </Head>
       <div className="w-screen">
-        <header className="mt-2 flex items-center justify-around">
-          <h1 className="text-4xl">{t("pages.spending.header")}</h1>
-        </header>
         <LossesModal defaultValues={{}} operationType="post" />
         {lossQuery.data && <Table data={lossQuery.data} />}
       </div>

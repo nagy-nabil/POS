@@ -12,6 +12,7 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { CgSpinner } from "react-icons/cg";
 
 import { type NextPageWithProps } from "../_app";
+import { Button } from "@/components/ui/button";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   return {
@@ -72,11 +73,7 @@ const History: NextPageWithProps = () => {
       <Head>
         <link rel="manifest" href="/app.webmanifest" />
       </Head>
-      <div className="flex h-screen w-full flex-col overflow-hidden px-4">
-        <header className="m-auto mb-8">
-          <h1 className="text-5xl">{t("orderHistory.header")}</h1>
-        </header>
-
+      <div className="flex h-full w-full flex-col overflow-hidden px-4">
         <div className="flex flex-col gap-3">
           <label className="flex items-center justify-between gap-2 text-2xl">
             {t("orderHistory.from")}
@@ -92,7 +89,8 @@ const History: NextPageWithProps = () => {
                   return d;
                 })
               }
-              className="rounded-xl border-none bg-gray-600 p-3 text-xl text-white"
+              className="bg-primary text-primary-foreground hover:bg-primary/90
+ rounded-xl border-none p-3 text-xl "
             />
           </label>
           <label className="flex items-center justify-between gap-2 text-2xl">
@@ -108,25 +106,27 @@ const History: NextPageWithProps = () => {
               }
               name="to"
               type="date"
-              className="rounded-xl border-none bg-gray-600 p-3 text-xl text-white"
+              className="bg-primary text-primary-foreground hover:bg-primary/90
+ rounded-xl border-none p-3 text-xl "
             />
           </label>
-          <button
+          <Button
             type="button"
-            className="m-auto h-fit w-fit rounded-2xl bg-gray-600 p-3 text-white"
+            variant={"default"}
             onClick={() => orderQuery.refetch()}
             disabled={orderQuery.isLoading && orderQuery.fetchStatus !== "idle"}
+            className="w-1/2 m-auto"
           >
             {orderQuery.isLoading && orderQuery.fetchStatus !== "idle" ? (
               <CgSpinner className="animate-spin text-2xl" />
             ) : (
               t("orderHistory.action")
             )}
-          </button>
+          </Button>
         </div>
 
         {/* order display */}
-        <div className="mt-5 flex h-screen flex-col gap-4 overflow-y-auto">
+        <div className="mt-5 flex h-full flex-col gap-4 overflow-y-auto">
           <Accordion type="multiple">
             {ordersPage.values.map((order) => {
               return (

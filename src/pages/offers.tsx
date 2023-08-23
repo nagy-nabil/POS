@@ -160,8 +160,7 @@ function Table(props: { data: Offer[] }) {
   if (typeof window === "undefined") return null;
 
   return (
-    <div className="mt-3 flex flex-col">
-      <div className="w-screen">
+    <div className=" w-full flex flex-col">
         {/* item utils*/}
         <div className="flex justify-start gap-3">
           <OfferModal defaultValues={{}} operationType="post" />
@@ -207,13 +206,11 @@ function Table(props: { data: Offer[] }) {
 
         {/* table utils */}
         <TableUtils table={table} />
-      </div>
     </div>
   );
 }
 
 const OfferPage: NextPageWithProps = () => {
-  const { t } = useTranslation();
   const offerQuery = api.offers.index.useQuery(undefined, {
     staleTime: Infinity,
   });
@@ -223,10 +220,7 @@ const OfferPage: NextPageWithProps = () => {
       <Head>
         <link rel="manifest" href="/app.webmanifest" />
       </Head>
-      <div className="w-screen  h-screen">
-        <header className="mt-2 flex items-center justify-around">
-          <h1 className="text-4xl">Offers</h1>
-        </header>
+      <div className="w-full h-full">
         {offerQuery.data && <Table data={offerQuery.data} />}
         <OfferDisplay />
       </div>

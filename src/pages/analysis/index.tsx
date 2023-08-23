@@ -39,30 +39,6 @@ type Series = {
   data: DateSum[];
 };
 
-// const data: Series[] = [
-//   {
-//     label: "React Charts",
-//     data: [
-//       {
-//         date: new Date(),
-//         sum: 202123,
-//       },
-//       {
-//         date: new Date("2023-07-11"),
-//         sum: 2021232,
-//       },
-//       {
-//         date: new Date("2023-07-12"),
-//         sum: 402123,
-//       },
-//       {
-//         date: new Date("2023-07-13"),
-//         sum: 902123,
-//       },
-//       // ...
-//     ],
-//   },
-// ];
 
 function ChartLine(props: {
   data: Series[];
@@ -130,11 +106,7 @@ const Anal: NextPageWithProps = () => {
       <Head>
         <link rel="manifest" href="/app.webmanifest" />
       </Head>
-      <div className="flex h-screen w-full flex-col overflow-hidden px-4">
-        <header className="m-auto mb-8">
-          <h1 className="text-5xl">{t("header")}</h1>
-        </header>
-
+      <div className="flex h-full w-full flex-col overflow-hidden px-4">
         {/* order display */}
         <div className="mt-5 flex h-screen flex-col gap-4 overflow-y-auto">
           {/* <ChartLine /> */}

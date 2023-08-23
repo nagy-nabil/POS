@@ -6,6 +6,7 @@ import {
   AiOutlineLeft,
   AiOutlineRight,
 } from "react-icons/ai";
+import { Button } from "@/components/ui/button";
 
 export type UsePaginationProps<T> = {
   data: T[];
@@ -74,38 +75,42 @@ export type PaginationUtisProps<T> = FnReturn<typeof usePagination<T>>;
 
 export function PaginationUtis<T>(props: PaginationUtisProps<T>) {
   return (
-    <div className="m-auto flex w-full items-center justify-center">
-      <button
+    <div className="m-auto flex w-full items-center justify-center gap-2">
+      <Button
+        variant={"secondary"}
+        size="icon"
         disabled={!props.canGetPrev()}
         onClick={() => props.resetPage()}
-        className="disabled:text-gray-400"
       >
-        <AiOutlineDoubleLeft className="h-fit w-fit p-2 text-xl  " />
-      </button>
-      <button
+        <AiOutlineDoubleLeft />
+      </Button>
+      <Button
+        variant={"secondary"}
+        size="icon"
         disabled={!props.canGetPrev()}
         onClick={() => props.getPrevPage()}
-        className="disabled:text-gray-400"
       >
-        <AiOutlineLeft className="h-fit w-fit p-2 text-xl" />
-      </button>
+        <AiOutlineLeft />
+      </Button>
       <p className="font-bold">
         {props.curPage + 1} of {props.pagesNum}
       </p>
-      <button
+      <Button
+        variant={"secondary"}
+        size="icon"
         disabled={!props.canGetNext()}
         onClick={() => props.getNextPage()}
-        className="disabled:text-gray-400"
       >
-        <AiOutlineRight className="h-fit w-fit p-2 text-xl" />
-      </button>
-      <button
+        <AiOutlineRight />
+      </Button>
+      <Button
+        variant={"secondary"}
+        size="icon"
         disabled={!props.canGetNext()}
         onClick={() => props.setCurPage(props.pagesNum - 1)}
-        className="disabled:text-gray-400"
       >
-        <AiOutlineDoubleRight className="h-fit w-fit p-2 text-xl" />
-      </button>
+        <AiOutlineDoubleRight />
+      </Button>
     </div>
   );
 }

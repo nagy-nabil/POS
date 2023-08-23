@@ -20,6 +20,7 @@ import { useTranslation } from "react-i18next";
 import { AiOutlineMinus } from "react-icons/ai";
 import { MdRemoveShoppingCart } from "react-icons/md";
 import { RiAddCircleLine, RiAddLine } from "react-icons/ri";
+import DebouncedInput from "./form/debouncedInput";
 
 export type CartUtilsProps = {
   id: Product["id"];
@@ -47,7 +48,7 @@ export function CartUtils(props: CartUtilsProps) {
   const cartRemovePro = useCartRemoveProduct();
   const cartRemoveOffer = useCartRemoveOffer();
 
-  const { id, quantity, setError, stock, type, products } = props;
+  const { id, type, products } = props;
 
   return (
     <div className="flex items-center gap-1 flex-wrap">
@@ -197,7 +198,6 @@ export const KeypadDisplay: React.FC<ProductProps> = (props) => {
           variant={"default"}
           disabled={props.stock <= 0}
           onClick={() => cartInc.mutate({ id: props.id })}
-          className=" disabled:bg-gray-600"
         >
           {t("productDisplay.modes.keypad.action")}
         </Button>
@@ -248,13 +248,13 @@ export const LibraryDisplay: React.FC<ProductProps> = (props) => {
           )}
         </div>
         {props.quantity === undefined && (
-          <button
+          <Button
+            size="icon"
             disabled={props.stock <= 0}
             onClick={() => cartInc.mutate({ id: props.id })}
-            className=" rounded-xl py-2.5 text-2xl font-medium text-gray-700 focus:outline-none disabled:text-gray-400"
           >
-            <RiAddCircleLine />
-          </button>
+            <RiAddCircleLine size={25}/>
+          </Button>
         )}
       </div>
 
@@ -281,10 +281,6 @@ export function LibraryDisplaySkeleton(props: { count: number }) {
 
 export type ProductDisplayProps = {
   categoryFilter: string;
-  /**
-   * should be filter based on the product name or id
-   */
-  productFilter: string;
   displayType: "library" | "keypad";
 };
 
@@ -295,6 +291,10 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
   const [displayType, setDisplayType] = useState<
     ProductDisplayProps["displayType"]
   >(props.displayType);
+  /**
+   * should be filter based on the product name or id
+   */
+  const [productFilter, setProductFilter] = useState("");
   const productsQuery = api.products.getMany.useQuery(undefined, {
     staleTime: Infinity,
     retry(_failureCount, error) {
@@ -306,15 +306,14 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
   });
   // apply category filter and the search on products data
   const productsData = useMemo(() => {
-    console.log("in memo");
     if (!productsQuery.isLoading && !productsQuery.isError) {
       const d = productsQuery.data.filter((val) => {
         if (props.categoryFilter === "") return true;
         else return val.categoryId === props.categoryFilter;
       });
-      return props.productFilter === ""
+      return productFilter === ""
         ? d
-        : matchSorter(d, props.productFilter, { keys: ["name", "id"] });
+        : matchSorter(d, productFilter, { keys: ["name", "id"] });
     }
     return productsQuery.data;
   }, [
@@ -322,7 +321,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
     productsQuery.isError,
     productsQuery.data,
     props.categoryFilter,
-    props.productFilter,
+    productFilter,
   ]);
   const productsDataPage = usePagination({
     data: productsData ?? [],
@@ -335,6 +334,13 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
 
   return (
     <div className="flex flex-col h-full w-full">
+          <DebouncedInput
+            type="search"
+            value={""}
+            onChange={(value) => setProductFilter(value as string)}
+            placeholder={t("header.inputPlaceHolder")}
+            className="w-11/12 m-auto "
+          />
       <ul className="m-auto my-2 flex w-4/5 justify-between rounded-3xl bg-gray-200 p-1">
         <li className="w-6/12">
           <input
