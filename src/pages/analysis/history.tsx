@@ -70,9 +70,6 @@ const History: NextPageWithProps = () => {
 
   return (
     <>
-      <Head>
-        <link rel="manifest" href="/app.webmanifest" />
-      </Head>
       <div className="flex h-full w-full flex-col overflow-hidden px-4">
         <div className="flex flex-col gap-3">
           <label className="flex items-center justify-between gap-2 text-2xl">

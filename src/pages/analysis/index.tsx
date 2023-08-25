@@ -103,9 +103,6 @@ const Anal: NextPageWithProps = () => {
 
   return (
     <>
-      <Head>
-        <link rel="manifest" href="/app.webmanifest" />
-      </Head>
       <div className="flex h-full w-full flex-col overflow-hidden px-4">
         {/* order display */}
         <div className="mt-5 flex h-screen flex-col gap-4 overflow-y-auto">

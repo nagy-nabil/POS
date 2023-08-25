@@ -78,10 +78,7 @@ const SettingsPage: NextPageWithProps = () => {
 
   return (
     <>
-      <Head>
-        <link rel="manifest" href="/app.webmanifest" />
-      </Head>
-      <div className="flex h-fit w-full flex-col content-between justify-items-center px-12 align-middle ">
+      <div className="flex h-full w-full flex-col content-between justify-items-center px-12 align-middle">
         <h2 className="mb-3 text-3xl font-bold">{t("appSettings.header")}</h2>
         <label className="flex flex-col gap-3">
           {t("appSettings.settings.changeLang.header")}

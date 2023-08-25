@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
 import type { GetStaticPropsContext } from "next";
-import Head from "next/head";
 import IndeterminateCheckbox from "@/components/form/indeterminateCheckbox";
 import ConfirmModal from "@/components/modal/confirm";
 import OfferModal from "@/components/modal/offerModal";
@@ -160,7 +159,7 @@ function Table(props: { data: Offer[] }) {
   if (typeof window === "undefined") return null;
 
   return (
-    <div className=" w-full flex flex-col">
+    <div className="w-full flex h-fit flex-col">
         {/* item utils*/}
         <div className="flex justify-start gap-3">
           <OfferModal defaultValues={{}} operationType="post" />
@@ -175,7 +174,6 @@ function Table(props: { data: Offer[] }) {
             bodyMessage="Are you sure you want to delete this offer, you cannot undo?"
             header="Delete Offer"
             onOk={() => {
-              console.log("will delete");
               offerDelete.mutate(
                 Object.keys(rowSelection).map(
                   (itm) => props.data[+itm]?.id as string
@@ -216,16 +214,11 @@ const OfferPage: NextPageWithProps = () => {
   });
 
   return (
-    <>
-      <Head>
-        <link rel="manifest" href="/app.webmanifest" />
-      </Head>
       <div className="w-full h-full">
         {offerQuery.data && <Table data={offerQuery.data} />}
         <OfferDisplay />
+        <ReactQueryDevtools initialIsOpen={false} />
       </div>
-      <ReactQueryDevtools initialIsOpen={false} />
-    </>
   );
 };
 

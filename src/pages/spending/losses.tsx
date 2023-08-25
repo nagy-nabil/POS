@@ -187,10 +187,7 @@ const Spending: NextPageWithProps = () => {
 
   return (
     <>
-      <Head>
-        <link rel="manifest" href="/app.webmanifest" />
-      </Head>
-      <div className="w-screen">
+      <div className="w-full h-full">
         <LossesModal defaultValues={{}} operationType="post" />
         {lossQuery.data && <Table data={lossQuery.data} />}
       </div>

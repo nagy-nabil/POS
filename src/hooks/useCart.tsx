@@ -331,53 +331,56 @@ function useCartClear() {
   });
 }
 
-// function useCartSet() {
-//   const queryClient = useQueryClient();
+/**
+  * set product quantity on the cart
+  *
+  * cannot set offer quantity (for now)
+  */
+function useCartProductSet() {
+  const queryClient = useQueryClient();
 
-//   return useMutation<
-//     void,
-//     Error,
-//     { id: CartItem["id"]; type: CartItemTypes; quantity: number }
-//   >({
-//     // eslint-disable-next-line @typescript-eslint/require-await
-//     async mutationFn(variables) {
-//       if (variables.quantity < 0) {
-//         throw new Error("Cart: CANNOT SET ITEM QUANTITY LESS THAN ZERO");
-//       }
-//       queryClient.setQueryData<CartT>(CART_KEY, (prev) => {
-//         if (!prev) {
-//           return {
-//             offers: [],
-//             products: [],
-//           };
-//         }
-//         if (variables.type === CartItemTypes.product) {
-//           return {
-//             ...prev,
-//             products: [
-//               ...prev.products.filter((i) => i.id !== variables.id),
-//               {
-//                 id: variables.id,
-//                 quantity: variables.quantity,
-//               },
-//             ],
-//           };
-//         } else {
-//           return {
-//             ...prev,
-//             offers: [
-//               ...prev.offers.filter((i) => i.id !== variables.id),
-//               {
-//                 id: variables.id,
-//                 quantity: variables.quantity,
-//               },
-//             ],
-//           };
-//         }
-//       });
-//     },
-//   });
-// }
+  return useMutation<
+    void,
+    Error,
+    { id: CartItem["id"]; quantity: number }
+  >({
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async mutationFn(variables) {
+      if (variables.quantity < 0) {
+        throw new Error("Cart: CANNOT SET ITEM QUANTITY LESS THAN ZERO");
+      }
+      queryClient.setQueryData<CartT>(CART_KEY, (prev) => {
+        const { id, quantity } = variables;
+        if (!prev) {
+          // create new item and append it
+          const item: CartT["products"][number] = {
+            id,
+            quantity,
+            quantityFromOffers: 0
+          }
+
+          return {
+            offers: [],
+            products: [item],
+          };
+        }
+
+        const oldItem = prev.products.find(product => product.id === id);
+          return {
+            ...prev,
+            products: [
+              ...prev.products.filter((i) => i.id !== id),
+              {
+                id,
+                quantity,
+                quantityFromOffers: oldItem?.quantityFromOffers ?? 0
+              },
+            ],
+          };
+      });
+    },
+  });
+}
 
 export {
   useCart,
@@ -389,4 +392,5 @@ export {
   useCartProductInc,
   useCartRemoveOffer,
   useCartRemoveProduct,
+  useCartProductSet,
 };

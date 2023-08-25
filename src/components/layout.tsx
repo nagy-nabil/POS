@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from "react";
+import Head from "next/head";
+import React, { useMemo } from "react";
 import Link, { type LinkProps } from "next/link";
 import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
@@ -12,9 +13,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { cn } from "@/utils/shadcn/shadcn";
@@ -55,7 +53,7 @@ interface MobileLinkProps extends LinkProps {
   className?: string;
 }
 
-function MobileLink({
+export function MobileLink({
   href,
   onOpenChange,
   className,
@@ -80,13 +78,13 @@ function MobileLink({
 }
 
 export function PathItem(
-  props: PathItemProps & { isActive: boolean; setOpen: (open: boolean) => void }
+  props: PathItemProps & { isActive: boolean; setOpen?: (open: boolean) => void }
 ) {
   return (
     <MobileLink
       href={props.path.href}
       className={`flex items-center gap-3 rounded-2xl  p-2 text-white text-2xl
-                      ${props.isActive ? "bg-gray-700 " : " "}`}
+                      ${props.isActive ? "bg-gray-500" : " "}`}
       onOpenChange={props.setOpen}
     >
       {props.path.icon} {props.path.label}
@@ -253,52 +251,63 @@ export function Nav() {
         </Button>
       </SheetTrigger>
 
-      <SheetContent side="left" className="pr-0 bg-primary">
-        <MobileLink
-          href="/"
-          className="flex items-center"
-          onOpenChange={setOpen}
-        >
-          <span className="self-center whitespace-nowrap text-2xl font-semibold text-white">
-            Zagy
-          </span>
-        </MobileLink>
+      <SheetContent side="left" className="p-0 px-2 bg-primary">
+        <h1 className="text-3xl font-bold my-3 text-white">
+          <MobileLink
+            href="/"
+            className="flex items-center"
+            onOpenChange={setOpen}
+          >
+            <span className="self-center whitespace-nowrap ">
+              Zagy
+            </span>
+          </MobileLink>
+        </h1>
 
-        <ScrollArea className="my-4 h-[calc(100vh-8rem)] pb-10">
-          <div className="flex flex-col space-y-3">
+        <ScrollArea className="my-4 h-full pb-1">
+          <div className="h-full flex flex-col space-y-3">
             <PathsList {...sidebarLinks} setOpen={setOpen} />
+          </div>
             <Button
               type="button"
               variant="ghost"
-              className=" mt-4  flex h-fit w-fit items-center gap-3 rounded-2xl p-2 text-2xl text-white"
+              className="w-full mt-auto flex justify-start gap-3 rounded-2xl h-fit  p-2 text-white text-2xl"
               onClick={async () => {
                 await signOut({ redirect: false });
                 queryClient.clear();
               }}
             >
-              <RiLogoutBoxLine className="h-fit w-fit rounded-2xl bg-gray-800 p-3 text-white " />{" "}
+              <RiLogoutBoxLine className={iconClasses} size={iconSize}/>{" "}
               {t("sidebar.actions.logout")}
             </Button>
-          </div>
         </ScrollArea>
       </SheetContent>
     </Sheet>
   );
 }
 
+/**
+ * default layout
+ **/
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { t } = useTranslation();
   const { pathname } = useRouter();
+
   return (
-    <div className="flex flex-col h-screen w-screen scroll-smooth gap-2">
-      <header className="w-full flex overflow-hidden  h-fit mt-2 justify-between ">
+    <>
+      <Head>
+        <link rel="manifest" href="/app.webmanifest" />
+      </Head>
+    <div className="flex h-screen w-screen flex-col overflow-x-hidden overflow-y-auto scroll-smooth gap-3 ">
+      <header className="flex justify-between h-fit items-center gap-2 w-full mt-3 px-1">
         <Nav />
         {/* @ts-ignore  */}
-        <h1 className="text-4xl line-clamp-4">{t(`pages.${pathname}.header`)}</h1>
+        <h1 className="h-fit text-4xl line-clamp-4 py-3">{t(`pages.${pathname}.header`)}</h1>
         <ModeToggle />
       </header>
       {children}
     </div>
+    </>
   );
 };
 export default Layout;

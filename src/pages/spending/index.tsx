@@ -446,9 +446,6 @@ const Spending: NextPageWithProps = () => {
 
   return (
     <>
-      <Head>
-        <link rel="manifest" href="/app.webmanifest" />
-      </Head>
       <div className="w-screen">
         <ExpenseTypeModal
           defaultValues={{}}

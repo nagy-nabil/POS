@@ -1,3 +1,5 @@
+// chrome://inspect#devices
+import {Input} from "@/components/ui/input";
 import React, { useMemo, useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -8,6 +10,7 @@ import {
   useCarProductDec,
   useCart,
   useCartProductInc,
+  useCartProductSet,
   useCartRemoveOffer,
   useCartRemoveProduct,
 } from "@/hooks/useCart";
@@ -20,12 +23,18 @@ import { useTranslation } from "react-i18next";
 import { AiOutlineMinus } from "react-icons/ai";
 import { MdRemoveShoppingCart } from "react-icons/md";
 import { RiAddCircleLine, RiAddLine } from "react-icons/ri";
-import DebouncedInput from "./form/debouncedInput";
 
 export type CartUtilsProps = {
   id: Product["id"];
   stock: number;
+  /**
+   * number of this item on the cart for both the offers and products
+   */
   quantity: number;
+  /**
+   * product holds more data on the cart
+   */
+  quantityFromOffers?: number;
   type: CartItemTypes;
   setError: (value: React.SetStateAction<string>) => void;
   /**
@@ -43,20 +52,23 @@ export function CartUtils(props: CartUtilsProps) {
   const cartDecPro = useCarProductDec();
   const cartDecOffer = useCarOfferDec();
 
-  // const cartSet = useCartSet();
+  const cartSet = useCartProductSet();
 
   const cartRemovePro = useCartRemoveProduct();
   const cartRemoveOffer = useCartRemoveOffer();
 
-  const { id, type, products } = props;
+  const { id, type, products, quantityFromOffers = 0, quantity, stock} = props;
+
+  const maxStock = stock - quantityFromOffers;
 
   return (
-    <div className="flex items-center gap-1 flex-wrap">
+    <div className="flex justify-between  gap-1">
       {/* REMOVE */}
       <Button
         type="button"
         size={"icon"}
         variant={"destructive"}
+        className="shrink-0"
         onClick={() => {
           if (type === CartItemTypes.product) {
             cartRemovePro.mutate({ id });
@@ -65,7 +77,7 @@ export function CartUtils(props: CartUtilsProps) {
           }
         }}
       >
-        <MdRemoveShoppingCart />
+        <MdRemoveShoppingCart size={20}/>
       </Button>
 
       {/* DECREASE */}
@@ -73,7 +85,7 @@ export function CartUtils(props: CartUtilsProps) {
         type="button"
         size={"icon"}
         variant={"outline"}
-        className="p-3"
+        className="shrink-0"
         onClick={() => {
           if (type === CartItemTypes.product) {
             cartDecPro.mutate({ id });
@@ -82,18 +94,17 @@ export function CartUtils(props: CartUtilsProps) {
           }
         }}
       >
-        <AiOutlineMinus />
+        <AiOutlineMinus size={20}/>
       </Button>
 
       {/* SET: disabled with offer, you get the whole offer or not*/}
-      {/* <label className="my-2">
-        <input
+      <label className="shrink">
+        <Input
           type="number"
-          max={props.stock}
+          max={maxStock}
           step={0.5}
-          value={props.quantity}
-          disabled={props.type === CartItemTypes.offer}
-          className="mx-2 w-20 rounded-2xl p-2 text-gray-500 border-2 border-gray-500"
+          value={quantity}
+          disabled={type === CartItemTypes.offer}
           onChange={(e) => {
             const v = e.target.valueAsNumber;
             if (isNaN(v)) {
@@ -101,11 +112,10 @@ export function CartUtils(props: CartUtilsProps) {
               cartSet.mutate({
                 id: props.id,
                 quantity: NaN,
-                type: props.type,
               });
               return;
             }
-            if (v > props.stock) {
+            if (v > maxStock) {
               props.setError(
                 "order quantity cannot be greater than product stock"
               );
@@ -119,19 +129,18 @@ export function CartUtils(props: CartUtilsProps) {
             cartSet.mutate({
               id: props.id,
               quantity: v,
-              type: props.type,
             });
           }}
         />
-      </label> */}
+      </label>
 
       {/* INCREASE */}
       <Button
         type="button"
         size={"icon"}
         variant={"outline"}
-        disabled={props.quantity >= props.stock}
-        className=" bg-green-300  disabled:bg-gray-500"
+        disabled={quantity + quantityFromOffers >= stock}
+        className=" bg-green-300  disabled:bg-gray-500 shrink-0"
         onClick={() => {
           if (type === CartItemTypes.product) {
             cartIncPro.mutate({ id });
@@ -140,7 +149,7 @@ export function CartUtils(props: CartUtilsProps) {
           }
         }}
       >
-        <RiAddLine />
+        <RiAddLine size={20}/>
       </Button>
     </div>
   );
@@ -154,6 +163,7 @@ type ProductProps = Pick<
    * if there's quantity that's mean this product is in the cart with this quantity
    */
   quantity?: number;
+  quantityFromOffers?: number;
 };
 
 export const KeypadDisplay: React.FC<ProductProps> = (props) => {
@@ -175,14 +185,14 @@ export const KeypadDisplay: React.FC<ProductProps> = (props) => {
       <div className="w-full h-16">
         <h2 className="text-2xl text-ellipsis line-clamp-2 ">{props.name}</h2>
       </div>
-      <span className="text-green-800">piece price: {props.sellPrice}$</span>
+      <span>
+        Stock: {props.stock - (props?.quantity || 0) - (props.quantityFromOffers || 0)}
+      </span>
+      <span className="text-green-800 line-clamp-1">piece price: {props.sellPrice}$</span>
       <span className="text-green-800 line-clamp-1">
         order price: {(props.quantity || 0) * props.sellPrice}$
       </span>
-      <span className="text-gray-500">
-        Stock: {props.stock - (props?.quantity || 0)}
-      </span>
-      {props.quantity !== undefined ? (
+      {props.quantity !== undefined  && props.quantity > 0? (
         <div className="m-auto overflow-y-auto">
           <CartUtils
             id={props.id}
@@ -281,6 +291,12 @@ export function LibraryDisplaySkeleton(props: { count: number }) {
 
 export type ProductDisplayProps = {
   categoryFilter: string;
+  /**
+   * search by name or id 
+   *
+   * empty string "" means no search
+   */
+  productFilter: string;
   displayType: "library" | "keypad";
 };
 
@@ -291,10 +307,6 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
   const [displayType, setDisplayType] = useState<
     ProductDisplayProps["displayType"]
   >(props.displayType);
-  /**
-   * should be filter based on the product name or id
-   */
-  const [productFilter, setProductFilter] = useState("");
   const productsQuery = api.products.getMany.useQuery(undefined, {
     staleTime: Infinity,
     retry(_failureCount, error) {
@@ -311,9 +323,9 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
         if (props.categoryFilter === "") return true;
         else return val.categoryId === props.categoryFilter;
       });
-      return productFilter === ""
+      return props.productFilter === ""
         ? d
-        : matchSorter(d, productFilter, { keys: ["name", "id"] });
+        : matchSorter(d, props.productFilter, { keys: ["name", "id"] });
     }
     return productsQuery.data;
   }, [
@@ -321,7 +333,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
     productsQuery.isError,
     productsQuery.data,
     props.categoryFilter,
-    productFilter,
+    props.productFilter,
   ]);
   const productsDataPage = usePagination({
     data: productsData ?? [],
@@ -334,13 +346,6 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
 
   return (
     <div className="flex flex-col h-full w-full">
-          <DebouncedInput
-            type="search"
-            value={""}
-            onChange={(value) => setProductFilter(value as string)}
-            placeholder={t("header.inputPlaceHolder")}
-            className="w-11/12 m-auto "
-          />
       <ul className="m-auto my-2 flex w-4/5 justify-between rounded-3xl bg-gray-200 p-1">
         <li className="w-6/12">
           <input
@@ -391,14 +396,15 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
           <LibraryDisplaySkeleton count={5} />
         ) : (
           productsDataPage.values.map((product) => {
+            const productFromCart = cart.data.products.find((i) => i.id === product.id);
             const displayProps: ProductProps = {
               id: product.id,
               image: product.image,
               name: product.name,
               sellPrice: product.sellPrice,
               stock: product.stock,
-              quantity: cart.data.products.find((i) => i.id === product.id)
-                ?.quantity,
+              quantity: productFromCart?.quantity,
+              quantityFromOffers: productFromCart?.quantityFromOffers
             };
             return displayType === "keypad" ? (
               <div className="w-3/6 px-1" key={product.id}>

@@ -40,7 +40,7 @@ const CategoryDisplay: React.FC<CategoryDisplayProps> = (props) => {
   return (
     <>
       {/* categories display */}
-      <div className="w-full overflow-auto pb-3 pt-6">
+      <div className="w-full overflow-auto ">
         <div className=" flex w-max items-center justify-start gap-4 overflow-y-hidden  ">
           <div
             role="button"

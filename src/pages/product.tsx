@@ -189,9 +189,6 @@ const ProductTable: NextPageWithProps = () => {
 
   return (
     <>
-      <Head>
-        <link rel="manifest" href="/app.webmanifest" />
-      </Head>
       <div className="w-full">
         {productsQuery.data && <Table data={productsQuery.data} />}
       </div>

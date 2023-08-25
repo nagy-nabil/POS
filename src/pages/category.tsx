@@ -183,9 +183,6 @@ const CategoryPage: NextPageWithProps = (_props) => {
 
   return (
     <>
-      <Head>
-        <link rel="manifest" href="/app.webmanifest" />
-      </Head>
       <div className="w-full">
         {categoryQuery.data && <Table data={categoryQuery.data} />}
       </div>

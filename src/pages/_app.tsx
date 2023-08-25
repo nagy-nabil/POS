@@ -13,7 +13,7 @@ import Head from "next/head";
 import Layout from "@/components/layout";
 import { ThemeProvider } from "@/components/theme-provider";
 
-type LayoutT = (page: ReactElement) => ReactElement;
+export type LayoutT = (page: ReactElement) => ReactElement;
 
 export type NextPageWithProps<P = object, IP = P> = NextPage<P, IP> & {
   /**

@@ -119,7 +119,6 @@ model Product {
     orders          ProductsOnOrder[]
     losses          ProductsOnLoss[]
     ProductsOnOffer ProductsOnOffer[]
-    OffersOnOrder   OffersOnOrder[]
 }
 
 model Order {
@@ -148,15 +147,16 @@ model ProductsOnOrder {
 }
 
 model Offer {
-    id          String            @id @default(cuid())
-    createdAt   DateTime          @default(now())
-    createdById String
-    createdBy   User              @relation("createdBy", fields: [createdById], references: [id])
-    name        String
-    deletedAt   DateTime?
-    deletedById String?
-    deletedBy   User?             @relation("deletedBy", fields: [deletedById], references: [id])
-    products    ProductsOnOffer[]
+    id            String            @id @default(cuid())
+    createdAt     DateTime          @default(now())
+    createdById   String
+    createdBy     User              @relation("createdBy", fields: [createdById], references: [id])
+    name          String
+    deletedAt     DateTime?
+    deletedById   String?
+    deletedBy     User?             @relation("deletedBy", fields: [deletedById], references: [id])
+    products      ProductsOnOffer[]
+    OffersOnOrder OffersOnOrder[]
 }
 
 model ProductsOnOffer {
@@ -177,12 +177,12 @@ model ProductsOnOffer {
 
 model OffersOnOrder {
     offerId  String
-    Offer    Product @relation(fields: [offerId], references: [id])
+    Offer    Offer  @relation(fields: [offerId], references: [id])
     orderId  String
-    order    Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+    order    Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
     // there a check constraint
     //alter table "ProductsOnOffer" add constraint "quntatity_zero" check (quantity > 0);
-    quantity Float   @default(1)
+    quantity Float  @default(1)
 
     @@id([offerId, orderId])
 }
