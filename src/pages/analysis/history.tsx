@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import type { GetStaticPropsContext } from "next";
-import Head from "next/head";
 import OrderDisplay from "@/components/orderDisplay";
 import { Accordion } from "@/components/ui/accordion";
 import { PaginationUtis, usePagination } from "@/hooks/usePagination";

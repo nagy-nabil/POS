@@ -6,6 +6,7 @@ import { offeresRouter } from "@/server/api/routers/offers";
 import { ordersRouter } from "@/server/api/routers/order";
 import { productsRouter } from "@/server/api/routers/product";
 import { usersRouter } from "@/server/api/routers/user";
+import { dashboardRouter} from "@/server/api/routers/dashboard";
 import { createTRPCRouter } from "@/server/api/trpc";
 
 export const appRouter = createTRPCRouter({
@@ -17,6 +18,7 @@ export const appRouter = createTRPCRouter({
   expenses: expensesRouter,
   losses: lossesRouter,
   offers: offeresRouter,
+  dashboard: dashboardRouter,
 });
 
 // export type definition of API

@@ -1,5 +1,4 @@
 import type { GetStaticPropsContext } from "next";
-import Head from "next/head";
 import LanguageSwitcher from "@/components/langSelector";
 import { loginSchema } from "@/types/entities";
 import { api } from "@/utils/api";
@@ -12,6 +11,8 @@ import { CgSpinner } from "react-icons/cg";
 import { z } from "zod";
 
 import { type NextPageWithProps } from "./_app";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   return {
@@ -112,10 +113,9 @@ const SettingsPage: NextPageWithProps = () => {
         >
           <label className="flex flex-col gap-3">
             {t("userSettings.settings.changeUserName.header")}
-            <input
+            <Input
               {...userNameReg("userName")}
               type="text"
-              className="rounded-xl border-2 border-gray-400 p-2 text-lg"
               placeholder={t(
                 "userSettings.settings.changeUserName.placeHolder"
               )}
@@ -126,16 +126,15 @@ const SettingsPage: NextPageWithProps = () => {
               </span>
             )}
           </label>
-          <button
+          <Button
             type="submit"
-            className=" h-fit w-fit rounded-xl bg-green-500 p-2 text-white"
           >
             {userNameUpdate.isLoading ? (
-              <CgSpinner className="animate-spin text-2xl" />
+              <CgSpinner className="animate-spin " />
             ) : (
               t("userSettings.settings.changeUserName.action")
             )}
-          </button>
+          </Button>
         </form>
 
         <hr className="mt-3" />
@@ -146,27 +145,26 @@ const SettingsPage: NextPageWithProps = () => {
         >
           <label className="flex flex-col gap-3">
             {t("userSettings.settings.changePassword.header")}
-            <input
+            <Input
               {...passwordReg("password")}
               type="password"
               placeholder={t(
                 "userSettings.settings.changePassword.placeHolder1"
               )}
               autoCapitalize="off"
-              className="rounded-xl border-2 border-gray-400 p-2 text-lg"
             />
             {passwordErrors["password"] && (
               <span className="m-2 text-red-700">
                 {passwordErrors["password"].message}
               </span>
             )}
-            <input
+            <Input
               {...passwordReg("rePassword")}
               type="password"
               placeholder={t(
                 "userSettings.settings.changePassword.placeHolder2"
               )}
-              className="rounded-xl border-2 border-gray-400 p-2 text-lg"
+              autoCapitalize="off"
             />
             {passwordErrors["rePassword"] && (
               <span className="m-2 text-red-700">
@@ -181,16 +179,15 @@ const SettingsPage: NextPageWithProps = () => {
               </span>
             )}
           </label>
-          <button
+          <Button
             type="submit"
-            className="h-fit  w-fit rounded-xl bg-green-500 p-2 text-white"
           >
             {passwordUpdate.isLoading ? (
-              <CgSpinner className="animate-spin text-2xl" />
+              <CgSpinner className="animate-spin " />
             ) : (
               t("userSettings.settings.changePassword.action")
             )}
-          </button>
+          </Button>
         </form>
 
         <ReactQueryDevtools initialIsOpen={false} />

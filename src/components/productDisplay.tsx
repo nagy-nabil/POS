@@ -1,8 +1,7 @@
-// chrome://inspect#devices
-import {Input} from "@/components/ui/input";
 import React, { useMemo, useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   CartItemTypes,
   useCarOfferDec,
@@ -57,7 +56,7 @@ export function CartUtils(props: CartUtilsProps) {
   const cartRemovePro = useCartRemoveProduct();
   const cartRemoveOffer = useCartRemoveOffer();
 
-  const { id, type, products, quantityFromOffers = 0, quantity, stock} = props;
+  const { id, type, products, quantityFromOffers = 0, quantity, stock } = props;
 
   const maxStock = stock - quantityFromOffers;
 
@@ -77,7 +76,7 @@ export function CartUtils(props: CartUtilsProps) {
           }
         }}
       >
-        <MdRemoveShoppingCart size={20}/>
+        <MdRemoveShoppingCart size={20} />
       </Button>
 
       {/* DECREASE */}
@@ -94,7 +93,7 @@ export function CartUtils(props: CartUtilsProps) {
           }
         }}
       >
-        <AiOutlineMinus size={20}/>
+        <AiOutlineMinus size={20} />
       </Button>
 
       {/* SET: disabled with offer, you get the whole offer or not*/}
@@ -149,7 +148,7 @@ export function CartUtils(props: CartUtilsProps) {
           }
         }}
       >
-        <RiAddLine size={20}/>
+        <RiAddLine size={20} />
       </Button>
     </div>
   );
@@ -186,13 +185,17 @@ export const KeypadDisplay: React.FC<ProductProps> = (props) => {
         <h2 className="text-2xl text-ellipsis line-clamp-2 ">{props.name}</h2>
       </div>
       <span>
-        Stock: {props.stock - (props?.quantity || 0) - (props.quantityFromOffers || 0)}
+        Stock:{" "}
+        {props.stock - (props?.quantity || 0) - (props.quantityFromOffers || 0)}
       </span>
-      <span className="text-green-800 line-clamp-1">piece price: {props.sellPrice}$</span>
-      <span className="text-green-800 line-clamp-1">
-        order price: {(props.quantity || 0) * props.sellPrice}$
+      <span className="text-green-500 line-clamp-1">
+        piece price: {props.sellPrice}$
       </span>
-      {props.quantity !== undefined  && props.quantity > 0? (
+      <span className="text-green-500 line-clamp-1">
+        {/*show number with only 2 decimal digits*/}
+        order price: {((props.quantity || 0) * props.sellPrice).toFixed(2)}$
+      </span>
+      {props.quantity !== undefined ? (
         <div className="m-auto overflow-y-auto">
           <CartUtils
             id={props.id}
@@ -223,8 +226,8 @@ export const LibraryDisplay: React.FC<ProductProps> = (props) => {
 
   return (
     <div className="flex flex-col w-full h-full overflow-hidden">
-      <div className="flex h-5/6 w-full" key={props.id}>
-        <div className="h-full w-1/4 overflow-hidden relative mr-2">
+      <div className="flex h-5/6 w-full gap-2" key={props.id}>
+        <div className="h-full w-1/4 overflow-hidden relative ">
           <Image
             alt="item-card"
             src={props.image}
@@ -234,7 +237,7 @@ export const LibraryDisplay: React.FC<ProductProps> = (props) => {
           />
         </div>
         <div className="flex h-full w-full flex-col">
-          <div className="w-full h-5/6">
+          <div className="w-full h-full">
             <h2 className="text-2xl text-ellipsis line-clamp-2 ">
               {props.name}
             </h2>
@@ -243,7 +246,14 @@ export const LibraryDisplay: React.FC<ProductProps> = (props) => {
             <span className="text-gray-500 text-xl">
               {props.stock - (props.quantity || 0)} :{" "}
             </span>
-            <span className="text-green-500 text-xl"> {props.sellPrice}$</span>
+            <span className="text-green-500 text-xl">
+              {" "}
+              {props.sellPrice}$ :{" "}
+            </span>
+            <span className="text-green-500 text-xl">
+              {" "}
+              {((props.quantity || 0) * props.sellPrice).toFixed(2)}$
+            </span>
           </p>
           {props.quantity !== undefined && (
             <div className="m-auto">
@@ -263,7 +273,7 @@ export const LibraryDisplay: React.FC<ProductProps> = (props) => {
             disabled={props.stock <= 0}
             onClick={() => cartInc.mutate({ id: props.id })}
           >
-            <RiAddCircleLine size={25}/>
+            <RiAddCircleLine size={25} />
           </Button>
         )}
       </div>
@@ -290,13 +300,16 @@ export function LibraryDisplaySkeleton(props: { count: number }) {
 }
 
 export type ProductDisplayProps = {
-  categoryFilter: string;
   /**
-   * search by name or id 
-   *
-   * empty string "" means no search
+   * null means no filter
    */
-  productFilter: string;
+  categoryFilter: string | null;
+  /**
+   * search by name or id
+   *
+   * null means no search
+   */
+  productFilter: string | null;
   displayType: "library" | "keypad";
 };
 
@@ -320,10 +333,10 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
   const productsData = useMemo(() => {
     if (!productsQuery.isLoading && !productsQuery.isError) {
       const d = productsQuery.data.filter((val) => {
-        if (props.categoryFilter === "") return true;
+        if (props.categoryFilter === null) return true;
         else return val.categoryId === props.categoryFilter;
       });
-      return props.productFilter === ""
+      return props.productFilter === null
         ? d
         : matchSorter(d, props.productFilter, { keys: ["name", "id"] });
     }
@@ -396,7 +409,9 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
           <LibraryDisplaySkeleton count={5} />
         ) : (
           productsDataPage.values.map((product) => {
-            const productFromCart = cart.data.products.find((i) => i.id === product.id);
+            const productFromCart = cart.data.products.find(
+              (i) => i.id === product.id
+            );
             const displayProps: ProductProps = {
               id: product.id,
               image: product.image,
@@ -404,7 +419,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
               sellPrice: product.sellPrice,
               stock: product.stock,
               quantity: productFromCart?.quantity,
-              quantityFromOffers: productFromCart?.quantityFromOffers
+              quantityFromOffers: productFromCart?.quantityFromOffers,
             };
             return displayType === "keypad" ? (
               <div className="w-3/6 px-1" key={product.id}>

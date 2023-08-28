@@ -28,13 +28,14 @@ export async function getStaticProps({ locale }: GetStaticPropsContext) {
 
 const Home: NextPageWithProps = (_props) => {
   const { t } = useTranslation();
-  const [categoryFilter, setCategoryFilter] = useState("");
+  // null means no category(no filter)
+  const [categoryFilter, setCategoryFilter] = useState<null | string>(null);
   /**
    * should be filter based on the product name or id
    *
    * empty string "" means no filter
    */
-  const [productFilter, setProductFilter] = useState("");
+  const [productFilter, setProductFilter] = useState<string | null>(null);
 
   return (
     <>
@@ -47,7 +48,10 @@ const Home: NextPageWithProps = (_props) => {
           <DebouncedInput
             type="search"
             value={""}
-            onChange={(value) => setProductFilter(value.toString())}
+            onChange={(value) => {
+                const v = value.toString();
+              setProductFilter(v === "" ? null : v )}
+            }
             placeholder={t("header.inputPlaceHolder")}
             className="shrink"
           />

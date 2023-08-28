@@ -251,7 +251,7 @@ export function Nav() {
         </Button>
       </SheetTrigger>
 
-      <SheetContent side="left" className="p-0 px-2 bg-primary">
+      <SheetContent side="left" className="p-0 px-2 bg-primary dark:bg-secondary">
         <h1 className="text-3xl font-bold my-3 text-white">
           <MobileLink
             href="/"
@@ -264,10 +264,10 @@ export function Nav() {
           </MobileLink>
         </h1>
 
-        <ScrollArea className="my-4 h-full pb-1">
-          <div className="h-full flex flex-col space-y-3">
+        <ScrollArea className="my-4  h-[calc(100vh-8rem)] pb-1">
+          {/* <div className="h-fit flex flex-col space-y-3"> */}
             <PathsList {...sidebarLinks} setOpen={setOpen} />
-          </div>
+          {/* </div> */}
             <Button
               type="button"
               variant="ghost"

@@ -1,7 +1,7 @@
 {
   "header": {
     "name": "صفحة المبيعات",
-    "inputPlaceHolder": "البحث"
+    "inputPlaceHolder": "بحث"
   },
   "categoryDisplay": {
     "default": "بدون تصفية"
@@ -9,35 +9,38 @@
   "productDisplay": {
     "modes": {
       "Library": "مكتبة",
-      "keypad": { "label": "لوحة المفاتيح", "action": "إضافة إلى السلة" }
+      "keypad": {
+        "label": "لوحة المفاتيح",
+        "action": "إضافة إلى السلة"
+      }
     }
   },
   "orderDisplay": {
     "meta": {
       "createdAt": "تم الإنشاء في",
-      "total": "المجموع"
+      "total": "الإجمالي"
     },
     "table": {
       "name": "الاسم",
       "price": "السعر",
       "quantity": "الكمية",
-      "total": "المجموع",
+      "total": "الإجمالي",
       "profit": "الربح"
     }
   },
   "crate": {
-    "prefix": "أضفت",
+    "prefix": "لقد أضفت",
     "postfix": "عناصر",
     "quantity": "الكمية",
     "price": "السعر",
     "footer": {
-      "totalSpan": "المجموع",
+      "totalSpan": "الإجمالي",
       "button": "الدفع"
     }
   },
   "qrModal": {
     "utils": {
-      "scan": "مسح آخر",
+      "scan": "مسح مرة أخرى",
       "done": "تم"
     }
   },
@@ -133,7 +136,7 @@
         "id": "المعرف",
         "description": "الوصف",
         "amount": "المبلغ",
-        "remindAt": "تذكير في",
+        "remindAt": "موعد التذكير",
         "typeId": "النوع"
       },
       "action": {
@@ -164,12 +167,20 @@
       "sales": "المبيعات",
       "products": "المنتجات",
       "category": "الفئات",
-      "anal": { "index": "التحليل", "history": "التاريخ" },
-      "spendings": { "index": "المصروفات", "losses": "الخسائر" },
+      "anal": {
+        "index": "التحليل",
+        "history": "التاريخ"
+      },
+      "spendings": {
+        "index": "المصروفات",
+        "losses": "الخسائر"
+      },
       "settings": "الإعدادات",
       "offers": "العروض"
     },
-    "actions": { "logout": "تسجيل الخروج" }
+    "actions": {
+      "logout": "تسجيل الخروج"
+    }
   },
   "table": {
     "common": {
@@ -195,11 +206,32 @@
     }
   },
   "pages": {
-    "product": {
+    "/": {
+      "header": "المبيعات"
+    },
+    "/product": {
       "header": "المنتجات"
     },
-    "spending": {
+    "/category": {
+      "header": "الفئات"
+    },
+    "/offers": {
+      "header": "العروض"
+    },
+    "/setting": {
+      "header": "الإعدادات"
+    },
+    "/spending": {
       "header": "المصروفات"
+    },
+    "/analysis": {
+      "header": "التحليل"
+    },
+    "/analysis/history": {
+      "header": "تاريخ الطلبات"
+    },
+    "/spending/losses": {
+      "header": "الخسائر"
     }
   }
 }

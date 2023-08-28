@@ -105,7 +105,7 @@ export function CartModal() {
               return null;
             }
             return (
-              <div key={product.id} className="w-11/12 h-52 overflow-hidden">
+              <div key={product.id} className="w-full h-52 overflow-hidden">
                 <LibraryDisplay
                   key={val.id}
                   {...product}

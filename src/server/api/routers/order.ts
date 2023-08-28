@@ -194,7 +194,10 @@ export const ordersRouter = createTRPCRouter({
       return o;
     });
   }),
-  anal: protectedProcedure.query(async ({ ctx }) => {
+  anal: protectedProcedure.input(z.object({
+    from: z.date(),
+    to: z.date(),
+  })).query(async ({ ctx, input}) => {
     /**
      * prisma don't yet support using db native function inside the group by so need to use rawQuery, for more information
      * @link https://github.com/prisma/prisma/discussions/11692
@@ -204,9 +207,9 @@ export const ordersRouter = createTRPCRouter({
           from "Order" AS O
           inner join "ProductsOnOrder" AS PO
           on O.id = PO."orderId"
+          where Date(O."createdAt" at time zone 'utc' at time zone 'Africa/Cairo') >= Date(${input.from} at time zone 'utc' at time zone 'Africa/Cairo') and Date(O."createdAt" at time zone 'utc' at time zone 'Africa/Cairo')  <= Date(${input.to} at time zone 'utc' at time zone 'Africa/Cairo') 
           group by date
           order by date DESC
-          limit 10
           ;
       `;
 
