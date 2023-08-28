@@ -1,9 +1,9 @@
 import React, { useMemo } from "react";
 import type { GetStaticPropsContext } from "next";
-import Head from "next/head";
 import IndeterminateCheckbox from "@/components/form/indeterminateCheckbox";
 import ConfirmModal from "@/components/modal/confirm";
 import OfferModal from "@/components/modal/offerModal";
+import { OfferDisplay } from "@/components/offerDisplay";
 import TableBody from "@/components/table/body";
 import { fuzzyFilter } from "@/components/table/helpers";
 import TableUtils from "@/components/table/utils";
@@ -159,8 +159,7 @@ function Table(props: { data: Offer[] }) {
   if (typeof window === "undefined") return null;
 
   return (
-    <div className="mt-3 flex flex-col">
-      <div className="w-screen">
+    <div className="w-full flex h-fit flex-col">
         {/* item utils*/}
         <div className="flex justify-start gap-3">
           <OfferModal defaultValues={{}} operationType="post" />
@@ -175,7 +174,6 @@ function Table(props: { data: Offer[] }) {
             bodyMessage="Are you sure you want to delete this offer, you cannot undo?"
             header="Delete Offer"
             onOk={() => {
-              console.log("will delete");
               offerDelete.mutate(
                 Object.keys(rowSelection).map(
                   (itm) => props.data[+itm]?.id as string
@@ -206,30 +204,21 @@ function Table(props: { data: Offer[] }) {
 
         {/* table utils */}
         <TableUtils table={table} />
-      </div>
     </div>
   );
 }
 
 const OfferPage: NextPageWithProps = () => {
-  const { t } = useTranslation();
   const offerQuery = api.offers.index.useQuery(undefined, {
     staleTime: Infinity,
   });
 
   return (
-    <>
-      <Head>
-        <link rel="manifest" href="/app.webmanifest" />
-      </Head>
-      <div className="w-screen">
-        <header className="mt-2 flex items-center justify-around">
-          <h1 className="text-4xl">{t("pages.spending.header")}</h1>
-        </header>
+      <div className="w-full h-full">
         {offerQuery.data && <Table data={offerQuery.data} />}
+        <OfferDisplay />
+        <ReactQueryDevtools initialIsOpen={false} />
       </div>
-      <ReactQueryDevtools initialIsOpen={false} />
-    </>
   );
 };
 

@@ -1,79 +1,284 @@
 import React, { useMemo, useState } from "react";
 import Image from "next/image";
-import { type CrateItem } from "@/components/modal/crateModal";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  CartItemTypes,
+  useCarOfferDec,
+  useCarOffertInc,
+  useCarProductDec,
+  useCart,
+  useCartProductInc,
+  useCartProductSet,
+  useCartRemoveOffer,
+  useCartRemoveProduct,
+} from "@/hooks/useCart";
 import { PaginationUtis, usePagination } from "@/hooks/usePagination";
+import { type CartItem } from "@/types/entities";
 import { api } from "@/utils/api";
 import { type Product } from "@prisma/client";
 import { matchSorter } from "match-sorter";
 import { useTranslation } from "react-i18next";
-import { RiAddCircleLine } from "react-icons/ri";
+import { AiOutlineMinus } from "react-icons/ai";
+import { MdRemoveShoppingCart } from "react-icons/md";
+import { RiAddCircleLine, RiAddLine } from "react-icons/ri";
+
+export type CartUtilsProps = {
+  id: Product["id"];
+  stock: number;
+  /**
+   * number of this item on the cart for both the offers and products
+   */
+  quantity: number;
+  /**
+   * product holds more data on the cart
+   */
+  quantityFromOffers?: number;
+  type: CartItemTypes;
+  setError: (value: React.SetStateAction<string>) => void;
+  /**
+   * for the offer may be remove it from here?
+   */
+  products?: CartItem[];
+};
+/**
+ * Cart utils component, render increase/decrease/remove/set buttons
+ */
+export function CartUtils(props: CartUtilsProps) {
+  const cartIncPro = useCartProductInc();
+  const cartIncoffer = useCarOffertInc();
+
+  const cartDecPro = useCarProductDec();
+  const cartDecOffer = useCarOfferDec();
+
+  const cartSet = useCartProductSet();
+
+  const cartRemovePro = useCartRemoveProduct();
+  const cartRemoveOffer = useCartRemoveOffer();
+
+  const { id, type, products, quantityFromOffers = 0, quantity, stock } = props;
+
+  const maxStock = stock - quantityFromOffers;
+
+  return (
+    <div className="flex justify-between  gap-1">
+      {/* REMOVE */}
+      <Button
+        type="button"
+        size={"icon"}
+        variant={"destructive"}
+        className="shrink-0"
+        onClick={() => {
+          if (type === CartItemTypes.product) {
+            cartRemovePro.mutate({ id });
+          } else if (type === CartItemTypes.offer && products) {
+            cartRemoveOffer.mutate({ id, products });
+          }
+        }}
+      >
+        <MdRemoveShoppingCart size={20} />
+      </Button>
+
+      {/* DECREASE */}
+      <Button
+        type="button"
+        size={"icon"}
+        variant={"outline"}
+        className="shrink-0"
+        onClick={() => {
+          if (type === CartItemTypes.product) {
+            cartDecPro.mutate({ id });
+          } else if (type === CartItemTypes.offer && products) {
+            cartDecOffer.mutate({ id, products });
+          }
+        }}
+      >
+        <AiOutlineMinus size={20} />
+      </Button>
+
+      {/* SET: disabled with offer, you get the whole offer or not*/}
+      <label className="shrink">
+        <Input
+          type="number"
+          max={maxStock}
+          step={0.5}
+          value={quantity}
+          disabled={type === CartItemTypes.offer}
+          onChange={(e) => {
+            const v = e.target.valueAsNumber;
+            if (isNaN(v)) {
+              props.setError("quantity cannot be NaN");
+              cartSet.mutate({
+                id: props.id,
+                quantity: NaN,
+              });
+              return;
+            }
+            if (v > maxStock) {
+              props.setError(
+                "order quantity cannot be greater than product stock"
+              );
+              return;
+            }
+            if (v < 0) {
+              props.setError("order quantity cannot be less than zero");
+              return;
+            }
+            props.setError("");
+            cartSet.mutate({
+              id: props.id,
+              quantity: v,
+            });
+          }}
+        />
+      </label>
+
+      {/* INCREASE */}
+      <Button
+        type="button"
+        size={"icon"}
+        variant={"outline"}
+        disabled={quantity + quantityFromOffers >= stock}
+        className=" bg-green-300  disabled:bg-gray-500 shrink-0"
+        onClick={() => {
+          if (type === CartItemTypes.product) {
+            cartIncPro.mutate({ id });
+          } else if (type === CartItemTypes.offer && products) {
+            cartIncoffer.mutate({ id, products });
+          }
+        }}
+      >
+        <RiAddLine size={20} />
+      </Button>
+    </div>
+  );
+}
 
 type ProductProps = Pick<
   Product,
   "sellPrice" | "id" | "image" | "name" | "stock"
 > & {
-  onClick: React.MouseEventHandler<HTMLButtonElement>;
-  width: "w-2/5" | "w-2/3" | "w-3/4";
+  /**
+   * if there's quantity that's mean this product is in the cart with this quantity
+   */
+  quantity?: number;
+  quantityFromOffers?: number;
 };
 
 export const KeypadDisplay: React.FC<ProductProps> = (props) => {
   const { t } = useTranslation();
+  const cartInc = useCartProductInc();
+  const [error, setError] = useState("");
+
   return (
-    <div
-      className={`${props.width} m-3 flex h-fit flex-col gap-1 md:w-1/5`}
-      key={props.id}
-    >
-      <Image
-        alt="item-card"
-        src={props.image}
-        className="h-auto w-full"
-        sizes="100vw"
-        width={130}
-        height={80}
-      />
-      <h2 className="text-2xl">{props.name}</h2>
-      <span className="text-green-500">price: {props.sellPrice}$</span>
-      <span className="text-gray-500">Quantity: {props.stock}</span>
-      {/* TODO show add and decrease button if the item in the crate */}
-      <button
-        type="button"
-        disabled={props.stock <= 0}
-        onClick={props.onClick}
-        className="mb-2 mr-2 rounded-xl bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:bg-gray-600"
-      >
-        {t("productDisplay.modes.keypad.action")}
-      </button>
+    <div className={`flex h-fit flex-col gap-1 w-full`} key={props.id}>
+      <div className="h-52 overflow-hidden relative">
+        <Image
+          alt="item-card"
+          src={props.image}
+          className="h-auto w-full object-cover"
+          fill={true}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        />
+      </div>
+      <div className="w-full h-16">
+        <h2 className="text-2xl text-ellipsis line-clamp-2 ">{props.name}</h2>
+      </div>
+      <span>
+        Stock:{" "}
+        {props.stock - (props?.quantity || 0) - (props.quantityFromOffers || 0)}
+      </span>
+      <span className="text-green-500 line-clamp-1">
+        piece price: {props.sellPrice}$
+      </span>
+      <span className="text-green-500 line-clamp-1">
+        {/*show number with only 2 decimal digits*/}
+        order price: {((props.quantity || 0) * props.sellPrice).toFixed(2)}$
+      </span>
+      {props.quantity !== undefined ? (
+        <div className="m-auto overflow-y-auto">
+          <CartUtils
+            id={props.id}
+            stock={props.stock}
+            quantity={props.quantity}
+            type={CartItemTypes.product}
+            setError={setError}
+          />
+        </div>
+      ) : (
+        <Button
+          type="button"
+          variant={"default"}
+          disabled={props.stock <= 0}
+          onClick={() => cartInc.mutate({ id: props.id })}
+        >
+          {t("productDisplay.modes.keypad.action")}
+        </Button>
+      )}
+      <p className="m-2 text-red-700">{error}</p>
     </div>
   );
 };
 
 export const LibraryDisplay: React.FC<ProductProps> = (props) => {
+  const cartInc = useCartProductInc();
+  const [error, setError] = useState("");
+
   return (
-    <div className=" m-2 flex  h-1/6 w-11/12" key={props.id}>
-      <div className="flex items-center">
-        <Image
-          alt="item-card"
-          src={props.image}
-          className="h-auto w-auto"
-          width={50}
-          height={50}
-        />
+    <div className="flex flex-col w-full h-full overflow-hidden">
+      <div className="flex h-5/6 w-full gap-2" key={props.id}>
+        <div className="h-full w-1/4 overflow-hidden relative ">
+          <Image
+            alt="item-card"
+            src={props.image}
+            className="object-cover"
+            fill={true}
+            sizes="33vw"
+          />
+        </div>
+        <div className="flex h-full w-full flex-col">
+          <div className="w-full h-full">
+            <h2 className="text-2xl text-ellipsis line-clamp-2 ">
+              {props.name}
+            </h2>
+          </div>
+          <p>
+            <span className="text-gray-500 text-xl">
+              {props.stock - (props.quantity || 0)} :{" "}
+            </span>
+            <span className="text-green-500 text-xl">
+              {" "}
+              {props.sellPrice}$ :{" "}
+            </span>
+            <span className="text-green-500 text-xl">
+              {" "}
+              {((props.quantity || 0) * props.sellPrice).toFixed(2)}$
+            </span>
+          </p>
+          {props.quantity !== undefined && (
+            <div className="m-auto">
+              <CartUtils
+                id={props.id}
+                stock={props.stock}
+                quantity={props.quantity}
+                type={CartItemTypes.product}
+                setError={setError}
+              />
+            </div>
+          )}
+        </div>
+        {props.quantity === undefined && (
+          <Button
+            size="icon"
+            disabled={props.stock <= 0}
+            onClick={() => cartInc.mutate({ id: props.id })}
+          >
+            <RiAddCircleLine size={25} />
+          </Button>
+        )}
       </div>
-      <div className="ml-3 flex h-12 flex-col">
-        <h2 className="h-fit w-fit text-2xl">{props.name}</h2>
-        <p>
-          <span className="text-gray-500">{props.stock} : </span>
-          <span className="text-green-500"> {props.sellPrice}$</span>
-        </p>
-      </div>
-      {/* TODO show add and decrease button if the item in the crate */}
-      <button
-        disabled={props.stock <= 0}
-        onClick={props.onClick}
-        className="ml-auto rounded-xl   py-2.5 text-2xl font-medium text-gray-700 focus:outline-none disabled:text-gray-400"
-      >
-        <RiAddCircleLine />
-      </button>
+
+      <p className="m-2 text-red-700">{error}</p>
     </div>
   );
 };
@@ -90,24 +295,28 @@ export function LibraryDisplaySkeleton(props: { count: number }) {
           <div className="h-2.5 w-12 rounded-full bg-gray-300 "></div>
         </div>
       ))}
-      <span className="sr-only">Loading...</span>
     </div>
   );
 }
 
 export type ProductDisplayProps = {
-  categoryFilter: string;
   /**
-   * should be filter based on the product name or id
+   * null means no filter
    */
-  productFilter: string;
+  categoryFilter: string | null;
+  /**
+   * search by name or id
+   *
+   * null means no search
+   */
+  productFilter: string | null;
   displayType: "library" | "keypad";
-  setOnCrate: React.Dispatch<React.SetStateAction<CrateItem[]>>;
 };
 
 // main component
 const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
   const { t } = useTranslation();
+  const cart = useCart();
   const [displayType, setDisplayType] = useState<
     ProductDisplayProps["displayType"]
   >(props.displayType);
@@ -122,13 +331,12 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
   });
   // apply category filter and the search on products data
   const productsData = useMemo(() => {
-    console.log("in memo");
     if (!productsQuery.isLoading && !productsQuery.isError) {
       const d = productsQuery.data.filter((val) => {
-        if (props.categoryFilter === "") return true;
+        if (props.categoryFilter === null) return true;
         else return val.categoryId === props.categoryFilter;
       });
-      return props.productFilter === ""
+      return props.productFilter === null
         ? d
         : matchSorter(d, props.productFilter, { keys: ["name", "id"] });
     }
@@ -150,7 +358,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col h-full w-full">
       <ul className="m-auto my-2 flex w-4/5 justify-between rounded-3xl bg-gray-200 p-1">
         <li className="w-6/12">
           <input
@@ -196,47 +404,31 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
         </li>
       </ul>
 
-      <div className="flex flex-wrap justify-between overflow-y-auto overflow-x-hidden pb-16">
+      <div className="flex h-full flex-wrap justify-around overflow-y-auto overflow-x-hidden pb-16">
         {productsData === undefined ? (
           <LibraryDisplaySkeleton count={5} />
         ) : (
           productsDataPage.values.map((product) => {
+            const productFromCart = cart.data.products.find(
+              (i) => i.id === product.id
+            );
             const displayProps: ProductProps = {
-              onClick: () => {
-                props.setOnCrate((prev) => {
-                  // check if the item already exist in the crate it exist increase the qunatity
-                  let newItem: CrateItem;
-                  const temp = prev.find((val) => val.id === product.id);
-                  if (temp !== undefined) {
-                    newItem = temp;
-                    newItem.quantity++;
-                  } else {
-                    newItem = {
-                      id: product.id,
-                      name: product.name,
-                      quantity: 1,
-                      stock: product.stock,
-                      sellPrice: product.sellPrice,
-                    };
-                  }
-                  return [
-                    ...prev.filter((val) => val.id !== product.id),
-                    newItem,
-                  ];
-                });
-              },
               id: product.id,
               image: product.image,
               name: product.name,
               sellPrice: product.sellPrice,
               stock: product.stock,
-              width: "w-2/5",
+              quantity: productFromCart?.quantity,
+              quantityFromOffers: productFromCart?.quantityFromOffers,
             };
-
             return displayType === "keypad" ? (
-              <KeypadDisplay key={product.id} {...displayProps} />
+              <div className="w-3/6 px-1" key={product.id}>
+                <KeypadDisplay key={product.id} {...displayProps} />
+              </div>
             ) : (
-              <LibraryDisplay key={product.id} {...displayProps} />
+              <div className="w-11/12 h-1/4 overflow-hidden" key={product.id}>
+                <LibraryDisplay key={product.id} {...displayProps} />
+              </div>
             );
           })
         )}

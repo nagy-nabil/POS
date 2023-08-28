@@ -53,7 +53,7 @@ export default function CustomModal(props: CustomModalProps) {
         className="w-11/12 rounded-xl bg-gray-100 p-0 shadow-2xl md:w-2/5"
         {...props.dialogAttrs}
       >
-        <form className="flex flex-col p-3" {...props.formAttrs}>
+        <form className="flex flex-col p-3 w-full h-full" {...props.formAttrs}>
           <header className="sticky mb-3 flex justify-between border-b-2">
             <h1 className="my-2 text-3xl">{props.header}</h1>
             <button type="button" onClick={closeModal}>

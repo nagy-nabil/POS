@@ -11,7 +11,7 @@ export type TableBodyProps<T> = {
 export default function TableBody<T>({ table }: TableBodyProps<T>) {
   return (
     <table
-      className="w-fit border-collapse border border-slate-400 bg-white shadow-sm "
+      className="w-full border-collapse border border-slate-400 bg-white shadow-sm h-fit"
       {...{
         style: {
           width: table.getCenterTotalSize(),

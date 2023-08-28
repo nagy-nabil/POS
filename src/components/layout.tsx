@@ -1,9 +1,26 @@
-import React, { useMemo, useState } from "react";
-import Link from "next/link";
+import Head from "next/head";
+import React, { useMemo } from "react";
+import Link, { type LinkProps } from "next/link";
 import { useRouter } from "next/router";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { cn } from "@/utils/shadcn/shadcn";
 import { useQueryClient } from "@tanstack/react-query";
+import { Moon, Sun } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useTranslation } from "next-i18next";
+import { useTheme } from "next-themes";
 import {
   AiOutlineHistory,
   AiOutlineSetting,
@@ -14,7 +31,7 @@ import { CiShoppingTag } from "react-icons/ci";
 import { GiTakeMyMoney } from "react-icons/gi";
 import { LuBarChart3 } from "react-icons/lu";
 import { MdMoneyOff, MdOutlineCategory } from "react-icons/md";
-import { RiCloseLine, RiLogoutBoxLine, RiMenu4Fill } from "react-icons/ri";
+import { RiLogoutBoxLine, RiMenu4Fill } from "react-icons/ri";
 
 import Accordion from "./accordion";
 
@@ -30,19 +47,48 @@ export type PathsListProps = {
   paths: (PathItem | PathItem[])[];
 };
 
-export function PathItem(props: PathItemProps & { isActive: boolean }) {
+interface MobileLinkProps extends LinkProps {
+  onOpenChange?: (open: boolean) => void;
+  children: React.ReactNode;
+  className?: string;
+}
+
+export function MobileLink({
+  href,
+  onOpenChange,
+  className,
+  children,
+  ...props
+}: MobileLinkProps) {
+  const router = useRouter();
+
   return (
-    <>
-      <li key={props.path.key}>
-        <Link
-          href={props.path.href}
-          className={`flex items-center gap-3 rounded-2xl  p-2 text-white 
-                      ${props.isActive ? "bg-gray-700 " : " "}`}
-        >
-          {props.path.icon} {props.path.label}
-        </Link>
-      </li>
-    </>
+    <Link
+      href={href}
+      onClick={async () => {
+        await router.push(href.toString());
+        onOpenChange?.(false);
+      }}
+      className={cn(className)}
+      {...props}
+    >
+      {children}
+    </Link>
+  );
+}
+
+export function PathItem(
+  props: PathItemProps & { isActive: boolean; setOpen?: (open: boolean) => void }
+) {
+  return (
+    <MobileLink
+      href={props.path.href}
+      className={`flex items-center gap-3 rounded-2xl  p-2 text-white text-2xl
+                      ${props.isActive ? "bg-gray-500" : " "}`}
+      onOpenChange={props.setOpen}
+    >
+      {props.path.icon} {props.path.label}
+    </MobileLink>
   );
 }
 
@@ -52,11 +98,13 @@ export function PathItem(props: PathItemProps & { isActive: boolean }) {
  * @param props
  * @returns
  */
-export function PathsList(props: PathsListProps) {
+export function PathsList(
+  props: PathsListProps & { setOpen: (open: boolean) => void }
+) {
   const { route } = useRouter();
 
   return (
-    <ul className="m-2 flex h-full flex-col gap-3 text-2xl">
+    <>
       {props.paths.map((path, i) => {
         return Array.isArray(path) ? (
           <Accordion
@@ -64,19 +112,26 @@ export function PathsList(props: PathsListProps) {
             title={
               <div
                 className={
-                  "flex items-center gap-3 rounded-2xl  p-2 text-white"
+                  "text-2xl flex items-center gap-3 rounded-2xl  p-2 text-white"
                 }
               >
                 {/* @ts-ignore */}
                 {path[0].icon} {path[0].label}
               </div>
             }
-            content={<PathsList key={`${i}innleis`} paths={path} />}
+            content={
+              <PathsList
+                key={`${i}innleis`}
+                paths={path}
+                setOpen={props.setOpen}
+              />
+            }
           />
         ) : (
           <PathItem
             key={`${i}litom`}
             isActive={route === path.href}
+            setOpen={props.setOpen}
             path={{
               key: i.toString() + "path",
               ...path,
@@ -84,70 +139,100 @@ export function PathsList(props: PathsListProps) {
           />
         );
       })}
-    </ul>
+    </>
   );
 }
 
-const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export function ModeToggle() {
+  const { setTheme } = useTheme();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="icon">
+          <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+          <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          <span className="sr-only">Toggle theme</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => setTheme("light")}>
+          Light
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("dark")}>
+          Dark
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("system")}>
+          System
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+  const iconClasses = "w-fit h-fit text-primary-forground border  p-3 rounded-2xl ";
+const iconSize = 25;
+export function Nav() {
+  const [open, setOpen] = React.useState(false);
+
   const { t } = useTranslation();
-  const [sidebarVisible, setSidebarVisible] = useState(false);
-  // used to describe sidebar items
   const queryClient = useQueryClient();
 
-  const iconClasses = "w-fit h-fit text-white bg-gray-800 p-3 rounded-2xl ";
-  const sidebar = useMemo<PathsListProps>(
+  // used to describe sidebar items
+  const sidebarLinks = useMemo<PathsListProps>(
     () => ({
       paths: [
         {
           label: t("sidebar.paths.sales"),
           href: "/",
-          icon: <AiOutlineShoppingCart key="sales" className={iconClasses} />,
+          icon: <AiOutlineShoppingCart key="sales" className={iconClasses} size={iconSize} />,
         },
         {
           label: t("sidebar.paths.products"),
           href: "/product",
 
-          icon: <CiShoppingTag key="product" className={iconClasses} />,
+          icon: <CiShoppingTag key="product" className={iconClasses} size={iconSize}/>,
         },
         {
           label: t("sidebar.paths.offers"),
           href: "/offers",
 
-          icon: <BiSolidOffer key="offers" className={iconClasses} />,
+          icon: <BiSolidOffer key="offers" className={iconClasses} size={iconSize}/>,
         },
         {
           label: t("sidebar.paths.category"),
           href: "/category",
-          icon: <MdOutlineCategory key="category" className={iconClasses} />,
+          icon: <MdOutlineCategory key="category" className={iconClasses} size={iconSize}/>,
         },
         [
           {
             label: t("sidebar.paths.anal.index"),
             href: "/analysis",
-            icon: <LuBarChart3 key="analysis" className={iconClasses} />,
+            icon: <LuBarChart3 key="analysis" className={iconClasses} size={iconSize}/>,
           },
           {
             label: t("sidebar.paths.anal.history"),
             href: "/analysis/history",
-            icon: <AiOutlineHistory key="analHis" className={iconClasses} />,
+            icon: <AiOutlineHistory key="analHis" className={iconClasses} size={iconSize}/>,
           },
         ],
         [
           {
             label: t("sidebar.paths.spendings.index"),
             href: "/spending",
-            icon: <GiTakeMyMoney key="spendings" className={iconClasses} />,
+            icon: <GiTakeMyMoney key="spendings" className={iconClasses} size={iconSize}/>,
+
           },
           {
             label: t("sidebar.paths.spendings.losses"),
             href: "/spending/losses",
-            icon: <MdMoneyOff key="spendings" className={iconClasses} />,
+            icon: <MdMoneyOff key="spendings" className={iconClasses} size={iconSize}/>,
           },
         ],
         {
           label: t("sidebar.paths.settings"),
           href: "/setting",
-          icon: <AiOutlineSetting key="setting" className={iconClasses} />,
+          icon: <AiOutlineSetting key="setting" className={iconClasses} size={iconSize}/>,
         },
       ],
     }),
@@ -155,61 +240,74 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 
   return (
-    <div className="flex h-screen w-screen scroll-smooth">
-      <button
-        type="button"
-        onClick={() => {
-          setSidebarVisible((prev) => !prev);
-        }}
-        className="fixed left-0 top-0 m-3 text-3xl"
-      >
-        <RiMenu4Fill />
-      </button>
-      <aside
-        className={
-          (sidebarVisible ? "absolute " : "hidden ") +
-          "min-w-1/3 z-50 mr-5 flex  h-screen  w-5/6 flex-col justify-start overflow-y-auto rounded-r-lg bg-gray-950 p-2 lg:w-1/5"
-        }
-        aria-label="Sidebar"
-      >
-        <header className="m-4 mb-6 flex justify-between">
-          <Link href={"/"} className="">
-            <span className="self-center whitespace-nowrap text-2xl font-semibold text-white">
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button
+          variant="outline"
+          size="icon"
+        >
+          <RiMenu4Fill size={30} />
+          <span className="sr-only">Toggle Menu</span>
+        </Button>
+      </SheetTrigger>
+
+      <SheetContent side="left" className="p-0 px-2 bg-primary dark:bg-secondary">
+        <h1 className="text-3xl font-bold my-3 text-white">
+          <MobileLink
+            href="/"
+            className="flex items-center"
+            onOpenChange={setOpen}
+          >
+            <span className="self-center whitespace-nowrap ">
               Zagy
             </span>
-          </Link>
-          <button
-            type="button"
-            className="rounded-lg border-2 border-gray-600 text-3xl text-white md:hidden"
-            onClick={() => {
-              setSidebarVisible((prev) => !prev);
-            }}
-          >
-            <RiCloseLine />
-          </button>
-        </header>
-        <PathsList {...sidebar} />
-        <button
-          type="button"
-          className=" mt-4  flex h-fit w-fit items-center gap-3 rounded-2xl p-2 text-2xl text-white"
-          onClick={async () => {
-            await signOut({ redirect: false });
-            queryClient.clear();
-          }}
-        >
-          <RiLogoutBoxLine className="h-fit w-fit rounded-2xl bg-gray-800 p-3 text-white " />{" "}
-          Log out
-        </button>
-      </aside>
-      {/* add overlay when sidebar is active on small screens */}
-      {sidebarVisible && (
-        <div
-          className="z-49 fixed left-0 top-0 h-full w-full bg-gray-900 opacity-80 md:hidden"
-          onClick={() => setSidebarVisible(false)}
-        />
-      )}
+          </MobileLink>
+        </h1>
+
+        <ScrollArea className="my-4  h-[calc(100vh-8rem)] pb-1">
+          {/* <div className="h-fit flex flex-col space-y-3"> */}
+            <PathsList {...sidebarLinks} setOpen={setOpen} />
+          {/* </div> */}
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full mt-auto flex justify-start gap-3 rounded-2xl h-fit  p-2 text-white text-2xl"
+              onClick={async () => {
+                await signOut({ redirect: false });
+                queryClient.clear();
+              }}
+            >
+              <RiLogoutBoxLine className={iconClasses} size={iconSize}/>{" "}
+              {t("sidebar.actions.logout")}
+            </Button>
+        </ScrollArea>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
+/**
+ * default layout
+ **/
+const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { t } = useTranslation();
+  const { pathname } = useRouter();
+
+  return (
+    <>
+      <Head>
+        <link rel="manifest" href="/app.webmanifest" />
+      </Head>
+    <div className="flex h-screen w-screen flex-col overflow-x-hidden overflow-y-auto scroll-smooth gap-3 ">
+      <header className="flex justify-between h-fit items-center gap-2 w-full mt-3 px-1">
+        <Nav />
+        {/* @ts-ignore  */}
+        <h1 className="h-fit text-4xl line-clamp-4 py-3">{t(`pages.${pathname}.header`)}</h1>
+        <ModeToggle />
+      </header>
       {children}
     </div>
+    </>
   );
 };
 export default Layout;

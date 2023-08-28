@@ -1,23 +1,23 @@
 import z from "zod";
 
-export const userSchema = z.object({
+const userSchema = z.object({
   userName: z.string().min(3),
   email: z.string().email(),
   phone: z.string(),
 });
 
-export const payloadSchema = z.object({
+const payloadSchema = z.object({
   id: z.string(),
   role: z.enum(["ADMIN", "STAFF"]),
 });
 
-export const categorySchema = z.object({
+const categorySchema = z.object({
   id: z.string().optional(),
   name: z.string().min(3),
   image: z.string().url(),
 });
 
-export const productSchema = z.object({
+const productSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(3),
   image: z.string().url(),
@@ -26,35 +26,53 @@ export const productSchema = z.object({
   sellPrice: z.number().gt(0),
   categoryId: z.string().nonempty(),
 });
-export const productOnOfferSchema = z.object({
+const productOnOfferSchema = z.object({
   productId: z.string().nonempty(),
   quantity: z.number().min(0),
   price: z.number().gt(0),
 });
 
-export const offerSchema = z.object({
+const offerSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(3),
   products: z.array(productOnOfferSchema).nonempty(),
 });
 
-export const orderSchema = z.object({
-  products: z.array(
-    z.object({ id: z.string().nonempty(), quantity: z.number().gt(0) })
-  ),
+const cartItemSchema = z.object({
+  id: z.string().nonempty(),
+  quantity: z.number().min(0),
 });
 
-export const loginSchema = userSchema.pick({ userName: true }).extend({
+const cartProductSchema = cartItemSchema.extend({
+  quantityFromOffers: z.number().min(0),
+});
+
+type CartItem = z.infer<typeof cartItemSchema>;
+type CartProduct = z.infer<typeof cartProductSchema>;
+
+const CartSchema = z.object({
+  products: z.array(cartProductSchema),
+  offers: z.array(cartItemSchema),
+});
+
+type CartT = z.infer<typeof CartSchema>;
+
+const orderSchema = z.object({
+  products: z.array(cartItemSchema),
+  offers: z.array(cartItemSchema),
+});
+
+const loginSchema = userSchema.pick({ userName: true }).extend({
   password: z.string().min(4),
 });
 
-export const expenseTypeSchema = z.object({
+const expenseTypeSchema = z.object({
   id: z.string().nonempty().optional(),
   name: z.string().min(3),
   description: z.string().min(4).optional(),
 });
 
-export const expenseStoreSchema = z.object({
+const expenseStoreSchema = z.object({
   id: z.string().nonempty().optional(),
   name: z.string().min(3),
   description: z.string().min(4).optional(),
@@ -64,22 +82,42 @@ export const expenseStoreSchema = z.object({
   typeId: z.string().nonempty(),
 });
 
-export const expensesSchema = z.object({
+const expensesSchema = z.object({
   id: z.string().nonempty().optional(),
   description: z.string().optional(),
   additionalAmount: z.number().gte(0).default(0),
   expenseStoreIds: z.array(z.string()),
 });
 
-export const productsOnLossSchema = z.object({
+const productsOnLossSchema = z.object({
   productId: z.string().nonempty(),
   quantity: z.number().gt(0),
 });
 
-export const lossesSchema = z.object({
+const lossesSchema = z.object({
   id: z.string().nonempty().optional(),
   name: z.string().optional(),
   description: z.string().optional(),
   additionalAmount: z.number().default(0),
   products: z.array(productsOnLossSchema).nonempty(),
 });
+
+export {
+  userSchema,
+  CartSchema,
+  cartItemSchema,
+  categorySchema,
+  expenseStoreSchema,
+  expenseTypeSchema,
+  expensesSchema,
+  loginSchema,
+  lossesSchema,
+  offerSchema,
+  orderSchema,
+  payloadSchema,
+  productOnOfferSchema,
+  productSchema,
+  productsOnLossSchema,
+};
+
+export type { CartT, CartItem, CartProduct };

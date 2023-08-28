@@ -4,7 +4,7 @@ import { api } from "@/utils/api";
 import { useTranslation } from "next-i18next";
 
 export type CategoryDisplayProps = {
-  setCategoryFilter: Dispatch<SetStateAction<string>>;
+  setCategoryFilter: Dispatch<SetStateAction<string | null>>;
 };
 
 export function CategoryDisplaySkeleton(props: { count: number }) {
@@ -32,7 +32,6 @@ const CategoryDisplay: React.FC<CategoryDisplayProps> = (props) => {
     staleTime: Infinity,
   });
 
-  // if (categoryQuery.isLoading) return <p>loading ...</p>;
   if (categoryQuery.isError) {
     return <p>{JSON.stringify(categoryQuery.error)}</p>;
   }
@@ -40,14 +39,14 @@ const CategoryDisplay: React.FC<CategoryDisplayProps> = (props) => {
   return (
     <>
       {/* categories display */}
-      <div className="w-full overflow-auto pb-3 pt-6">
+      <div className="w-full overflow-auto ">
         <div className=" flex w-max items-center justify-start gap-4 overflow-y-hidden  ">
           <div
             role="button"
             key={"all"}
             className="flex flex-col items-center "
             onClick={() => {
-              props.setCategoryFilter("");
+              props.setCategoryFilter(null);
             }}
           >
             <label>
@@ -64,8 +63,8 @@ const CategoryDisplay: React.FC<CategoryDisplayProps> = (props) => {
                 width={80}
                 height={80}
                 priority={true}
-              ></Image>
-              <p className="text-center text-lg font-semibold text-slate-600">
+              />
+              <p className="text-center text-lg font-semibold">
                 {t("categoryDisplay.default")}
               </p>
             </label>
@@ -78,25 +77,27 @@ const CategoryDisplay: React.FC<CategoryDisplayProps> = (props) => {
                 <div
                   role="button"
                   key={category.id}
-                  className="flex flex-col items-center "
+                  className="flex flex-col justify-center items-center content-center "
                   onClick={() => {
                     props.setCategoryFilter(category.id);
                   }}
                 >
                   <label>
+                    <div className="h-20 w-20 overflow-hidden relative m-auto">
                     <input
                       type="radio"
                       className="peer hidden"
                       name="categoryOptions"
                     />
-                    <Image
-                      className="border-1  rounded-full border-green-500 peer-checked:border-4"
-                      src={category.image}
-                      alt="category image"
-                      width={80}
-                      height={80}
-                    ></Image>
-                    <p className="text-center text-lg font-semibold text-slate-600">
+                      <Image
+                        className="border-1 h-auto w-full object-cover rounded-full border-green-500 peer-checked:border-4"
+                        src={category.image}
+                        alt="category image"
+                        fill={true}
+                        sizes="10vw"
+                      />
+                    </div>
+                    <p className="text-center text-lg font-semibold ">
                       {category.name}
                     </p>
                   </label>

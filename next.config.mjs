@@ -1,10 +1,13 @@
+import { withSuperjson } from "next-superjson";
+
+import i18np from "./next-i18next.config.js";
+
 /**
  * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially useful
  * for Docker builds.
  */
 await import("./src/env.mjs");
-import i18np from "./next-i18next.config.js";
-import { withSuperjson } from "next-superjson";
+
 const { i18n } = i18np;
 
 /** @type {import("next").NextConfig} */
@@ -26,6 +29,7 @@ const config = {
    */
   i18n,
   images: {
+    minimumCacheTTL: 31536000,
     // TODO remove those hosts
     remotePatterns: [
       {

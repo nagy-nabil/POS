@@ -9,7 +9,10 @@
   "productDisplay": {
     "modes": {
       "Library": "Library",
-      "keypad": { "label": "Keypad", "action": "Add To Cart" }
+      "keypad": {
+        "label": "Keypad",
+        "action": "Add To Cart"
+      }
     }
   },
   "orderDisplay": {
@@ -164,12 +167,20 @@
       "sales": "Sales",
       "products": "Products",
       "category": "Categories",
-      "anal": { "index": "Analysis", "history": "History" },
-      "spendings": { "index": "spendings", "losses": "Losses" },
+      "anal": {
+        "index": "Analysis",
+        "history": "History"
+      },
+      "spendings": {
+        "index": "spendings",
+        "losses": "Losses"
+      },
       "settings": "Settings",
       "offers": "Offers"
     },
-    "actions": { "logout": "Log out" }
+    "actions": {
+      "logout": "Log out"
+    }
   },
   "table": {
     "common": {
@@ -195,11 +206,32 @@
     }
   },
   "pages": {
-    "product": {
+    "/": {
+      "header": "Sales"
+    },
+    "/product": {
       "header": "Products"
     },
-    "spending": {
+    "/category": {
+      "header": "Categories"
+    },
+    "/offers": {
+      "header": "Offers"
+    },
+    "/setting": {
+      "header": "Settings"
+    },
+    "/spending": {
       "header": "Spendings"
+    },
+    "/analysis": {
+      "header": "Analysis"
+    },
+    "/analysis/history": {
+      "header": "Order History"
+    },
+    "/spending/losses": {
+      "header": "Losses"
     }
   }
 }

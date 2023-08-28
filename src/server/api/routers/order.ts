@@ -12,6 +12,7 @@ export const ordersRouter = createTRPCRouter({
       const prisma = new PrismaClient();
       const res = await prisma.$transaction(async (tx) => {
         let totalPrice = 0;
+
         // decrease products stock by quntity
         // TODO make it in single query
         // https://stackoverflow.com/questions/18797608/update-multiple-rows-in-same-query-using-postgresql
@@ -24,12 +25,6 @@ export const ordersRouter = createTRPCRouter({
             })
           )
         );
-
-        // TODO check this if condition
-        // make sure that returned products length is the as the requested or there's missing error
-        if (products.length !== input.products.length) {
-          throw new TRPCError({ code: "BAD_REQUEST" });
-        }
 
         // construct the create clause for the order and make sure stock gte requested qunatity or throw error
         const createCluse: {
@@ -58,6 +53,12 @@ export const ordersRouter = createTRPCRouter({
             createdById: ctx.session.user.id,
             products: {
               create: createCluse,
+            },
+            offers: {
+              create: input.offers.map((i) => ({
+                offerId: i.id,
+                quantity: i.quantity,
+              })),
             },
           },
           include: {
@@ -113,7 +114,6 @@ export const ordersRouter = createTRPCRouter({
           },
         },
         include: {
-          // TODO exclude password from user
           createdBy: {
             select: {
               id: true,
@@ -194,7 +194,10 @@ export const ordersRouter = createTRPCRouter({
       return o;
     });
   }),
-  anal: protectedProcedure.query(async ({ ctx }) => {
+  anal: protectedProcedure.input(z.object({
+    from: z.date(),
+    to: z.date(),
+  })).query(async ({ ctx, input}) => {
     /**
      * prisma don't yet support using db native function inside the group by so need to use rawQuery, for more information
      * @link https://github.com/prisma/prisma/discussions/11692
@@ -204,9 +207,9 @@ export const ordersRouter = createTRPCRouter({
           from "Order" AS O
           inner join "ProductsOnOrder" AS PO
           on O.id = PO."orderId"
+          where Date(O."createdAt" at time zone 'utc' at time zone 'Africa/Cairo') >= Date(${input.from} at time zone 'utc' at time zone 'Africa/Cairo') and Date(O."createdAt" at time zone 'utc' at time zone 'Africa/Cairo')  <= Date(${input.to} at time zone 'utc' at time zone 'Africa/Cairo') 
           group by date
           order by date DESC
-          limit 10
           ;
       `;
 
