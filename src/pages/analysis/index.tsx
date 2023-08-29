@@ -133,7 +133,7 @@ const Anal: NextPageWithProps = () => {
         <div className="border flex flex-col text-2xl p-3 w-2/4 h-fit">
           <span className="flex gap-3 justify-start items-center "><FiDollarSign className="p-1 rounded-sm border w-fit h-fit" size={20}  />
             Revenue</span>
-          <span className="font-bold">{dashboardStat.data?._sum.sellPrice?.toFixed(2) ?? 0}</span>
+          <span className="font-bold">{dashboardStat.data?.revenue?.toFixed(2) ?? 0}</span>
         </div>
         <div className="border flex flex-col text-2xl p-3 w-2/4 h-fit">
           <span className="flex gap-3 justify-start items-center "><GiProfit className="p-1 rounded-sm border w-fit h-fit"  size={20}/>
