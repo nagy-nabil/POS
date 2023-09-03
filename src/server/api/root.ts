@@ -8,6 +8,7 @@ import { productsRouter } from "@/server/api/routers/product";
 import { usersRouter } from "@/server/api/routers/user";
 import { dashboardRouter} from "@/server/api/routers/dashboard";
 import { createTRPCRouter } from "@/server/api/trpc";
+import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
 
 export const appRouter = createTRPCRouter({
   products: productsRouter,
@@ -23,3 +24,6 @@ export const appRouter = createTRPCRouter({
 
 // export type definition of API
 export type AppRouter = typeof appRouter;
+export type RouterInput = inferRouterInputs<AppRouter>;
+export type RouterOutput = inferRouterOutputs<AppRouter>
+

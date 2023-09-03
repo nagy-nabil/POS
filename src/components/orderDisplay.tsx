@@ -1,3 +1,12 @@
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Button } from "@/components/ui/button";
 import React, { useRef, useState } from "react";
 import {
   AccordionContent,
@@ -5,7 +14,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { api } from "@/utils/api";
-import type { PaymentType, Product } from "@prisma/client";
 import clsx from "clsx";
 import { useTranslation } from "next-i18next";
 import { AiOutlineDelete } from "react-icons/ai";
@@ -15,26 +23,9 @@ import { useReactToPrint } from "react-to-print";
 
 // import Accordion from "./accordion";
 import ConfirmModal from "./modal/confirm";
+import { type RouterOutput } from "@/server/api/root";
 
-export type OrderDisplayProps = {
-  total: number;
-  id: string;
-  paymentType: PaymentType;
-  createdAt: Date;
-  createdById: string;
-  createdBy: {
-    id: string;
-    userName: string;
-  };
-  products: {
-    Product: Product;
-    quantity: number;
-    buyPriceAtSale: number;
-    sellPriceAtSale: number;
-  }[];
-  // TODO i'm not in the mood to add type, add it baby
-  refetch: any;
-};
+export type OrderDisplayProps = RouterOutput["orders"]["getMany"]["orders"][number] & {refetch: any};
 
 const OrderPrint = React.forwardRef<HTMLDivElement, OrderDisplayProps>(
   function OrderPrint(props, ref) {
@@ -118,8 +109,7 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
     },
     async onSuccess(data) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      await props.refetch();
-      // add the stock back to the products store
+      await  props.refetch();     // add the stock back to the products store
       utils.products.getMany.setData(undefined, (prev) => {
         if (prev === undefined) return [];
         data.products.forEach((op) => {
@@ -158,15 +148,14 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
               " flex justify-center gap-2 ": true,
             })}
           >
-            <button
+            <Button
               type="button"
+              variant="outline"
+              size="icon"
               onClick={handlePrint}
-              className={clsx({
-                "my-3 focus:outline-none": true,
-              })}
             >
-              <HiOutlinePrinter className="m-auto h-fit w-fit rounded-lg border-2 border-black p-2 text-3xl text-gray-500" />
-            </button>
+              <HiOutlinePrinter size={30}/>
+            </Button>
 
             <ConfirmModal
               buttonAttrs={{}}
@@ -190,66 +179,58 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
           </div>
           <p className="my-2 text-red-500">{operationError}</p>
           <div className="w-full overflow-x-auto">
-            <table
-              className={clsx({
-                " w-full text-left text-sm text-gray-400 transition-all delay-75 ":
-                  true,
-              })}
-            >
-              <thead className=" bg-gray-700 text-xs  uppercase text-gray-400">
-                <tr>
-                  <th scope="col" className="px-4 py-2">
-                    {t("orderDisplay.table.name")}
-                  </th>
-                  <th scope="col" className="px-4 py-2">
+            {/*show order products(order info)*/}
+            <Table>
+              <TableHeader >
+                <TableRow>
+                  <TableHead className="w-[100px]">{t("orderDisplay.table.name")}
+                  </TableHead>
+                  <TableHead >
                     {t("orderDisplay.table.price")}
-                  </th>
-                  <th scope="col" className="px-4 py-2">
+                  </TableHead>
+                  <TableHead>
                     {t("orderDisplay.table.quantity")}
-                  </th>
-                  <th scope="col" className="px-4 py-2">
-                    {t("orderDisplay.table.total")}
-                  </th>
-                  <th scope="col" className="px-4 py-2">
+                  </TableHead>
+                  <TableHead> {t("orderDisplay.table.total")}
+                  </TableHead>
+                  <TableHead>
                     {t("orderDisplay.table.profit")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {props.products.map((product) => {
                   const profit =
                     product.quantity *
                     (product.sellPriceAtSale - product.buyPriceAtSale);
                   totalProfit += profit;
                   return (
-                    <tr
-                      className="bg-white dark:bg-gray-800"
+                    <TableRow
                       key={product.Product.id}
                     >
-                      <th
+                      <TableHead
                         scope="row"
-                        className="whitespace-nowrap px-4 py-2 font-medium text-gray-900 dark:text-white"
                       >
                         {product.Product.name}
-                      </th>
-                      <td className="px-4 py-2">{product.sellPriceAtSale}$</td>
-                      <td className="px-4 py-2">{product.quantity}</td>
-                      <td className="px-4 py-2">
+                      </TableHead>
+                      <TableCell >{product.sellPriceAtSale}$</TableCell>
+                      <TableCell>{product.quantity}</TableCell>
+                      <TableCell>
                         {product.quantity * product.sellPriceAtSale}$
-                      </td>
-                      <td className="px-4 py-2">{profit} $</td>
-                    </tr>
+                      </TableCell>
+                      <TableCell>{profit} $</TableCell>
+                    </TableRow>
                   );
                 })}
-                <tr className="bg-white dark:bg-gray-800">
-                  <td className="px-4 py-2"></td>
-                  <td className="px-4 py-2"></td>
-                  <td className="px-4 py-2"></td>
-                  <td className="px-4 py-2">{props.total}</td>
-                  <td className="px-4 py-2">{totalProfit}</td>
-                </tr>
-              </tbody>
-            </table>
+                <TableRow >
+                  <TableCell></TableCell>
+                  <TableCell></TableCell>
+                  <TableCell></TableCell>
+                  <TableCell>{props.total}</TableCell>
+                  <TableCell>{totalProfit}</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
           </div>
         </div>
       </AccordionContent>

@@ -1,18 +1,19 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { orderSchema } from "@/types/entities";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, type Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
 
 export const ordersRouter = createTRPCRouter({
+  /**
+   * note this endpoint depeneds that front send what products suppose to be in an offer might be not good but whatever
+   */
   insertOne: protectedProcedure
     .input(orderSchema)
     .mutation(async ({ ctx, input }) => {
       // for the interactive transaction, need new client
       const prisma = new PrismaClient();
       const res = await prisma.$transaction(async (tx) => {
-        let totalPrice = 0;
-
         // decrease products stock by quntity
         // TODO make it in single query
         // https://stackoverflow.com/questions/18797608/update-multiple-rows-in-same-query-using-postgresql
@@ -21,39 +22,36 @@ export const ordersRouter = createTRPCRouter({
           input.products.map((item) =>
             tx.product.update({
               where: { id: item.id },
-              data: { stock: { decrement: item.quantity } },
+              data: {
+                stock: { decrement: item.quantity + item.quantityFromOffers },
+              },
             })
           )
         );
 
-        // construct the create clause for the order and make sure stock gte requested qunatity or throw error
-        const createCluse: {
-          productId: string;
-          quantity: number;
-          buyPriceAtSale: number;
-          sellPriceAtSale: number;
-        }[] = input.products.map((inProduct) => {
-          const product = products.find((test) => test.id === inProduct.id);
-          if (!product) {
-            throw new TRPCError({ code: "BAD_REQUEST" });
-          }
+        // construct the create clause for the order relation with products
+        // NOTE: is enough stock avaiable checked on the database level, on the previous step
+        const createProductCluse: Prisma.OrderCreateInput["products"] = {
+          create: input.products
+            .filter((pro) => pro.quantity > 0)
+            .map((inProduct) => {
+              const product = products.find((test) => test.id === inProduct.id);
+              if (!product) {
+                throw new TRPCError({ code: "BAD_REQUEST" });
+              }
+              return {
+                productId: inProduct.id,
+                quantity: inProduct.quantity,
+                sellPriceAtSale: product.sellPrice,
+                buyPriceAtSale: product.buyPrice,
+              };
+            }),
+        };
 
-          // calc order total price as you go
-          totalPrice += inProduct.quantity * product.sellPrice;
-          return {
-            productId: inProduct.id,
-            quantity: inProduct.quantity,
-            sellPriceAtSale: product.sellPrice,
-            buyPriceAtSale: product.buyPrice,
-          };
-        });
-
-        const order = await tx.order.create({
+        return await tx.order.create({
           data: {
             createdById: ctx.session.user.id,
-            products: {
-              create: createCluse,
-            },
+            products: createProductCluse,
             offers: {
               create: input.offers.map((i) => ({
                 offerId: i.id,
@@ -78,26 +76,14 @@ export const ordersRouter = createTRPCRouter({
             },
           },
         });
-
-        // TODO exclude password from user
-        return {
-          ...order,
-          total: totalPrice,
-        };
       });
 
       return res;
     }),
 
-  // input is the id, need some better representation
-  getOne: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
-    return await ctx.prisma.order.findFirst({
-      where: {
-        id: input,
-      },
-    });
-  }),
-
+  /**
+   * get the order history between interval
+   */
   getMany: protectedProcedure
     .input(
       z.object({
@@ -128,6 +114,17 @@ export const ordersRouter = createTRPCRouter({
               sellPriceAtSale: true,
             },
           },
+          offers: {
+            include: {
+              Offer: {
+                include: {
+                  products: {
+                    include: { Product: true },
+                  },
+                },
+              },
+            },
+          },
         },
         orderBy: {
           createdAt: "desc",
@@ -136,12 +133,19 @@ export const ordersRouter = createTRPCRouter({
 
       const ordersWithTotal = orders.map((order) => {
         // Calculate the total price for each order
-        const totalPrice = order.products.reduce(
-          (total, product) =>
-            total + product.sellPriceAtSale * product.quantity,
-          0
-        );
-
+        const totalPrice =
+          order.products.reduce(
+            (total, product) =>
+              total + product.sellPriceAtSale * product.quantity,
+            0
+          ) +
+          order.offers.reduce(
+            (total, offer) =>
+              total +
+              offer.quantity *
+                offer.Offer.products.reduce((prev, pro) => prev + pro.price, 0),
+            0
+          );
         return {
           ...order,
           total: totalPrice,
@@ -149,11 +153,11 @@ export const ordersRouter = createTRPCRouter({
       });
 
       // calc total for all orders
-      let t = 0;
-      ordersWithTotal.forEach((i) => {
-        t += i.total;
-      });
-      return { orders: ordersWithTotal, total: t };
+      const total = ordersWithTotal.reduce(
+        (prev, order) => prev + order.total,
+        0
+      );
+      return { orders: ordersWithTotal, total };
     }),
   /**
    * @param id string
@@ -194,15 +198,19 @@ export const ordersRouter = createTRPCRouter({
       return o;
     });
   }),
-  anal: protectedProcedure.input(z.object({
-    from: z.date(),
-    to: z.date(),
-  })).query(async ({ ctx, input}) => {
-    /**
-     * prisma don't yet support using db native function inside the group by so need to use rawQuery, for more information
-     * @link https://github.com/prisma/prisma/discussions/11692
-     */
-    const res = await ctx.prisma.$queryRaw`
+  anal: protectedProcedure
+    .input(
+      z.object({
+        from: z.date(),
+        to: z.date(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      /**
+       * prisma don't yet support using db native function inside the group by so need to use rawQuery, for more information
+       * @link https://github.com/prisma/prisma/discussions/11692
+       */
+      const res = await ctx.prisma.$queryRaw`
           select Date(O."createdAt" at time zone 'utc' at time zone 'Africa/Cairo') as date, sum(PO.quantity * (PO."sellPriceAtSale" - PO."buyPriceAtSale")) as "profitDaily", sum(PO.quantity * PO."sellPriceAtSale") as "soldDaily"
           from "Order" AS O
           inner join "ProductsOnOrder" AS PO
@@ -213,10 +221,10 @@ export const ordersRouter = createTRPCRouter({
           ;
       `;
 
-    return res as {
-      date: Date;
-      profitDaily: number;
-      soldDaily: number;
-    }[];
-  }),
+      return res as {
+        date: Date;
+        profitDaily: number;
+        soldDaily: number;
+      }[];
+    }),
 });

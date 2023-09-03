@@ -163,20 +163,7 @@ export function CartModal() {
               disabled={orderMut.isLoading}
               className=" h-fit w-fit rounded-3xl bg-green-500 p-2 text-white"
               type="button"
-              onClick={() => {
-                orderMut.mutate(
-                  {
-                    ...cart.data,
-                    products: cart.data.products.map((item) => {
-                      return {
-                        id: item.id,
-                        quantity: item.quantity + item.quantityFromOffers,
-                      };
-                    }),
-                  },
-                  {}
-                );
-              }}
+              onClick={() => orderMut.mutate(cart.data)}
             >
               {orderMut.isLoading ? (
                 <CgSpinner className="animate-spin text-2xl" />

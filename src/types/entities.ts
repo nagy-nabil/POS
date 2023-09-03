@@ -57,11 +57,7 @@ const CartSchema = z.object({
 
 type CartT = z.infer<typeof CartSchema>;
 
-const orderSchema = z.object({
-  products: z.array(cartItemSchema),
-  offers: z.array(cartItemSchema),
-});
-
+const orderSchema = CartSchema;
 const loginSchema = userSchema.pick({ userName: true }).extend({
   password: z.string().min(4),
 });
