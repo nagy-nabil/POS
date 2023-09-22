@@ -1,3 +1,11 @@
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { useTheme } from 'next-themes'
 import React, { useState } from "react";
 import type { GetStaticPropsContext } from "next";
@@ -15,6 +23,7 @@ import { generateInputDateValue } from "@/utils/date";
 // import { Button } from "@/components/ui/button";
 // import { CgSpinner } from "react-icons/cg";
 import { GiProfit } from "react-icons/gi";
+import { Input } from '@/components/ui/input';
 
 const Chart = dynamic(() => import("react-charts").then((mod) => mod.Chart), {
   ssr: false,
@@ -51,7 +60,7 @@ function ChartLine(props: {
   primaryAxis: AxisOptions<DateSum>;
   secondaryAxes: AxisOptions<DateSum>[];
 }) {
-  const {theme} = useTheme();
+  const { theme } = useTheme();
   return (
     <div className=" flex h-96 w-full shrink-0 flex-col gap-3 overflow-x-auto rounded-2xl border-2 border-gray-600 p-3 text-black dark:text-white shadow-xl">
       <h2 className="text-2xl font-bold">{props.label}</h2>
@@ -61,7 +70,7 @@ function ChartLine(props: {
             data: props.data,
             primaryAxis: props.primaryAxis,
             secondaryAxes: props.secondaryAxes,
-            dark: theme === "dark"? true : undefined
+            dark: theme === "dark" ? true : undefined
           }}
         />
       </div>
@@ -71,10 +80,12 @@ function ChartLine(props: {
 
 const Anal: NextPageWithProps = () => {
   const { t } = useTranslation("analysis");
+  const [proId, setProId] = useState("");
   // always would be the time at midnight(start of a day)
   const [fromDate, setFromDate] = useState<Date>(() => {
     const localTimestamp = new Date();
-    localTimestamp.setDate(localTimestamp.getDate() - 10);
+    // default is start of the month
+    localTimestamp.setDate(1);
     localTimestamp.setHours(0, 0, 0, 0);
     return localTimestamp;
   });
@@ -84,7 +95,7 @@ const Anal: NextPageWithProps = () => {
     localTimestamp.setHours(23, 59, 59, 999);
     return localTimestamp;
   });
-
+  console.log(fromDate, toDate);
   const profitPrimaryAxis = React.useMemo(
     (): AxisOptions<DateSum> => ({
       getValue: (datum) => datum.date,
@@ -108,7 +119,7 @@ const Anal: NextPageWithProps = () => {
     ],
     []
   );
-  const anal = api.orders.anal.useQuery({from: fromDate, to: toDate}, {
+  const anal = api.orders.anal.useQuery({ from: fromDate, to: toDate }, {
     retry(_failureCount, error) {
       if (error.data?.code === "UNAUTHORIZED") {
         return false;
@@ -117,6 +128,16 @@ const Anal: NextPageWithProps = () => {
     },
   });
 
+  const productHistory = api.dashboard.productHistory.useQuery(proId, {
+    retry(_failureCount, error) {
+      if (error.data?.code === "UNAUTHORIZED") {
+        return false;
+      }
+      return true;
+    },
+  });
+  // TODO, remove this shit
+  console.log("product history", productHistory.data)
   const dashboardStat = api.dashboard.revenue.useQuery();
 
   if (anal.isError) {
@@ -130,68 +151,68 @@ const Anal: NextPageWithProps = () => {
     <>
       <div className="flex h-full w-full flex-col overflow-hidden px-4">
         <div className="w-full flex flex-wrap justify-between ">
-        <div className="border flex flex-col text-2xl p-3 w-2/4 h-fit">
-          <span className="flex gap-3 justify-start items-center "><FiDollarSign className="p-1 rounded-sm border w-fit h-fit" size={20}  />
-            Revenue</span>
-          <span className="font-bold">{dashboardStat.data?.revenue?.toFixed(2) ?? 0}</span>
-        </div>
-        <div className="border flex flex-col text-2xl p-3 w-2/4 h-fit">
-          <span className="flex gap-3 justify-start items-center "><GiProfit className="p-1 rounded-sm border w-fit h-fit"  size={20}/>
-            Profit</span>
-          <span className="font-bold">{anal.data?.reduce((prev, cur) => prev + cur.profitDaily, 0).toFixed(2) ?? 0}</span>
-        </div>
+          <div className="border flex flex-col text-2xl p-3 w-2/4 h-fit">
+            <span className="flex gap-3 justify-start items-center "><FiDollarSign className="p-1 rounded-sm border w-fit h-fit" size={20} />
+              Revenue</span>
+            <span className="font-bold">{dashboardStat.data?.revenue?.toFixed(2) ?? 0}</span>
+          </div>
+          <div className="border flex flex-col text-2xl p-3 w-2/4 h-fit">
+            <span className="flex gap-3 justify-start items-center "><GiProfit className="p-1 rounded-sm border w-fit h-fit" size={20} />
+              Profit</span>
+            <span className="font-bold">{anal.data?.reduce((prev, cur) => prev + cur.profitDaily, 0).toFixed(2) ?? 0}</span>
+          </div>
         </div>
         <div className="mt-5 flex h-screen flex-col gap-4 overflow-y-auto">
-        <div className="flex flex-col gap-3">
-          <label className="flex items-center justify-between gap-2 text-2xl">
-            {t("orderHistory.from")}
-            <input
-              name="from"
-              type="date"
-              // yyyy-mm-dd
-              value={generateInputDateValue(fromDate)}
-              onChange={(e) =>
-                setFromDate(() => {
-                  const d = new Date(e.target.value);
-                  d.setHours(0, 0, 0, 0);
-                  return d;
-                })
-              }
-              className="bg-primary text-primary-foreground hover:bg-primary/90
+          <div className="flex flex-col gap-3">
+            <label className="flex items-center justify-between gap-2 text-2xl">
+              {t("orderHistory.from")}
+              <input
+                name="from"
+                type="date"
+                // yyyy-mm-dd
+                value={generateInputDateValue(fromDate)}
+                onChange={(e) =>
+                  setFromDate(() => {
+                    const d = new Date(e.target.value);
+                    d.setHours(0, 0, 0, 0);
+                    return d;
+                  })
+                }
+                className="bg-primary text-primary-foreground hover:bg-primary/90
  rounded-xl border-none p-3 text-xl "
-            />
-          </label>
-          <label className="flex items-center justify-between gap-2 text-2xl">
-            {t("orderHistory.to")}
-            <input
-              value={generateInputDateValue(toDate)}
-              onChange={(e) =>
-                setToDate(() => {
-                  const d = new Date(e.target.value);
-                  d.setHours(23, 59, 59, 999);
-                  return d;
-                })
-              }
-              name="to"
-              type="date"
-              className="bg-primary text-primary-foreground hover:bg-primary/90
+              />
+            </label>
+            <label className="flex items-center justify-between gap-2 text-2xl">
+              {t("orderHistory.to")}
+              <input
+                value={generateInputDateValue(toDate)}
+                onChange={(e) =>
+                  setToDate(() => {
+                    const d = new Date(e.target.value);
+                    d.setHours(23, 59, 59, 999);
+                    return d;
+                  })
+                }
+                name="to"
+                type="date"
+                className="bg-primary text-primary-foreground hover:bg-primary/90
  rounded-xl border-none p-3 text-xl "
-            />
-          </label>
-          {/* <Button */}
-          {/*   type="button" */}
-          {/*   variant={"default"} */}
-          {/*   disabled={anal.isLoading } */}
-          {/*     onClick={() => anal.refetch()} */}
-          {/*   className="w-1/2 m-auto" */}
-          {/* > */}
-          {/*   {anal.isLoading ? ( */}
-          {/*     <CgSpinner className="animate-spin text-2xl" /> */}
-          {/*   ) : ( */}
-          {/*     t("orderHistory.action") */}
-          {/*   )} */}
-          {/* </Button> */}
-        </div>
+              />
+            </label>
+            {/* <Button */}
+            {/*   type="button" */}
+            {/*   variant={"default"} */}
+            {/*   disabled={anal.isLoading } */}
+            {/*     onClick={() => anal.refetch()} */}
+            {/*   className="w-1/2 m-auto" */}
+            {/* > */}
+            {/*   {anal.isLoading ? ( */}
+            {/*     <CgSpinner className="animate-spin text-2xl" /> */}
+            {/*   ) : ( */}
+            {/*     t("orderHistory.action") */}
+            {/*   )} */}
+            {/* </Button> */}
+          </div>
           {/* <ChartLine /> */}
           {anal.data !== undefined && anal.data.length > 0 ? (
             <>
@@ -223,6 +244,65 @@ const Anal: NextPageWithProps = () => {
           ) : (
             "NOT ENOUGH DATA TO SHOW GRAPHS"
           )}
+        <div className="flex flex-col">
+          <h1>Show One Product History</h1>
+          {/*TODO: convert to select with search to easily find the product*/}
+          <Input value={proId} onChange={(event) => {
+            setProId(event.target.value);
+          }} placeholder="product Id" />
+          <div>
+            <p> product name: {productHistory.data?.name}</p>
+            <p> product stock: {productHistory.data?.stock}</p>
+            <p> product current buy price: {productHistory.data?.buyPrice}</p>
+            <p> product current sell price: {productHistory.data?.sellPrice}</p>
+            <h2>History</h2>
+            <Table>
+              <TableHeader >
+                <TableRow>
+                  <TableHead className="w-[100px]">order id
+                  </TableHead>
+                  <TableHead >
+                    time
+                  </TableHead>
+                  <TableHead>
+                    quantity
+                  </TableHead>
+                  <TableHead> buy price
+                  </TableHead>
+                  <TableHead>
+                    sell price
+                  </TableHead>
+                  <TableHead>
+                    total
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {productHistory.data?.orders.map((order) => {
+                  return (
+                    <TableRow
+                      key={order.order.id}
+                    >
+                      <TableHead
+                        scope="row"
+                      >
+                        {order.order.id}
+                      </TableHead>
+                      <TableCell >{order.order.createdAt.toLocaleString()}</TableCell>
+                      <TableCell>{order.quantity}</TableCell>
+                      <TableCell>
+                        {order.buyPriceAtSale} $
+                      </TableCell>
+                      <TableCell>{order.sellPriceAtSale} $</TableCell>
+                      <TableCell>{order.quantity * order.sellPriceAtSale} $</TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+
         </div>
       </div>
 
