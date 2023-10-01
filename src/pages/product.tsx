@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
 import { type GetStaticPropsContext } from "next";
-import Head from "next/head";
 import IndeterminateCheckbox from "@/components/form/indeterminateCheckbox";
 import ProductModal from "@/components/modal/productModal";
 import TableBody from "@/components/table/body";
@@ -150,28 +149,28 @@ function Table(props: { data: Product[] }) {
 
   return (
     <div className="flex flex-col w-full ">
-        {/* item utils*/}
-        <div className="flex justify-start gap-3">
-          <ProductModal defaultValues={{}} operationType="post" />
-          {Object.keys(rowSelection).length === 1 ? (
-            <ProductModal
-              key={"updateProduct"}
-              operationType="put"
-              // @ts-ignore
-              defaultValues={props.data[+Object.keys(rowSelection)[0]]}
-              afterSuccess={() => {
-                table.setRowSelection({});
-              }}
-            />
-          ) : null}
-        </div>
+      {/* item utils*/}
+      <div className="flex justify-start gap-3">
+        <ProductModal defaultValues={{}} operationType="post" />
+        {Object.keys(rowSelection).length === 1 ? (
+          <ProductModal
+            key={"updateProduct"}
+            operationType="put"
+            // @ts-ignore
+            defaultValues={props.data[+Object.keys(rowSelection)[0]]}
+            afterSuccess={() => {
+              table.setRowSelection({});
+            }}
+          />
+        ) : null}
+      </div>
 
-        <div className="w-full overflow-x-auto">
-          <TableBody table={table} />
-        </div>
+      <div className="w-full overflow-x-auto">
+        <TableBody table={table} />
+      </div>
 
-        {/* table utils */}
-        <TableUtils table={table} />
+      {/* table utils */}
+      <TableUtils table={table} />
     </div>
   );
 }

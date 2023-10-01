@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from "react";
 import type { GetStaticPropsContext } from "next";
-import Head from "next/head";
 import IndeterminateCheckbox from "@/components/form/indeterminateCheckbox";
 import {
   ExpenseModal,
@@ -409,7 +408,6 @@ function ExpenseTable(props: { data: Expenses[] }) {
 }
 
 const Spending: NextPageWithProps = () => {
-  const { t } = useTranslation();
   const expenseTypesQuery = api.expenses.expenseTypeGetMany.useQuery(
     undefined,
     {

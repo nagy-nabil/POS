@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
 import { type GetStaticPropsContext } from "next";
-import Head from "next/head";
 import IndeterminateCheckbox from "@/components/form/indeterminateCheckbox";
 import CategoryModal from "@/components/modal/categoryModal";
 import TableBody from "@/components/table/body";
