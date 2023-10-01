@@ -22,6 +22,8 @@ import { useTranslation } from "react-i18next";
 import { AiOutlineMinus } from "react-icons/ai";
 import { MdRemoveShoppingCart } from "react-icons/md";
 import { RiAddCircleLine, RiAddLine } from "react-icons/ri";
+import { useRouter } from "next/router";
+import { type TypedQueryParams } from "@/types/query";
 
 export type CartUtilsProps = {
   id: Product["id"];
@@ -300,21 +302,13 @@ export function LibraryDisplaySkeleton(props: { count: number }) {
 }
 
 export type ProductDisplayProps = {
-  /**
-   * null means no filter
-   */
-  categoryFilter: string | null;
-  /**
-   * search by name or id
-   *
-   * null means no search
-   */
-  productFilter: string | null;
   displayType: "library" | "keypad";
 };
 
 // main component
 const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
+  const router = useRouter();
+  const query = router.query as TypedQueryParams;
   const { t } = useTranslation();
   const cart = useCart();
   const [displayType, setDisplayType] = useState<
@@ -333,20 +327,19 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
   const productsData = useMemo(() => {
     if (!productsQuery.isLoading && !productsQuery.isError) {
       const d = productsQuery.data.filter((val) => {
-        if (props.categoryFilter === null) return true;
-        else return val.categoryId === props.categoryFilter;
+        if (query.categoryFilter === undefined || query.categoryFilter === "") return true;
+        else return val.categoryId === query.categoryFilter;
       });
-      return props.productFilter === null
+      return (query.productFilter === "" || query.productFilter === undefined)
         ? d
-        : matchSorter(d, props.productFilter, { keys: ["name", "id"] });
+        : matchSorter(d, query.productFilter, { keys: ["name", "id"] });
     }
     return productsQuery.data;
   }, [
     productsQuery.isLoading,
     productsQuery.isError,
     productsQuery.data,
-    props.categoryFilter,
-    props.productFilter,
+    query
   ]);
   const productsDataPage = usePagination({
     data: productsData ?? [],

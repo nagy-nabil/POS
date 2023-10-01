@@ -1,10 +1,12 @@
-import React, { type Dispatch, type SetStateAction } from "react";
+import React from "react";
 import Image from "next/image";
 import { api } from "@/utils/api";
 import { useTranslation } from "next-i18next";
+import { useRouter } from "next/router";
+import { type TypedQueryParams } from "@/types/query";
 
 export type CategoryDisplayProps = {
-  setCategoryFilter: Dispatch<SetStateAction<string | null>>;
+  // setCategoryFilter: Dispatch<SetStateAction<string | null>>;
 };
 
 export function CategoryDisplaySkeleton(props: { count: number }) {
@@ -26,7 +28,9 @@ export function CategoryDisplaySkeleton(props: { count: number }) {
   );
 }
 
-const CategoryDisplay: React.FC<CategoryDisplayProps> = (props) => {
+const CategoryDisplay: React.FC<CategoryDisplayProps> = (_props) => {
+  const router = useRouter()
+  const query = router.query as TypedQueryParams;
   const { t } = useTranslation();
   const categoryQuery = api.categories.getMany.useQuery(undefined, {
     staleTime: Infinity,
@@ -45,16 +49,16 @@ const CategoryDisplay: React.FC<CategoryDisplayProps> = (props) => {
             role="button"
             key={"all"}
             className="flex flex-col items-center "
-            onClick={() => {
-              props.setCategoryFilter(null);
-            }}
           >
             <label>
               <input
                 type="radio"
                 className="peer hidden"
                 name="categoryOptions"
-                defaultChecked={true}
+                checked={query.categoryFilter === undefined || query.categoryFilter === ""}
+                onChange={() => {
+                  void router.push({ query: { ...query, categoryFilter: undefined } satisfies TypedQueryParams }, undefined, { shallow: true })
+                }}
               />
               <Image
                 className="border-1 rounded-full border-green-500 peer-checked:border-4"
@@ -78,17 +82,18 @@ const CategoryDisplay: React.FC<CategoryDisplayProps> = (props) => {
                   role="button"
                   key={category.id}
                   className="flex flex-col justify-center items-center content-center "
-                  onClick={() => {
-                    props.setCategoryFilter(category.id);
-                  }}
                 >
                   <label>
                     <div className="h-20 w-20 overflow-hidden relative m-auto">
-                    <input
-                      type="radio"
-                      className="peer hidden"
-                      name="categoryOptions"
-                    />
+                      <input
+                        type="radio"
+                        checked={query.categoryFilter === category.id}
+                        className="peer hidden"
+                        name="categoryOptions"
+                        onChange={() => {
+                          void router.push({ query: { ...query, categoryFilter: category.id } satisfies TypedQueryParams }, undefined, { shallow: true })
+                        }}
+                      />
                       <Image
                         className="border-1 h-auto w-full object-cover rounded-full border-green-500 peer-checked:border-4"
                         src={category.image}
