@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,6 +16,7 @@ import {
 } from "@/hooks/useCart";
 import { PaginationUtis, usePagination } from "@/hooks/usePagination";
 import { type CartItem } from "@/types/entities";
+import { type TypedQueryParams } from "@/types/query";
 import { api } from "@/utils/api";
 import { type Product } from "@prisma/client";
 import { matchSorter } from "match-sorter";
@@ -22,8 +24,8 @@ import { useTranslation } from "react-i18next";
 import { AiOutlineMinus } from "react-icons/ai";
 import { MdRemoveShoppingCart } from "react-icons/md";
 import { RiAddCircleLine, RiAddLine } from "react-icons/ri";
-import { useRouter } from "next/router";
-import { type TypedQueryParams } from "@/types/query";
+
+import ProductModal from "./modal/productModal";
 
 export type CartUtilsProps = {
   id: Product["id"];
@@ -156,10 +158,7 @@ export function CartUtils(props: CartUtilsProps) {
   );
 }
 
-type ProductProps = Pick<
-  Product,
-  "sellPrice" | "id" | "image" | "name" | "stock"
-> & {
+type ProductProps = Product & {
   /**
    * if there's quantity that's mean this product is in the cart with this quantity
    */
@@ -208,14 +207,24 @@ export const KeypadDisplay: React.FC<ProductProps> = (props) => {
           />
         </div>
       ) : (
-        <Button
-          type="button"
-          variant={"default"}
-          disabled={props.stock <= 0}
-          onClick={() => cartInc.mutate({ id: props.id })}
-        >
-          {t("productDisplay.modes.keypad.action")}
-        </Button>
+        <div className="max-w-full gap-3 flex justify-between items-center">
+          <Button
+            className="w-full"
+            type="button"
+            variant={"default"}
+            disabled={props.stock <= 0}
+            onClick={() => cartInc.mutate({ id: props.id })}
+          >
+            {t("productDisplay.modes.keypad.action")}
+          </Button>
+
+          <ProductModal
+            key={"updateProduct"}
+            operationType="put"
+            // @ts-ignore
+            defaultValues={props}
+          />
+        </div>
       )}
       <p className="m-2 text-red-700">{error}</p>
     </div>
@@ -327,10 +336,11 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
   const productsData = useMemo(() => {
     if (!productsQuery.isLoading && !productsQuery.isError) {
       const d = productsQuery.data.filter((val) => {
-        if (query.categoryFilter === undefined || query.categoryFilter === "") return true;
+        if (query.categoryFilter === undefined || query.categoryFilter === "")
+          return true;
         else return val.categoryId === query.categoryFilter;
       });
-      return (query.productFilter === "" || query.productFilter === undefined)
+      return query.productFilter === "" || query.productFilter === undefined
         ? d
         : matchSorter(d, query.productFilter, { keys: ["name", "id"] });
     }
@@ -339,7 +349,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
     productsQuery.isLoading,
     productsQuery.isError,
     productsQuery.data,
-    query
+    query,
   ]);
   const productsDataPage = usePagination({
     data: productsData ?? [],
@@ -406,11 +416,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
               (i) => i.id === product.id
             );
             const displayProps: ProductProps = {
-              id: product.id,
-              image: product.image,
-              name: product.name,
-              sellPrice: product.sellPrice,
-              stock: product.stock,
+              ...product,
               quantity: productFromCart?.quantity,
               quantityFromOffers: productFromCart?.quantityFromOffers,
             };
