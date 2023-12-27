@@ -1,4 +1,3 @@
-import exp from "constants";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import {
   completeExpenseSchema,
@@ -122,9 +121,9 @@ export const expensesRouter = createTRPCRouter({
       return {
         id: expense.id,
         createdAt: expense.createdAt,
-        name: expense.SpendingsOnExpenses[0]!.spending.name, // TODO
-        amount: expense.SpendingsOnExpenses[0]!.spending.amount,
-        description: expense.SpendingsOnExpenses[0]!.spending.description,
+        name: expense.SpendingsOnExpenses[0].spending.name, // TODO
+        amount: expense.SpendingsOnExpenses[0].spending.amount,
+        description: expense.SpendingsOnExpenses[0].spending.description,
       };
     }),
 
@@ -163,9 +162,9 @@ export const expensesRouter = createTRPCRouter({
       return {
         id: e.id,
         createdAt: e.createdAt,
-        name: e.SpendingsOnExpenses[0]!.spending.name,
-        amount: e.SpendingsOnExpenses[0]!.spending.amount,
-        description: e.SpendingsOnExpenses[0]!.spending.description,
+        name: e.SpendingsOnExpenses[0].spending.name,
+        amount: e.SpendingsOnExpenses[0].spending.amount,
+        description: e.SpendingsOnExpenses[0].spending.description,
       };
     });
   }),
