@@ -201,20 +201,20 @@ model ExpenseTypes {
 
 // this model only hold expenses data but not indicating we spend this money
 model ExpenseStore {
-    id          String       @id @default(cuid())
+    id          String        @id @default(cuid())
     name        String
     description String?
     // for user level concept, simply asking the user do you want to save this data for later use or not
     // true indicate don't show this expense in the ui
-    onTheFly    Boolean      @default(false)
+    onTheFly    Boolean       @default(false)
     amount      Float
     // null value indicate aperiodic expenses
     remindAt    DateTime?
-    typeId      String
-    type        ExpenseTypes @relation(fields: [typeId], references: [id])
-    createdAt   DateTime     @default(now())
+    typeId      String?
+    type        ExpenseTypes? @relation(fields: [typeId], references: [id])
+    createdAt   DateTime      @default(now())
     createdById String
-    createdBy   User         @relation(fields: [createdById], references: [id])
+    createdBy   User          @relation(fields: [createdById], references: [id])
 
     SpendingsOnExpenses SpendingsOnExpenses[]
 }

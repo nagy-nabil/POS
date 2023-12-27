@@ -1,5 +1,5 @@
-import bcrypt from "bcrypt";
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
@@ -27,6 +27,17 @@ async function main() {
       category: true,
     },
   });
+  // await prisma.expenseTypes.create({
+  //   data: {
+  //     name: "other",
+  //     description: "fallback expense type",
+  //     createdBy: {
+  //       connect: {
+  //         id: admin.id,
+  //       },
+  //     },
+  //   },
+  // });
   console.dir({ admin }, { depth: 4 });
 }
 
