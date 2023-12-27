@@ -57,7 +57,7 @@ declare module "@tanstack/table-core" {
 
 // const typesColumnHelper = createColumnHelper<ExpenseTypes>();
 // const storeColumnHelper = createColumnHelper<ExpenseStore>();
-const expenseColumnHelper = createColumnHelper<ExpenseGetMany>();
+const expenseColumnHelper = createColumnHelper<ExpenseGetMany[number]>();
 
 // function TypesTable(props: { data: ExpenseTypes[] }) {
 //   const { t } = useTranslation();
