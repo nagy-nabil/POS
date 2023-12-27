@@ -160,50 +160,48 @@ function Table(props: { data: Offer[] }) {
 
   return (
     <div className="w-full flex h-fit flex-col">
-        {/* item utils*/}
-        <div className="flex justify-start gap-3">
-          <OfferModal defaultValues={{}} operationType="post" />
-          {Object.keys(rowSelection).length === 1 ? (
-            <OfferModal
-              key={"offermodal"}
-              // @ts-ignore
-              defaultValues={props.data[+Object.keys(rowSelection)[0]]}
-            />
-          ) : null}
-          <ConfirmModal
-            bodyMessage="Are you sure you want to delete this offer, you cannot undo?"
-            header="Delete Offer"
-            onOk={() => {
-              offerDelete.mutate(
-                Object.keys(rowSelection).map(
-                  (itm) => props.data[+itm]?.id as string
-                )
-              );
-            }}
-            onCancel={() => {
-              console.log("cancel");
-            }}
-            buttonChildren={
-              offerDelete.isLoading ? (
-                <CgSpinner className="animate-spin text-2xl" />
-              ) : (
-                <AiOutlineDelete className="m-auto h-fit w-fit    p-2 text-3xl" />
-              )
-            }
-            buttonAttrs={{
-              disabled:
-                offerDelete.isLoading || Object.keys(rowSelection).length === 0,
-              className: "text-red-600 disabled:text-gray-500",
-            }}
+      {/* item utils*/}
+      <div className="flex justify-start gap-3">
+        <OfferModal defaultValues={{}} operationType="post" />
+        {Object.keys(rowSelection).length === 1 ? (
+          <OfferModal
+            key={"offermodal"}
+            // @ts-ignore
+            defaultValues={props.data[+Object.keys(rowSelection)[0]]}
           />
-        </div>
+        ) : null}
+        <ConfirmModal
+          bodyMessage="Are you sure you want to delete this offer, you cannot undo?"
+          header="Delete Offer"
+          onOk={() => {
+            offerDelete.mutate(
+              Object.keys(rowSelection).map((itm) => props.data[+itm]?.id)
+            );
+          }}
+          onCancel={() => {
+            console.log("cancel");
+          }}
+          buttonChildren={
+            offerDelete.isLoading ? (
+              <CgSpinner className="animate-spin text-2xl" />
+            ) : (
+              <AiOutlineDelete className="m-auto h-fit w-fit    p-2 text-3xl" />
+            )
+          }
+          buttonAttrs={{
+            disabled:
+              offerDelete.isLoading || Object.keys(rowSelection).length === 0,
+            className: "text-red-600 disabled:text-gray-500",
+          }}
+        />
+      </div>
 
-        <div className="w-full overflow-x-auto">
-          <TableBody table={table} />
-        </div>
+      <div className="w-full overflow-x-auto">
+        <TableBody table={table} />
+      </div>
 
-        {/* table utils */}
-        <TableUtils table={table} />
+      {/* table utils */}
+      <TableUtils table={table} />
     </div>
   );
 }
@@ -214,11 +212,11 @@ const OfferPage: NextPageWithProps = () => {
   });
 
   return (
-      <div className="w-full h-full">
-        {offerQuery.data && <Table data={offerQuery.data} />}
-        <OfferDisplay />
-        <ReactQueryDevtools initialIsOpen={false} />
-      </div>
+    <div className="w-full h-full">
+      {offerQuery.data && <Table data={offerQuery.data} />}
+      <OfferDisplay />
+      <ReactQueryDevtools initialIsOpen={false} />
+    </div>
   );
 };
 
