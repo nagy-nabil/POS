@@ -151,8 +151,9 @@
       },
       "props": {
         "id": "ID",
+        "name": "Name",
         "description": "Description",
-        "additionalAmount": "Additional Amount",
+        "amount": "Additional Amount",
         "store": "Expesnses Store"
       },
       "action": {
@@ -195,8 +196,9 @@
       "stock": "Stock"
     },
     "loss": {
+      "name": "Name",
       "description": "Description",
-      "additionalAmount": "Additional Amount",
+      "additionalAmount": "Amount",
       "products": "Products"
     },
     "expenses": {

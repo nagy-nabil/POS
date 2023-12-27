@@ -3,15 +3,15 @@ import type { GetStaticPropsContext } from "next";
 import IndeterminateCheckbox from "@/components/form/indeterminateCheckbox";
 import {
   ExpenseModal,
-  ExpensesStoreModal,
-  ExpenseTypeModal,
+  // ExpensesStoreModal,
+  // ExpenseTypeModal,
 } from "@/components/modal/expensesModal";
 import TableBody from "@/components/table/body";
 import { fuzzyFilter } from "@/components/table/helpers";
 import TableUtils from "@/components/table/utils";
+import type { ExpenseGetMany } from "@/server/api/routers/expenses";
 import { api } from "@/utils/api";
 import { dateFormater } from "@/utils/date";
-import type { Expenses, ExpenseStore, ExpenseTypes } from "@prisma/client";
 import { type RankingInfo } from "@tanstack/match-sorter-utils";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
@@ -55,244 +55,244 @@ declare module "@tanstack/table-core" {
   }
 }
 
-const typesColumnHelper = createColumnHelper<ExpenseTypes>();
-const storeColumnHelper = createColumnHelper<ExpenseStore>();
-const expenseColumnHelper = createColumnHelper<Expenses>();
+// const typesColumnHelper = createColumnHelper<ExpenseTypes>();
+// const storeColumnHelper = createColumnHelper<ExpenseStore>();
+const expenseColumnHelper = createColumnHelper<ExpenseGetMany>();
 
-function TypesTable(props: { data: ExpenseTypes[] }) {
-  const { t } = useTranslation();
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [rowSelection, setRowSelection] = React.useState({});
+// function TypesTable(props: { data: ExpenseTypes[] }) {
+//   const { t } = useTranslation();
+//   const [sorting, setSorting] = useState<SortingState>([]);
+//   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+//   const [rowSelection, setRowSelection] = React.useState({});
 
-  const columns = useMemo(
-    () => [
-      typesColumnHelper.display({
-        id: "select",
-        header: ({ table }) => (
-          <div className="relative m-auto">
-            <IndeterminateCheckbox
-              {...{
-                checked: table.getIsAllRowsSelected(),
-                indeterminate: table.getIsSomeRowsSelected(),
-                onChange: table.getToggleAllRowsSelectedHandler(),
-              }}
-            />
-          </div>
-        ),
-        cell: ({ row }) => (
-          <div className="px-1">
-            <IndeterminateCheckbox
-              {...{
-                checked: row.getIsSelected(),
-                disabled: !row.getCanSelect(),
-                indeterminate: row.getIsSomeSelected(),
-                onChange: row.getToggleSelectedHandler(),
-              }}
-            />
-          </div>
-        ),
-      }),
-      typesColumnHelper.accessor("id", {
-        header: () => <span>{t("table.common.id")}</span>,
-        cell: (info) => info.getValue(),
-        enableSorting: false,
-      }),
-      typesColumnHelper.accessor("name", {
-        header: () => <span>{t("table.common.name")}</span>,
-        cell: (info) => info.getValue(),
-        filterFn: "fuzzy",
-      }),
-      typesColumnHelper.accessor("description", {
-        header: () => <span>{t("table.loss.description")}</span>,
-        cell: (info) => info.getValue(),
-      }),
-      typesColumnHelper.accessor("createdAt", {
-        header: () => <span>{t("table.common.createdAt")}</span>,
-        cell: (info) => dateFormater.format(info.getValue()),
-        enableColumnFilter: false,
-      }),
-    ],
-    [t]
-  );
+//   const columns = useMemo(
+//     () => [
+//       typesColumnHelper.display({
+//         id: "select",
+//         header: ({ table }) => (
+//           <div className="relative m-auto">
+//             <IndeterminateCheckbox
+//               {...{
+//                 checked: table.getIsAllRowsSelected(),
+//                 indeterminate: table.getIsSomeRowsSelected(),
+//                 onChange: table.getToggleAllRowsSelectedHandler(),
+//               }}
+//             />
+//           </div>
+//         ),
+//         cell: ({ row }) => (
+//           <div className="px-1">
+//             <IndeterminateCheckbox
+//               {...{
+//                 checked: row.getIsSelected(),
+//                 disabled: !row.getCanSelect(),
+//                 indeterminate: row.getIsSomeSelected(),
+//                 onChange: row.getToggleSelectedHandler(),
+//               }}
+//             />
+//           </div>
+//         ),
+//       }),
+//       typesColumnHelper.accessor("id", {
+//         header: () => <span>{t("table.common.id")}</span>,
+//         cell: (info) => info.getValue(),
+//         enableSorting: false,
+//       }),
+//       typesColumnHelper.accessor("name", {
+//         header: () => <span>{t("table.common.name")}</span>,
+//         cell: (info) => info.getValue(),
+//         filterFn: "fuzzy",
+//       }),
+//       typesColumnHelper.accessor("description", {
+//         header: () => <span>{t("table.loss.description")}</span>,
+//         cell: (info) => info.getValue(),
+//       }),
+//       typesColumnHelper.accessor("createdAt", {
+//         header: () => <span>{t("table.common.createdAt")}</span>,
+//         cell: (info) => dateFormater.format(info.getValue()),
+//         enableColumnFilter: false,
+//       }),
+//     ],
+//     [t]
+//   );
 
-  const table = useReactTable({
-    data: props.data,
-    columnResizeMode: "onChange",
-    getCoreRowModel: getCoreRowModel(),
-    state: {
-      sorting,
-      columnFilters,
-      rowSelection,
-    },
-    filterFns: {
-      fuzzy: fuzzyFilter,
-    },
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    columns,
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnFiltersChange: setColumnFilters,
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
-    getFacetedMinMaxValues: getFacetedMinMaxValues(),
-    getPaginationRowModel: getPaginationRowModel(),
+//   const table = useReactTable({
+//     data: props.data,
+//     columnResizeMode: "onChange",
+//     getCoreRowModel: getCoreRowModel(),
+//     state: {
+//       sorting,
+//       columnFilters,
+//       rowSelection,
+//     },
+//     filterFns: {
+//       fuzzy: fuzzyFilter,
+//     },
+//     onSortingChange: setSorting,
+//     getSortedRowModel: getSortedRowModel(),
+//     columns,
+//     getFilteredRowModel: getFilteredRowModel(),
+//     onColumnFiltersChange: setColumnFilters,
+//     getFacetedRowModel: getFacetedRowModel(),
+//     getFacetedUniqueValues: getFacetedUniqueValues(),
+//     getFacetedMinMaxValues: getFacetedMinMaxValues(),
+//     getPaginationRowModel: getPaginationRowModel(),
 
-    enableRowSelection: true,
-    onRowSelectionChange: setRowSelection,
-    defaultColumn: {
-      minSize: 200,
-    },
-  });
+//     enableRowSelection: true,
+//     onRowSelectionChange: setRowSelection,
+//     defaultColumn: {
+//       minSize: 200,
+//     },
+//   });
 
-  if (typeof window === "undefined") return null;
+//   if (typeof window === "undefined") return null;
 
-  return (
-    <div className="mt-3 flex flex-col">
-      <div className="w-screen">
-        {/* item utils*/}
-        <div className="flex justify-start gap-3">
-          {/* <ProductModal defaultValues={{}} operationType="post" />
-          {Object.keys(rowSelection).length === 1 ? (
-            <ProductModal
-              key={"updateProduct"}
-              operationType="put"
-              // @ts-ignore
-              defaultValues={props.data[+Object.keys(rowSelection)[0]]}
-            />
-          ) : null} */}
-        </div>
+//   return (
+//     <div className="mt-3 flex flex-col">
+//       <div className="w-screen">
+//         {/* item utils*/}
+//         <div className="flex justify-start gap-3">
+//           {/* <ProductModal defaultValues={{}} operationType="post" />
+//           {Object.keys(rowSelection).length === 1 ? (
+//             <ProductModal
+//               key={"updateProduct"}
+//               operationType="put"
+//               // @ts-ignore
+//               defaultValues={props.data[+Object.keys(rowSelection)[0]]}
+//             />
+//           ) : null} */}
+//         </div>
 
-        <div className="w-full overflow-x-auto">
-          <TableBody table={table} />
-        </div>
+//         <div className="w-full overflow-x-auto">
+//           <TableBody table={table} />
+//         </div>
 
-        {/* table utils */}
-        <TableUtils table={table} />
-      </div>
-    </div>
-  );
-}
+//         {/* table utils */}
+//         <TableUtils table={table} />
+//       </div>
+//     </div>
+//   );
+// }
 
-function StoreTable(props: { data: ExpenseStore[] }) {
-  const { t } = useTranslation();
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [rowSelection, setRowSelection] = React.useState({});
+// function StoreTable(props: { data: ExpenseStore[] }) {
+//   const { t } = useTranslation();
+//   const [sorting, setSorting] = useState<SortingState>([]);
+//   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+//   const [rowSelection, setRowSelection] = React.useState({});
 
-  const columns = useMemo(
-    () => [
-      storeColumnHelper.display({
-        id: "select",
-        header: ({ table }) => (
-          <div className="relative m-auto">
-            <IndeterminateCheckbox
-              {...{
-                checked: table.getIsAllRowsSelected(),
-                indeterminate: table.getIsSomeRowsSelected(),
-                onChange: table.getToggleAllRowsSelectedHandler(),
-              }}
-            />
-          </div>
-        ),
-        cell: ({ row }) => (
-          <div className="px-1">
-            <IndeterminateCheckbox
-              {...{
-                checked: row.getIsSelected(),
-                disabled: !row.getCanSelect(),
-                indeterminate: row.getIsSomeSelected(),
-                onChange: row.getToggleSelectedHandler(),
-              }}
-            />
-          </div>
-        ),
-      }),
-      storeColumnHelper.accessor("id", {
-        header: () => <span>{t("table.common.id")}</span>,
-        cell: (info) => info.getValue(),
-        enableSorting: false,
-      }),
-      storeColumnHelper.accessor("name", {
-        header: () => <span>{t("table.common.name")}</span>,
-        cell: (info) => info.getValue(),
-        filterFn: "fuzzy",
-      }),
-      storeColumnHelper.accessor("description", {
-        header: () => <span>{t("table.loss.description")}</span>,
-        cell: (info) => info.getValue(),
-      }),
-      storeColumnHelper.accessor("amount", {
-        header: () => <span>{t("table.expenses.store.amount")}</span>,
-        cell: (info) => info.getValue(),
-      }),
-      storeColumnHelper.accessor("createdAt", {
-        header: () => <span>{t("table.common.createdAt")}</span>,
-        cell: (info) => dateFormater.format(info.getValue()),
-        enableColumnFilter: false,
-      }),
-    ],
-    [t]
-  );
+//   const columns = useMemo(
+//     () => [
+//       storeColumnHelper.display({
+//         id: "select",
+//         header: ({ table }) => (
+//           <div className="relative m-auto">
+//             <IndeterminateCheckbox
+//               {...{
+//                 checked: table.getIsAllRowsSelected(),
+//                 indeterminate: table.getIsSomeRowsSelected(),
+//                 onChange: table.getToggleAllRowsSelectedHandler(),
+//               }}
+//             />
+//           </div>
+//         ),
+//         cell: ({ row }) => (
+//           <div className="px-1">
+//             <IndeterminateCheckbox
+//               {...{
+//                 checked: row.getIsSelected(),
+//                 disabled: !row.getCanSelect(),
+//                 indeterminate: row.getIsSomeSelected(),
+//                 onChange: row.getToggleSelectedHandler(),
+//               }}
+//             />
+//           </div>
+//         ),
+//       }),
+//       storeColumnHelper.accessor("id", {
+//         header: () => <span>{t("table.common.id")}</span>,
+//         cell: (info) => info.getValue(),
+//         enableSorting: false,
+//       }),
+//       storeColumnHelper.accessor("name", {
+//         header: () => <span>{t("table.common.name")}</span>,
+//         cell: (info) => info.getValue(),
+//         filterFn: "fuzzy",
+//       }),
+//       storeColumnHelper.accessor("description", {
+//         header: () => <span>{t("table.loss.description")}</span>,
+//         cell: (info) => info.getValue(),
+//       }),
+//       storeColumnHelper.accessor("amount", {
+//         header: () => <span>{t("table.expenses.store.amount")}</span>,
+//         cell: (info) => info.getValue(),
+//       }),
+//       storeColumnHelper.accessor("createdAt", {
+//         header: () => <span>{t("table.common.createdAt")}</span>,
+//         cell: (info) => dateFormater.format(info.getValue()),
+//         enableColumnFilter: false,
+//       }),
+//     ],
+//     [t]
+//   );
 
-  const table = useReactTable({
-    data: props.data,
-    columnResizeMode: "onChange",
-    getCoreRowModel: getCoreRowModel(),
-    state: {
-      sorting,
-      columnFilters,
-      rowSelection,
-    },
-    filterFns: {
-      fuzzy: fuzzyFilter,
-    },
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    columns,
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnFiltersChange: setColumnFilters,
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
-    getFacetedMinMaxValues: getFacetedMinMaxValues(),
-    getPaginationRowModel: getPaginationRowModel(),
+//   const table = useReactTable({
+//     data: props.data,
+//     columnResizeMode: "onChange",
+//     getCoreRowModel: getCoreRowModel(),
+//     state: {
+//       sorting,
+//       columnFilters,
+//       rowSelection,
+//     },
+//     filterFns: {
+//       fuzzy: fuzzyFilter,
+//     },
+//     onSortingChange: setSorting,
+//     getSortedRowModel: getSortedRowModel(),
+//     columns,
+//     getFilteredRowModel: getFilteredRowModel(),
+//     onColumnFiltersChange: setColumnFilters,
+//     getFacetedRowModel: getFacetedRowModel(),
+//     getFacetedUniqueValues: getFacetedUniqueValues(),
+//     getFacetedMinMaxValues: getFacetedMinMaxValues(),
+//     getPaginationRowModel: getPaginationRowModel(),
 
-    enableRowSelection: true,
-    onRowSelectionChange: setRowSelection,
-    defaultColumn: {
-      minSize: 200,
-    },
-  });
+//     enableRowSelection: true,
+//     onRowSelectionChange: setRowSelection,
+//     defaultColumn: {
+//       minSize: 200,
+//     },
+//   });
 
-  if (typeof window === "undefined") return null;
+//   if (typeof window === "undefined") return null;
 
-  return (
-    <div className="mt-3 flex flex-col">
-      <div className="w-screen">
-        {/* item utils*/}
-        <div className="flex justify-start gap-3">
-          {/* <ProductModal defaultValues={{}} operationType="post" />
-          {Object.keys(rowSelection).length === 1 ? (
-            <ProductModal
-              key={"updateProduct"}
-              operationType="put"
-              // @ts-ignore
-              defaultValues={props.data[+Object.keys(rowSelection)[0]]}
-            />
-          ) : null} */}
-        </div>
+//   return (
+//     <div className="mt-3 flex flex-col">
+//       <div className="w-screen">
+//         {/* item utils*/}
+//         <div className="flex justify-start gap-3">
+//           {/* <ProductModal defaultValues={{}} operationType="post" />
+//           {Object.keys(rowSelection).length === 1 ? (
+//             <ProductModal
+//               key={"updateProduct"}
+//               operationType="put"
+//               // @ts-ignore
+//               defaultValues={props.data[+Object.keys(rowSelection)[0]]}
+//             />
+//           ) : null} */}
+//         </div>
 
-        <div className="w-full overflow-x-auto">
-          <TableBody table={table} />
-        </div>
+//         <div className="w-full overflow-x-auto">
+//           <TableBody table={table} />
+//         </div>
 
-        {/* table utils */}
-        <TableUtils table={table} />
-      </div>
-    </div>
-  );
-}
-function ExpenseTable(props: { data: Expenses[] }) {
+//         {/* table utils */}
+//         <TableUtils table={table} />
+//       </div>
+//     </div>
+//   );
+// }
+function ExpenseTable(props: { data: ExpenseGetMany }) {
   const { t } = useTranslation();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -331,12 +331,17 @@ function ExpenseTable(props: { data: Expenses[] }) {
         cell: (info) => info.getValue(),
         enableSorting: false,
       }),
+      expenseColumnHelper.accessor("name", {
+        header: () => <span>{t("table.loss.name")}</span>,
+        cell: (info) => info.getValue(),
+        filterFn: "fuzzy",
+      }),
       expenseColumnHelper.accessor("description", {
         header: () => <span>{t("table.loss.description")}</span>,
         cell: (info) => info.getValue(),
         filterFn: "fuzzy",
       }),
-      expenseColumnHelper.accessor("additionalAmount", {
+      expenseColumnHelper.accessor("amount", {
         header: () => <span>{t("table.loss.additionalAmount")}</span>,
         cell: (info) => info.getValue(),
       }),
@@ -408,30 +413,30 @@ function ExpenseTable(props: { data: Expenses[] }) {
 }
 
 const Spending: NextPageWithProps = () => {
-  const expenseTypesQuery = api.expenses.expenseTypeGetMany.useQuery(
-    undefined,
-    {
-      staleTime: Infinity,
-      retry(_failureCount, error) {
-        if (error.data?.code === "UNAUTHORIZED") {
-          return false;
-        }
-        return true;
-      },
-    }
-  );
-  const expenseStoreQuery = api.expenses.expenseStoreGetMany.useQuery(
-    undefined,
-    {
-      staleTime: Infinity,
-      retry(_failureCount, error) {
-        if (error.data?.code === "UNAUTHORIZED") {
-          return false;
-        }
-        return true;
-      },
-    }
-  );
+  // const expenseTypesQuery = api.expenses.expenseTypeGetMany.useQuery(
+  //   undefined,
+  //   {
+  //     staleTime: Infinity,
+  //     retry(_failureCount, error) {
+  //       if (error.data?.code === "UNAUTHORIZED") {
+  //         return false;
+  //       }
+  //       return true;
+  //     },
+  //   }
+  // );
+  // const expenseStoreQuery = api.expenses.expenseStoreGetMany.useQuery(
+  //   undefined,
+  //   {
+  //     staleTime: Infinity,
+  //     retry(_failureCount, error) {
+  //       if (error.data?.code === "UNAUTHORIZED") {
+  //         return false;
+  //       }
+  //       return true;
+  //     },
+  //   }
+  // );
   const expenseQuery = api.expenses.expenseGetMany.useQuery(undefined, {
     staleTime: Infinity,
     retry(_failureCount, error) {
@@ -445,23 +450,7 @@ const Spending: NextPageWithProps = () => {
   return (
     <>
       <div className="w-screen">
-        <ExpenseTypeModal
-          defaultValues={{}}
-          operationType="post"
-          key={"expessetse"}
-        />
-        <ExpensesStoreModal
-          defaultValues={{}}
-          operationType="post"
-          key={"expessefds"}
-        />
-        <ExpenseModal
-          defaultValues={{}}
-          operationType="post"
-          key={"expsfdjs"}
-        />
-        {expenseTypesQuery.data && <TypesTable data={expenseTypesQuery.data} />}
-        {expenseStoreQuery.data && <StoreTable data={expenseStoreQuery.data} />}
+        <ExpenseModal operationType="post" key={"expsfdjs"} />
         {expenseQuery.data && <ExpenseTable data={expenseQuery.data} />}
       </div>
       <ReactQueryDevtools initialIsOpen={false} />
