@@ -24,10 +24,10 @@ const productSchema = z.object({
   stock: z.number().gte(0),
   buyPrice: z.number().gt(0),
   sellPrice: z.number().gt(0),
-  categoryId: z.string().nonempty(),
+  categoryId: z.string().min(3),
 });
 const productOnOfferSchema = z.object({
-  productId: z.string().nonempty(),
+  productId: z.string().min(3),
   quantity: z.number().min(0),
   price: z.number().gt(0),
 });
@@ -39,7 +39,7 @@ const offerSchema = z.object({
 });
 
 const cartItemSchema = z.object({
-  id: z.string().nonempty(),
+  id: z.string().min(3),
   quantity: z.number().min(0),
 });
 
@@ -63,35 +63,41 @@ const loginSchema = userSchema.pick({ userName: true }).extend({
 });
 
 const expenseTypeSchema = z.object({
-  id: z.string().nonempty().optional(),
+  id: z.string().min(3).optional(),
   name: z.string().min(3),
   description: z.string().min(4).optional(),
 });
 
 const expenseStoreSchema = z.object({
-  id: z.string().nonempty().optional(),
+  id: z.string().min(3).optional(),
   name: z.string().min(3),
   description: z.string().min(4).optional(),
   onTheFly: z.boolean().default(false),
   amount: z.number().gt(0),
   remindAt: z.date().optional(),
-  typeId: z.string().nonempty(),
+  typeId: z.string().min(3),
 });
 
 const expensesSchema = z.object({
-  id: z.string().nonempty().optional(),
+  id: z.string().min(3).optional(),
   description: z.string().optional(),
   additionalAmount: z.number().gte(0).default(0),
   expenseStoreIds: z.array(z.string()),
 });
 
+const completeExpenseSchema = z.object({
+  name: z.string().min(3),
+  description: z.string().optional(),
+  amount: z.number().gt(0),
+});
+
 const productsOnLossSchema = z.object({
-  productId: z.string().nonempty(),
+  productId: z.string().min(3),
   quantity: z.number().gt(0),
 });
 
 const lossesSchema = z.object({
-  id: z.string().nonempty().optional(),
+  id: z.string().min(5).optional(),
   name: z.string().optional(),
   description: z.string().optional(),
   additionalAmount: z.number().default(0),
@@ -114,6 +120,7 @@ export {
   productOnOfferSchema,
   productSchema,
   productsOnLossSchema,
+  completeExpenseSchema,
 };
 
 export type { CartT, CartItem, CartProduct };

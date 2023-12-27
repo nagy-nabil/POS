@@ -1,5 +1,7 @@
+import exp from "constants";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import {
+  completeExpenseSchema,
   expensesSchema,
   expenseStoreSchema,
   expenseTypeSchema,
@@ -79,33 +81,56 @@ export const expensesRouter = createTRPCRouter({
 
   // expenses
   expenseInsertOne: protectedProcedure
-    .input(expensesSchema)
+    .input(completeExpenseSchema)
     .mutation(async ({ ctx, input }) => {
       const expense = await ctx.prisma.expenses.create({
         data: {
           createdById: ctx.session.user.id,
-          additionalAmount: input.additionalAmount,
+          additionalAmount: 0,
           description: input.description,
           SpendingsOnExpenses: {
-            createMany: {
-              data: input.expenseStoreIds.map((i) => ({ spendingId: i })),
+            create: {
+              spending: {
+                create: {
+                  onTheFly: true,
+                  amount: input.amount,
+                  name: input.name,
+                  description: input.description,
+                  createdById: ctx.session.user.id,
+                },
+              },
             },
           },
         },
-        include: {
+        select: {
+          createdAt: true,
+          id: true,
           SpendingsOnExpenses: {
             include: {
-              spending: true,
+              spending: {
+                select: {
+                  id: true,
+                  amount: true,
+                  name: true,
+                  description: true,
+                },
+              },
             },
           },
         },
       });
-      return expense;
+      return {
+        id: expense.id,
+        createdAt: expense.createdAt,
+        name: expense.SpendingsOnExpenses[0]!.spending.name, // TODO
+        amount: expense.SpendingsOnExpenses[0]!.spending.amount,
+        description: expense.SpendingsOnExpenses[0]!.spending.description,
+      };
     }),
 
   // TODO that's not enough to update many to many relation
   expenseUpdateOne: protectedProcedure
-    .input(expensesSchema.extend({ id: z.string().nonempty() }))
+    .input(expensesSchema.extend({ id: z.string().min(3) }))
     .mutation(async ({ ctx, input }) => {
       return await ctx.prisma.expenses.update({
         where: {
@@ -116,14 +141,32 @@ export const expensesRouter = createTRPCRouter({
     }),
 
   expenseGetMany: protectedProcedure.query(async ({ ctx }) => {
-    return await ctx.prisma.expenses.findMany({
-      include: {
+    const r = await ctx.prisma.expenses.findMany({
+      select: {
+        createdAt: true,
+        id: true,
         SpendingsOnExpenses: {
           include: {
-            spending: true,
+            spending: {
+              select: {
+                id: true,
+                amount: true,
+                name: true,
+                description: true,
+              },
+            },
           },
         },
       },
+    });
+    return r.map((e) => {
+      return {
+        id: e.id,
+        createdAt: e.createdAt,
+        name: e.SpendingsOnExpenses[0]!.spending.name,
+        amount: e.SpendingsOnExpenses[0]!.spending.amount,
+        description: e.SpendingsOnExpenses[0]!.spending.description,
+      };
     });
   }),
 });
