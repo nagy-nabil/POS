@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,11 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  completeExpenseSchema,
-  expenseStoreSchema,
-  expenseTypeSchema,
-} from "@/types/entities";
+import { completeExpenseSchema } from "@/types/entities";
 import { api } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
@@ -394,7 +390,7 @@ export function ExpenseModal(props: ExpenseProps) {
           <Plus />
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="overflow-y-auto h-4/5">
         <DialogHeader>
           <DialogTitle>
             {props.operationType === "post"
@@ -402,11 +398,10 @@ export function ExpenseModal(props: ExpenseProps) {
               : t("expensesModal.expense.headerName.put")}
           </DialogTitle>
         </DialogHeader>
-
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col w-full h-full"
+            className="flex flex-col w-full h-full gap-4 overflow-y-auto"
           >
             {expenseKeys.map((expenseKey, i) => {
               return (

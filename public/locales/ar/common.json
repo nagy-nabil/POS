@@ -150,9 +150,11 @@
         "put": "تحديث المصروف"
       },
       "props": {
+        "name": "الاسم",
         "id": "المعرف",
         "description": "الوصف",
         "additionalAmount": "المبلغ الإضافي",
+        "amount": "المبلغ",
         "store": "متجر المصروف"
       },
       "action": {
@@ -195,6 +197,7 @@
       "stock": "المخزون"
     },
     "loss": {
+      "name": "الاسم",
       "description": "الوصف",
       "additionalAmount": "المبلغ الإضافي",
       "products": "المنتجات"
