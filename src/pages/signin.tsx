@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { GetStaticPropsContext } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import { ModeToggle } from "@/components/modeToggle";
 import { Input } from "@/components/ui/input";
 import { loginSchema } from "@/types/entities";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -76,68 +77,73 @@ const SignIn: NextPageWithProps = () => {
         <link rel="manifest" href="/app.webmanifest" />
         <title>Zagy | signin</title>
       </Head>
-      <div className="flex h-screen w-full flex-col items-center justify-center">
-        <h1 className="m-3 text-center text-6xl font-bold">Zagy</h1>
-        <p className="mb-5 text-gray-500">
-          Do your business <b>Right</b>
-        </p>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-3 items-center w-full"
-        >
-          <label className="text-lg w-11/12">
-            <Input
-              placeholder={t("userName")}
-              type="text"
-              className="text-lg"
-              {...register("userName")}
-            />
-            {formErrors["userName"] && (
-              <span className="my-2 text-red-700">
-                {formErrors["userName"].message}
-              </span>
-            )}
-          </label>
-
-          <label className="text-lg w-11/12">
-            <Input
-              placeholder={t("password")}
-              type="password"
-              className="text-lg"
-              {...register("password")}
-            />
-            {formErrors["password"] && (
-              <span className="my-2 text-red-700">
-                {formErrors["password"].message}
-              </span>
-            )}
-          </label>
-          <button
-            disabled={isSubmitting}
-            type="submit"
-            className="m-4 mx-auto w-fit rounded-2xl bg-black p-3 text-lg text-cyan-50"
-            value={"Sign In"}
+      <div className="h-screen w-screen flex flex-col">
+        <header className="w-full flex justify-end p-3">
+          <ModeToggle />
+        </header>
+        <div className="flex h-full w-full flex-col items-center justify-center">
+          <h1 className="m-3 text-center text-6xl font-bold">Zagy</h1>
+          <p className="mb-5 text-gray-500">
+            Do your business <b>Right</b>
+          </p>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-3 items-center w-full"
           >
-            {isSubmitting ? (
-              <CgSpinner className="animate-spin text-2xl" />
-            ) : (
-              t("action")
-            )}
-          </button>
-          <p className="text-red-500">{errors}</p>
-        </form>
-        <p className="text-gray-500 text-center">
-          Not yet publicly available{" "}
-          <b>
-            Check the demo and Request access from here:
-            <a className="text-blue-300 underline" href="https://zagy.tech">
-              {" "}
-              zagy.tech
-            </a>
-          </b>
-        </p>
-        <ReactQueryDevtools initialIsOpen={false} />
-        <p className="text-gray-500 text-center">V 0.1.10</p>
+            <label className="text-lg w-11/12">
+              <Input
+                placeholder={t("userName")}
+                type="text"
+                className="text-lg"
+                {...register("userName")}
+              />
+              {formErrors["userName"] && (
+                <span className="my-2 text-red-700">
+                  {formErrors["userName"].message}
+                </span>
+              )}
+            </label>
+
+            <label className="text-lg w-11/12">
+              <Input
+                placeholder={t("password")}
+                type="password"
+                className="text-lg"
+                {...register("password")}
+              />
+              {formErrors["password"] && (
+                <span className="my-2 text-red-700">
+                  {formErrors["password"].message}
+                </span>
+              )}
+            </label>
+            <button
+              disabled={isSubmitting}
+              type="submit"
+              className="m-4 mx-auto w-fit rounded-2xl bg-black p-3 text-lg text-cyan-50"
+              value={"Sign In"}
+            >
+              {isSubmitting ? (
+                <CgSpinner className="animate-spin text-2xl" />
+              ) : (
+                t("action")
+              )}
+            </button>
+            <p className="text-red-500">{errors}</p>
+          </form>
+          <p className="text-gray-500 text-center">
+            Not yet publicly available{" "}
+            <b>
+              Check the demo and Request access from here:
+              <a className="text-blue-300 underline" href="https://zagy.tech">
+                {" "}
+                zagy.tech
+              </a>
+            </b>
+          </p>
+          <ReactQueryDevtools initialIsOpen={false} />
+          <p className="text-gray-500 text-center">V 0.1.11</p>
+        </div>
       </div>
     </>
   );

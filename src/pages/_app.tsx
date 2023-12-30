@@ -100,6 +100,7 @@ const MyApp = ({ Component, pageProps }: CustomAppProps) => {
   const { toast } = useToast();
   const router = useRouter();
   useEffect(() => {
+    if (process.env.NODE_ENV === "development") return;
     void installSW(() => {
       toast({
         title: "New version available",
