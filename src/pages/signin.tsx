@@ -137,6 +137,7 @@ const SignIn: NextPageWithProps = () => {
           </b>
         </p>
         <ReactQueryDevtools initialIsOpen={false} />
+        <p className="text-gray-500 text-center">V 0.1.10</p>
       </div>
     </>
   );

@@ -2,6 +2,7 @@ import { useEffect, type ReactElement } from "react";
 import type { NextPage } from "next";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
+import { Toaster } from "@/components/ui/toaster";
 import { api } from "@/utils/api";
 import { type Session } from "next-auth";
 import { SessionProvider, useSession } from "next-auth/react";
@@ -12,6 +13,8 @@ import "@/styles/globals.css";
 import Head from "next/head";
 import Layout from "@/components/layout";
 import { ThemeProvider } from "@/components/theme-provider";
+import { useToast } from "@/components/ui/use-toast";
+import { ToastAction } from "@radix-ui/react-toast";
 
 export type LayoutT = (page: ReactElement) => ReactElement;
 
@@ -63,20 +66,53 @@ function Authed({ children }: AutedProps) {
   return children;
 }
 
-const MyApp = ({ Component, pageProps }: CustomAppProps) => {
-  useEffect(() => {
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker
-        .register("/sw.js")
-        .then((registration) => console.log("scope is: ", registration.scope))
-        .catch((err) => {
-          console.log(
-            "🪵 [_app.tsx:21] ~ token ~ \x1b[0;32merr\x1b[0m = ",
-            err
-          );
-        });
+async function detectSWUpdate(onUpdate: () => void) {
+  const registration = await navigator.serviceWorker.ready;
+
+  registration.addEventListener("updatefound", () => {
+    const newSW = registration.installing;
+    if (newSW == null) return;
+    newSW.addEventListener("statechange", () => {
+      if (newSW.state == "installed") {
+        // New service worker is installed, but waiting activation
+        onUpdate();
+      }
+    });
+  });
+}
+
+async function installSW(onUpdate: () => void) {
+  if ("serviceWorker" in navigator) {
+    try {
+      const registration = await navigator.serviceWorker.register("/sw.js");
+      console.log("scope is: ", registration.scope);
+
+      await detectSWUpdate(onUpdate);
+    } catch (err) {
+      console.log("🪵 [_app.tsx:93] ~ token ~ \x1b[0;32merr\x1b[0m = ", err);
     }
-  }, []);
+  } else {
+    console.error("Service worker is not supported in this browser");
+  }
+}
+
+const MyApp = ({ Component, pageProps }: CustomAppProps) => {
+  const { toast } = useToast();
+  const router = useRouter();
+  useEffect(() => {
+    void installSW(() => {
+      toast({
+        title: "New version available",
+        description: "Please refresh the page to update.",
+        duration: 9000,
+        action: (
+          <ToastAction onClick={() => router.reload()} altText="Refresh">
+            Refresh
+          </ToastAction>
+        ),
+      });
+    });
+  }, [toast, router]);
 
   // Use the layout defined at the page level, if available
   const getLayout: LayoutT =
@@ -98,7 +134,7 @@ const MyApp = ({ Component, pageProps }: CustomAppProps) => {
           ) : (
             getLayout(<Component {...pageProps} />)
           )}
-          {}
+          <Toaster />
         </ThemeProvider>
       </SessionProvider>
     </>

@@ -22,6 +22,8 @@ const cacheFirstAssets = new Set([
   "style",
 ]);
 const cacheName = "pwav1";
+// eslint-disable-next-line
+const APP_VERSION = "0.1.10";
 
 async function updateCache(req, res) {
   const cache = await caches.open(cacheName);
@@ -41,18 +43,20 @@ async function cacheFirst(request) {
   return networkRes;
 }
 
-// self.addEventListener("install", (event) => {
-//   const withInstall = async () => {
-//     const cache = await caches.open(cacheName);
-//     const assets = [
-//       // list of assets to cache
-//       "/",
-//     ];
-//     await cache.addAll(assets);
-//   };
-//   console.log("installing");
-//   event.waitUntil(withInstall());
-// });
+self.addEventListener("install", (event) => {
+  const withInstall = async () => {
+    // delete old cache first if exists
+    await caches.delete(cacheName);
+    // const cache = await caches.open(cacheName);
+    // const assets = [
+    //   // list of assets to cache
+    //   "/",
+    // ];
+    // await cache.addAll(assets);
+  };
+  event.waitUntil(withInstall());
+  self.skipWaiting();
+});
 
 self.addEventListener("fetch", (event) => {
   if (cacheFirstAssets.has(event.request.destination)) {
