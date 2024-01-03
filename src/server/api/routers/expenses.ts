@@ -141,6 +141,9 @@ export const expensesRouter = createTRPCRouter({
 
   expenseGetMany: protectedProcedure.query(async ({ ctx }) => {
     const r = await ctx.prisma.expenses.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
       select: {
         createdAt: true,
         id: true,
