@@ -13,7 +13,6 @@ import type { ExpenseGetMany } from "@/server/api/routers/expenses";
 import { api } from "@/utils/api";
 import { dateFormater } from "@/utils/date";
 import { type RankingInfo } from "@tanstack/match-sorter-utils";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
   createColumnHelper,
   getCoreRowModel,
@@ -32,6 +31,10 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "react-i18next";
 
 import { type NextPageWithProps } from "../_app";
+import { FromToDate } from "@/components/form/fromToDate";
+import { Button } from "@/components/ui/button";
+import { CgSpinner } from "react-icons/cg";
+import { FiDollarSign } from "react-icons/fi";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   return {
@@ -57,7 +60,7 @@ declare module "@tanstack/table-core" {
 
 // const typesColumnHelper = createColumnHelper<ExpenseTypes>();
 // const storeColumnHelper = createColumnHelper<ExpenseStore>();
-const expenseColumnHelper = createColumnHelper<ExpenseGetMany[number]>();
+const expenseColumnHelper = createColumnHelper<ExpenseGetMany['spendings'][number]>();
 
 // function TypesTable(props: { data: ExpenseTypes[] }) {
 //   const { t } = useTranslation();
@@ -292,7 +295,7 @@ const expenseColumnHelper = createColumnHelper<ExpenseGetMany[number]>();
 //     </div>
 //   );
 // }
-function ExpenseTable(props: { data: ExpenseGetMany }) {
+function ExpenseTable(props: { data: ExpenseGetMany['spendings'] }) {
   const { t } = useTranslation();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -326,11 +329,11 @@ function ExpenseTable(props: { data: ExpenseGetMany }) {
           </div>
         ),
       }),
-      expenseColumnHelper.accessor("id", {
-        header: () => <span>{t("table.common.id")}</span>,
-        cell: (info) => info.getValue(),
-        enableSorting: false,
-      }),
+      // expenseColumnHelper.accessor("id", {
+      //   header: () => <span>{t("table.common.id")}</span>,
+      //   cell: (info) => info.getValue(),
+      //   enableSorting: false,
+      // }),
       expenseColumnHelper.accessor("name", {
         header: () => <span>{t("table.loss.name")}</span>,
         cell: (info) => info.getValue(),
@@ -413,6 +416,7 @@ function ExpenseTable(props: { data: ExpenseGetMany }) {
 }
 
 const Spending: NextPageWithProps = () => {
+  const { t } = useTranslation("analysis");
   // const expenseTypesQuery = api.expenses.expenseTypeGetMany.useQuery(
   //   undefined,
   //   {
@@ -437,24 +441,61 @@ const Spending: NextPageWithProps = () => {
   //     },
   //   }
   // );
-  const expenseQuery = api.expenses.expenseGetMany.useQuery(undefined, {
-    staleTime: Infinity,
-    retry(_failureCount, error) {
-      if (error.data?.code === "UNAUTHORIZED") {
-        return false;
-      }
-      return true;
-    },
+  //
+
+
+  // always would be the time at midnight(start of a day)
+  const [fromDate, setFromDate] = useState<Date>(() => {
+    const localTimestamp = new Date();
+    localTimestamp.setHours(0, 0, 0, 0);
+    return localTimestamp;
   });
+  // always need to be the end of day (time at 11:59:59:999)
+  const [toDate, setToDate] = useState<Date>(() => {
+    const localTimestamp = new Date();
+    localTimestamp.setHours(23, 59, 59, 999);
+    return localTimestamp;
+  });
+  const expenseQuery = api.expenses.expenseGetMany.useQuery({
+    from: fromDate,
+    to: toDate,
+  },
+    {
+      enabled: false,
+      retry(_failureCount, error) {
+        if (error.data?.code === "UNAUTHORIZED") {
+          return false;
+        }
+        return true;
+      },
+    });
 
   return (
-    <>
-      <div className="w-screen">
-        <ExpenseModal operationType="post" key={"expsfdjs"} />
-        {expenseQuery.data && <ExpenseTable data={expenseQuery.data} />}
+    <div className="w-screen">
+      <div className="flex flex-col gap-3">
+        <FromToDate fromDate={fromDate} toDate={toDate} setFromDate={setFromDate} setToDate={setToDate} />
+        <Button
+          type="button"
+          variant={"default"}
+          onClick={() => expenseQuery.refetch()}
+          disabled={expenseQuery.isLoading && expenseQuery.fetchStatus !== "idle"}
+          className="w-1/2 m-auto"
+        >
+          {expenseQuery.isLoading && expenseQuery.fetchStatus !== "idle" ? (
+            <CgSpinner className="animate-spin text-2xl" />
+          ) : (
+            t("orderHistory.action")
+          )}
+        </Button>
       </div>
-      <ReactQueryDevtools initialIsOpen={false} />
-    </>
+      <ExpenseModal operationType="post" key={"expsfdjs"} />
+      <div className="border flex flex-col text-2xl p-3 w-2/4 h-fit">
+        <span className="flex gap-3 justify-start items-center "><FiDollarSign className="p-1 rounded-sm border w-fit h-fit" size={20} />
+          Total Spendings</span>
+        <span className="font-bold">{expenseQuery.data?.totalAmount.toFixed(2) ?? 0}</span>
+      </div>
+      {expenseQuery.fetchStatus === 'idle' && !expenseQuery.data ? "choose date interval and load" : expenseQuery.isError ? (<p>{expenseQuery.error.message}</p>) : expenseQuery.isLoading ? (<p>Loading...</p>) : <ExpenseTable data={expenseQuery.data.spendings} />}
+    </div>
   );
 };
 

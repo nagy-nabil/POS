@@ -28,7 +28,7 @@ export const expensesRouter = createTRPCRouter({
     }),
 
   expenseTypeUpdateOne: protectedProcedure
-    .input(expenseTypeSchema.extend({ id: z.string().nonempty() }))
+    .input(expenseTypeSchema.extend({ id: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
       return await ctx.prisma.expenseTypes.update({
         where: {
@@ -139,38 +139,59 @@ export const expensesRouter = createTRPCRouter({
       });
     }),
 
-  expenseGetMany: protectedProcedure.query(async ({ ctx }) => {
-    const r = await ctx.prisma.expenses.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-      select: {
-        createdAt: true,
-        id: true,
-        SpendingsOnExpenses: {
-          include: {
-            spending: {
-              select: {
-                id: true,
-                amount: true,
-                name: true,
-                description: true,
+  /**
+   * get the expenses history between interval
+   */
+  expenseGetMany: protectedProcedure
+    .input(
+      z.object({
+        from: z.date(),
+        to: z.date(),
+      })
+    ).query(async ({ ctx, input }) => {
+      const r = await ctx.prisma.expenses.findMany({
+        where: {
+          createdAt: {
+            lte: input.to,
+            gte: input.from,
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        select: {
+          createdAt: true,
+          id: true,
+          SpendingsOnExpenses: {
+            include: {
+              spending: {
+                select: {
+                  id: true,
+                  amount: true,
+                  name: true,
+                  description: true,
+                },
               },
             },
           },
         },
-      },
-    });
-    return r.map((e) => {
-      return {
-        id: e.id,
-        createdAt: e.createdAt,
-        name: e.SpendingsOnExpenses[0].spending.name,
-        amount: e.SpendingsOnExpenses[0].spending.amount,
-        description: e.SpendingsOnExpenses[0].spending.description,
-      };
-    });
-  }),
+      });
+    let totalAmount = 0;
+      const spendings = r.map((e) => {
+      totalAmount +=e.SpendingsOnExpenses[0].spending.amount; 
+        return {
+          id: e.id,
+          createdAt: e.createdAt,
+          name: e.SpendingsOnExpenses[0].spending.name,
+          amount: e.SpendingsOnExpenses[0].spending.amount,
+          description: e.SpendingsOnExpenses[0].spending.description,
+        };
+      });
+    return {
+      totalAmount,
+      spendings,
+    }
+    }),
 });
 
 export type ExpensesRouter = inferRouterOutputs<typeof expensesRouter>;
