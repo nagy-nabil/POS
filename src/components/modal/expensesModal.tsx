@@ -367,12 +367,9 @@ export function ExpenseModal(props: ExpenseProps) {
   // );
 
   const expenseInsert = api.expenses.expenseInsertOne.useMutation({
-    onSuccess(data) {
-      utils.expenses.expenseGetMany.setData(undefined, (prev) => [
-        ...(prev ?? []),
-        data,
-      ]);
-      resetModalState();
+    async onSuccess() {
+      await utils.expenses.expenseGetMany.invalidate()
+        resetModalState();
     },
     onError(error) {
       setOperationError(error.message);
