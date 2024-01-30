@@ -416,7 +416,7 @@ function ExpenseTable(props: { data: ExpenseGetMany['spendings'] }) {
 }
 
 const Spending: NextPageWithProps = () => {
-  const { t } = useTranslation("analysis");
+  const { t } = useTranslation();
   // const expenseTypesQuery = api.expenses.expenseTypeGetMany.useQuery(
   //   undefined,
   //   {
@@ -484,17 +484,17 @@ const Spending: NextPageWithProps = () => {
           {expenseQuery.isLoading && expenseQuery.fetchStatus !== "idle" ? (
             <CgSpinner className="animate-spin text-2xl" />
           ) : (
-            t("orderHistory.action")
+            t("fromTOComponent.action")
           )}
         </Button>
       </div>
       <ExpenseModal operationType="post" key={"expsfdjs"} />
       <div className="border flex flex-col text-2xl p-3 w-2/4 h-fit">
         <span className="flex gap-3 justify-start items-center "><FiDollarSign className="p-1 rounded-sm border w-fit h-fit" size={20} />
-          Total Spendings</span>
+          {t("pages./spending.header")}</span>
         <span className="font-bold">{expenseQuery.data?.totalAmount.toFixed(2) ?? 0}</span>
       </div>
-      {expenseQuery.fetchStatus === 'idle' && !expenseQuery.data ? "choose date interval and load" : expenseQuery.isError ? (<p>{expenseQuery.error.message}</p>) : expenseQuery.isLoading ? (<p>Loading...</p>) : <ExpenseTable data={expenseQuery.data.spendings} />}
+      {expenseQuery.fetchStatus === 'idle' && !expenseQuery.data ? t("pages./spending.placeholder") : expenseQuery.isError ? (<p>{expenseQuery.error.message}</p>) : expenseQuery.isLoading ? (<p>Loading...</p>) : <ExpenseTable data={expenseQuery.data.spendings} />}
     </div>
   );
 };

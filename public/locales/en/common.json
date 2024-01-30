@@ -207,6 +207,11 @@
       }
     }
   },
+  "fromTOComponent": {
+    "from": "From",
+    "to": "To",
+    "action": "Show History"
+  },
   "pages": {
     "/": {
       "header": "Sales"
@@ -224,7 +229,8 @@
       "header": "Settings"
     },
     "/spending": {
-      "header": "Spendings"
+      "header": "Spendings",
+      "placeholder": "choose date interval and load"
     },
     "/analysis": {
       "header": "Analysis"

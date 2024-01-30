@@ -13,11 +13,11 @@ export function FromToDate({
   fromDate, toDate, setFromDate, setToDate 
 }: FromToDateT) {
 
-  const { t } = useTranslation("analysis");
+  const { t } = useTranslation();
   return (
         <div className="flex flex-col gap-3 w-full h-full">
           <label className="flex items-center justify-between gap-2 text-2xl">
-            {t("orderHistory.from")}
+            {t("fromTOComponent.from")}
             <input
               name="from"
               type="date"
@@ -35,7 +35,7 @@ export function FromToDate({
             />
           </label>
           <label className="flex items-center justify-between gap-2 text-2xl">
-            {t("orderHistory.to")}
+            {t("fromTOComponent.to")}
             <input
               value={generateInputDateValue(toDate)}
               onChange={(e) =>

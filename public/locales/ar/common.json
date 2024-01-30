@@ -208,6 +208,11 @@
       }
     }
   },
+  "fromTOComponent": {
+    "from": "من",
+    "to": "إلى",
+    "action": "عرض التاريخ"
+  },
   "pages": {
     "/": {
       "header": "المبيعات"
@@ -225,7 +230,8 @@
       "header": "الإعدادات"
     },
     "/spending": {
-      "header": "المصروفات"
+      "header": "المصروفات",
+      "placeholder": "اختر فتره زمنيه و حمل"
     },
     "/analysis": {
       "header": "التحليل"
