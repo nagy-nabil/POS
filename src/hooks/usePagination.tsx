@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { type FnReturn } from "@/types/utils";
 import {
   AiOutlineDoubleLeft,
   AiOutlineDoubleRight,
@@ -71,7 +70,7 @@ export function usePagination<T>(props: UsePaginationProps<T>) {
   };
 }
 
-export type PaginationUtisProps<T> = FnReturn<typeof usePagination<T>>;
+export type PaginationUtisProps<T> = ReturnType<typeof usePagination<T>>;
 
 export function PaginationUtis<T>(props: PaginationUtisProps<T>) {
   return (

@@ -175,8 +175,7 @@ export default function LossesModal(props: LossesProps) {
                 {/* errors will return when field validation fails  */}
                 {formErrors[lossK] && (
                   <span className="m-2 text-red-700">
-                    {/* @ts-ignore */}
-                    {formErrors[lossK].message}
+                    {formErrors[lossK]?.message}
                   </span>
                 )}
               </label>

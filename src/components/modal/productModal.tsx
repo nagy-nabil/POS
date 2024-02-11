@@ -118,7 +118,7 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
     const proPut = () => {
       productUpdate.mutate({
         productId: props.defaultValues.id || "",
-        // @ts-ignore
+        // @ts-expect-error infernce code needs update
         product: data,
       });
     };
@@ -324,8 +324,7 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
                 {/* errors will return when field validation fails  */}
                 {formErrors[productKey] && (
                   <span className="m-2 text-red-700">
-                    {/* @ts-ignore */}
-                    {formErrors[productKey].message}
+                    {formErrors[productKey]?.message}
                   </span>
                 )}
               </label>

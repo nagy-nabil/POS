@@ -221,7 +221,6 @@ export const KeypadDisplay: React.FC<ProductProps> = (props) => {
           <ProductModal
             key={"updateProduct"}
             operationType="put"
-            // @ts-ignore
             defaultValues={props}
           />
         </div>

@@ -156,7 +156,6 @@ function Table(props: { data: Product[] }) {
           <ProductModal
             key={"updateProduct"}
             operationType="put"
-            // @ts-ignore
             defaultValues={props.data[+Object.keys(rowSelection)[0]]}
             afterSuccess={() => {
               table.setRowSelection({});

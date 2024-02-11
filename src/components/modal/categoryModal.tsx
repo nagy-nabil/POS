@@ -105,7 +105,7 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
       categoryInsert.mutate(data);
     };
     const catPut = () => {
-      // @ts-ignore
+      // @ts-expect-error type inference needs to be updated
       categoryUpdate.mutate(data);
     };
 
@@ -209,8 +209,7 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
                 {/* errors will return when field validation fails  */}
                 {formErrors[categoryKey] && (
                   <span className="m-2 text-red-700">
-                    {/* @ts-ignore */}
-                    {formErrors[categoryKey].message}
+                    {formErrors[categoryKey]?.message}
                   </span>
                 )}
               </label>

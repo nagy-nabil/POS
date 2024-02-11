@@ -25,7 +25,7 @@ import { useReactToPrint } from "react-to-print";
 import ConfirmModal from "./modal/confirm";
 import { type RouterOutput } from "@/server/api/root";
 
-export type OrderDisplayProps = RouterOutput["orders"]["getMany"]["orders"][number] & {refetch: any};
+export type OrderDisplayProps = RouterOutput["orders"]["getMany"]["orders"][number] & {refetch: any}; // eslint-disable-line
 
 const OrderPrint = React.forwardRef<HTMLDivElement, OrderDisplayProps>(
   function OrderPrint(props, ref) {

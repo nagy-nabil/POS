@@ -166,7 +166,6 @@ function Table(props: { data: Offer[] }) {
         {Object.keys(rowSelection).length === 1 ? (
           <OfferModal
             key={"offermodal"}
-            // @ts-ignore
             defaultValues={props.data[+Object.keys(rowSelection)[0]]}
           />
         ) : null}

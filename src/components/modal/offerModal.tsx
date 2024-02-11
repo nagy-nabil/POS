@@ -274,8 +274,7 @@ export default function OfferModal(props: OfferProps) {
                 {/* errors will return when field validation fails  */}
                 {formErrors[key] && (
                   <span className="m-2 text-red-700">
-                    {/* @ts-ignore */}
-                    {formErrors[key].message}
+                    {formErrors[key]?.message}
                   </span>
                 )}
               </label>

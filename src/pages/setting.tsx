@@ -38,7 +38,7 @@ const passwordForm = loginSchema
     },
     {
       message: "passwords don't match",
-      path: ["confirm"],
+      path: ["rePassword"],
     }
   );
 type PasswordFormT = z.infer<typeof passwordForm>;
@@ -171,11 +171,9 @@ const SettingsPage: NextPageWithProps = () => {
                 {passwordErrors["rePassword"].message}
               </span>
             )}
-            {/* @ts-ignore */}
-            {passwordErrors["confirm"] && (
+            {"rePassword" in passwordErrors && (
               <span className="m-2 text-red-700">
-                {/* @ts-ignore  */}
-                {passwordErrors["confirm"].message} {/* eslint-disable-line*/}
+                {passwordErrors["rePassword"]?.message} 
               </span>
             )}
           </label>
