@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import { faker } from "@faker-js/faker";
-import { type Category, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 // import { env } from "@/env.mjs";
 
 const prisma = new PrismaClient();
@@ -27,7 +27,7 @@ async function main() {
         create: new Array(20).fill(0).map(() => {
           return {
             image: faker.image.avatar(),
-            name: uniqueCategoryNames[uniqueCategoryNamesI++] as string,
+            name: uniqueCategoryNames[uniqueCategoryNamesI++],
           };
         }),
       },
@@ -48,7 +48,7 @@ async function main() {
         }),
         buyPrice: +faker.commerce.price(),
         image: faker.image.url(),
-        categoryId: (admin.category[Math.floor(Math.random() * 20)] as Category)
+        categoryId: (admin.category[Math.floor(Math.random() * 20)] )
           .id,
       };
     }),

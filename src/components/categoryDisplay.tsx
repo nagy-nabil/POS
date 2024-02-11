@@ -1,9 +1,10 @@
 import React from "react";
-import Image from "next/image";
 import { api } from "@/utils/api";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
 import { type TypedQueryParams } from "@/types/query";
+import { CldImage } from "next-cloudinary";
+import { FilterX } from "lucide-react";
 
 export type CategoryDisplayProps = {
   // setCategoryFilter: Dispatch<SetStateAction<string | null>>;
@@ -60,14 +61,18 @@ const CategoryDisplay: React.FC<CategoryDisplayProps> = (_props) => {
                   void router.push({ query: { ...query, categoryFilter: undefined } satisfies TypedQueryParams }, undefined, { shallow: true })
                 }}
               />
-              <Image
-                className="border-1 rounded-full border-green-500 peer-checked:border-4"
-                src="https://images.immediate.co.uk/production/volatile/sites/30/2020/02/Glass-and-bottle-of-milk-fe0997a.jpg?quality=90"
-                alt="no Filter"
-                width={80}
-                height={80}
-                priority={true}
-              />
+              {/* <CldImage */}
+              {/*   src="https://images.immediate.co.uk/production/volatile/sites/30/2020/02/Glass-and-bottle-of-milk-fe0997a.jpg?quality=90" */}
+              {/*   alt="no Filter" */}
+              {/*   width={80} */}
+              {/*   height={80} */}
+              {/*   priority={true} */}
+              {/* /> */}
+              <div 
+                className="w-20 h-20 flex items-center justify-center border-1 rounded-full border-green-500 peer-checked:border-4"
+              >
+<FilterX />
+              </div>
               <p className="text-center text-lg font-semibold">
                 {t("categoryDisplay.default")}
               </p>
@@ -94,7 +99,7 @@ const CategoryDisplay: React.FC<CategoryDisplayProps> = (_props) => {
                           void router.push({ query: { ...query, categoryFilter: category.id } satisfies TypedQueryParams }, undefined, { shallow: true })
                         }}
                       />
-                      <Image
+                      <CldImage
                         className="border-1 h-auto w-full object-cover rounded-full border-green-500 peer-checked:border-4"
                         src={category.image}
                         alt="category image"

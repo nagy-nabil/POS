@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import { CldImage } from "next-cloudinary";
 
 export type ImagePreviweProps = {
   /**
@@ -23,17 +24,17 @@ export default function ImagePreviwe(props: ImagePreviweProps) {
         height={500}
         alt="preview"
         className="rounded shadow"
-      ></Image>
+      />
     );
   } else if (props.src) {
     return (
-      <Image
+      <CldImage
         src={props.src}
         width={500}
         height={500}
         alt="preview"
         className="rounded shadow"
-      ></Image>
+      />
     );
   } else {
     return <></>;

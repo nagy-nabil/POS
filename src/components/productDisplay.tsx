@@ -1,3 +1,4 @@
+import { CldImage } from 'next-cloudinary';
 import React, { useMemo, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -174,7 +175,7 @@ export const KeypadDisplay: React.FC<ProductProps> = (props) => {
   return (
     <div className={`flex h-fit flex-col gap-1 w-full`} key={props.id}>
       <div className="h-52 overflow-hidden relative">
-        <Image
+        <CldImage
           alt="item-card"
           src={props.image}
           className="h-auto w-full object-cover"

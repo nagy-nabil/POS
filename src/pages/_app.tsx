@@ -15,6 +15,7 @@ import Layout from "@/components/layout";
 import { ThemeProvider } from "@/components/theme-provider";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@radix-ui/react-toast";
+import { Loader } from "lucide-react";
 
 export type LayoutT = (page: ReactElement) => ReactElement;
 
@@ -60,7 +61,7 @@ function Authed({ children }: AutedProps) {
 
   if (status === "loading") {
     // show load/unauth view
-    return <>loading..</>;
+    return <div className="flex items-center justify-center animate-spin"><Loader className=""/></div>;
   }
 
   return children;
