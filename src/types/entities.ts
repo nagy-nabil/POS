@@ -20,7 +20,8 @@ const categorySchema = z.object({
 const productSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(3),
-  image: z.string().url(),
+  // TODO: re-add url check
+  image: z.string(),
   stock: z.number().gte(0),
   buyPrice: z.number().gt(0),
   sellPrice: z.number().gt(0),
