@@ -1,5 +1,3 @@
-import { withSuperjson } from "next-superjson";
-
 import i18np from "./next-i18next.config.js";
 
 /**
@@ -72,4 +70,4 @@ const config = {
   },
 };
 
-export default withSuperjson()(config);
+export default config;

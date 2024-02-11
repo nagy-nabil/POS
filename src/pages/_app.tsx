@@ -61,7 +61,7 @@ function Authed({ children }: AutedProps) {
 
   if (status === "loading") {
     // show load/unauth view
-    return <div className="flex items-center justify-center animate-spin"><Loader className=""/></div>;
+    return <div className="flex items-center justify-center animate-spin h-screen w-screen"><Loader size={40}/></div>;
   }
 
   return children;

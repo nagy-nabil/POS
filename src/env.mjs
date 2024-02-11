@@ -8,6 +8,7 @@ export const env = createEnv({
    */
   server: {
     DATABASE_URL: z.string().url(),
+    DIRECT_URL: z.string().url(),
     NODE_ENV: z.enum(["development", "test", "production"]),
     JWTSECRET: z.string().min(4),
     // expire in period must be more than one minute
@@ -42,9 +43,9 @@ export const env = createEnv({
 
       return parsed;
     }),
-    AzureStorageAccountKey: z.string().nonempty(),
-    AzureStorageAaccountName: z.string().nonempty(),
-    AzureContainerName: z.string().nonempty(),
+    AzureStorageAccountKey: z.string().min(1),
+    AzureStorageAaccountName: z.string().min(1),
+    AzureContainerName: z.string().min(1),
 
     // AUTH
     NEXTAUTH_SECRET:
@@ -76,6 +77,7 @@ export const env = createEnv({
    */
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
+DIRECT_URL:process.env.DIRECT_URL,
     NODE_ENV: process.env.NODE_ENV,
     JWTSECRET: process.env.JWTSECRET,
     // expire in period must be more than one minute

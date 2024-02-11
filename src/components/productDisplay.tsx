@@ -1,6 +1,5 @@
 import { CldImage } from 'next-cloudinary';
 import React, { useMemo, useState } from "react";
-import Image from "next/image";
 import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -240,7 +239,7 @@ export const LibraryDisplay: React.FC<ProductProps> = (props) => {
     <div className="flex flex-col w-full h-full overflow-hidden">
       <div className="flex h-5/6 w-full gap-2" key={props.id}>
         <div className="h-full w-1/4 overflow-hidden relative ">
-          <Image
+          <CldImage
             alt="item-card"
             src={props.image}
             className="object-cover"
