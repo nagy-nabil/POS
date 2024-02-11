@@ -23,7 +23,7 @@ const cacheFirstAssets = new Set([
 ]);
 const cacheName = "pwav1";
 // eslint-disable-next-line
-const APP_VERSION = "0.1.15";
+const APP_VERSION = "0.1.16";
 
 async function updateCache(req, res) {
   const cache = await caches.open(cacheName);
