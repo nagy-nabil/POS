@@ -55,7 +55,7 @@ export function MobileLink({
     <Link
       href={href}
       onClick={async () => {
-        await router.push(href.toString());
+        await router.push(href.toString()); // eslint-disable-line
         onOpenChange?.(false);
       }}
       className={cn(className)}
@@ -107,7 +107,6 @@ export function PathsList(
                   "text-2xl flex items-center gap-3 rounded-2xl  p-2 text-white"
                 }
               >
-                {/* @ts-ignore */}
                 {path[0].icon} {path[0].label}
               </div>
             }
@@ -319,7 +318,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         <header className="flex justify-between h-fit items-center gap-2 w-full mt-3 px-1">
           <Nav />
           <h1 className="h-fit text-4xl line-clamp-4 py-3">
-            {/* @ts-ignore  */}
+            {/* @ts-expect-error i don't remember why do i need this but yeah */}
             {t(`pages.${pathname}.header`)}
           </h1>
           <ModeToggle />
