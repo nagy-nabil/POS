@@ -13,6 +13,9 @@ env:
   NEXTAUTH_SECRET: ${{secrets.NEXTAUTH_SECRET}}
   NEXTAUTH_URL: ${{secrets.NEXTAUTH_URL}}
 
+permissions:
+  contents: write
+
 on:
   push:
     branches: [main]
@@ -22,11 +25,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout main branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: main
+          fetch-depth: 0
+
       - name: checkout demo branch
-        run: git checkout  demo
+        run: |
+          git checkout main
+          git fetch origin
+          git checkout demo
+          git pull
+          git merge origin/main
+          git push origin demo
+
       - uses: pnpm/action-setup@v3
         with:
           version: 8
