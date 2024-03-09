@@ -50,4 +50,4 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Run Prisma Migration
-        run: pnpm prisma migrate reset
+        run: pnpm prisma migrate reset --force --skip-generate
