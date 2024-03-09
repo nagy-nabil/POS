@@ -1,6 +1,6 @@
 # Zagy
 
-point of sale.
+point of sale.(check the demo in [demo](https://pos-git-demo-zagy.vercel.app/en/signin))
 
 ## Getting Started
 
