@@ -31,6 +31,7 @@ type LoginT = z.infer<typeof loginSchema>;
 
 const SignIn: NextPageWithProps = () => {
   const router = useRouter();
+  const isPreview = process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview';
   const { status } = useSession({
     required: false,
   });
@@ -82,7 +83,7 @@ const SignIn: NextPageWithProps = () => {
           <ModeToggle />
         </header>
         <div className="flex h-full w-full flex-col items-center justify-center">
-          <h1 className="m-3 text-center text-6xl font-bold">Zagy</h1>
+          <h1 className="m-3 text-center text-6xl font-bold">Zagy {isPreview ? "Demo" : ""}</h1>
           <p className="mb-5 text-gray-500">
             Do your business <b>Right</b>
           </p>
@@ -142,7 +143,13 @@ const SignIn: NextPageWithProps = () => {
             </b>
           </p>
           <ReactQueryDevtools initialIsOpen={false} />
-          <p className="text-gray-500 text-center">V 0.1.18</p>
+          <p className="text-gray-500 text-center">V 0.1.19</p>
+          {
+            isPreview ? (<>
+              <p className="text-gray-500 text-center">username: admin</p>
+              <p className="text-gray-500 text-center">password: admin</p>
+            </>) : null
+          }
         </div>
       </div>
     </>
