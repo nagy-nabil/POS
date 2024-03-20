@@ -15,6 +15,8 @@ import { CgSpinner } from "react-icons/cg";
 import { type z } from "zod";
 
 import { type NextPageWithProps } from "./_app";
+import { Button } from "@/components/ui/button";
+import LanguageSwitcher from "@/components/langSelector";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   return {
@@ -79,12 +81,19 @@ const SignIn: NextPageWithProps = () => {
         <title>Zagy | signin</title>
       </Head>
       <div className="h-screen w-screen flex flex-col">
-        <header className="w-full flex justify-end p-3">
+        <header className="w-full flex justify-between p-3">
           <ModeToggle />
+          <div className="w-fit">
+          <LanguageSwitcher
+            onChange={(locale) => {
+              document.cookie = `NEXT_LOCALE=${locale}; max-age=31536000; path=/`;
+            }}
+          />
+          </div>
         </header>
         <div className="flex h-full w-full flex-col items-center justify-center">
           <h1 className="m-3 text-center text-6xl font-bold">Zagy {isPreview ? "Demo" : ""}</h1>
-          <p className="mb-5 text-gray-500">
+          <p className="mb-5 text-muted-foreground">
             Do your business <b>Right</b>
           </p>
           <form
@@ -118,10 +127,9 @@ const SignIn: NextPageWithProps = () => {
                 </span>
               )}
             </label>
-            <button
+            <Button
               disabled={isSubmitting}
               type="submit"
-              className="m-4 mx-auto w-fit rounded-2xl bg-black p-3 text-lg text-cyan-50"
               value={"Sign In"}
             >
               {isSubmitting ? (
@@ -129,10 +137,10 @@ const SignIn: NextPageWithProps = () => {
               ) : (
                 t("action")
               )}
-            </button>
+            </Button>
             <p className="text-red-500">{errors}</p>
           </form>
-          <p className="text-gray-500 text-center">
+          <p className="text-muted-foreground text-center">
             Not yet publicly available{" "}
             <b>
               Check the demo and Request access from here:
@@ -143,11 +151,11 @@ const SignIn: NextPageWithProps = () => {
             </b>
           </p>
           <ReactQueryDevtools initialIsOpen={false} />
-          <p className="text-gray-500 text-center">V 0.1.19</p>
+          <p className="text-muted-foreground text-center">V 0.1.19</p>
           {
             isPreview ? (<>
-              <p className="text-gray-500 text-center">username: admin</p>
-              <p className="text-gray-500 text-center">password: admin</p>
+              <p className="text-muted-foreground text-center">username: admin</p>
+              <p className="text-muted-foreground text-center">password: admin</p>
             </>) : null
           }
         </div>
