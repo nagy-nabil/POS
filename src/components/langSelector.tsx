@@ -1,6 +1,13 @@
 import React, { useCallback, useMemo } from "react";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 const LanguageSwitcher: React.FC<{
   /**
@@ -8,7 +15,7 @@ const LanguageSwitcher: React.FC<{
    * @param locale string
    * @returns
    */
-  onChange?: (locale: string) => unknown;
+  onChange?: (locale: string) => void;
 }> = ({ onChange }) => {
   const { i18n } = useTranslation();
   const { language: currentLanguage } = i18n;
@@ -32,10 +39,9 @@ const LanguageSwitcher: React.FC<{
     [router]
   );
 
-  // on chage function for select html
   const languageChanged = useCallback(
-    (event: React.ChangeEvent<HTMLSelectElement>) => {
-      const locale = event.target.value;
+    (value: string) => {
+      const locale = value;
 
       if (onChange) {
         onChange(locale);
@@ -49,20 +55,22 @@ const LanguageSwitcher: React.FC<{
   );
 
   return (
-    <>
-      <select
-        className="rounded-xl border-2 border-gray-400 p-2 text-black"
-        defaultValue={currentLanguage}
-        name="lang"
-        onChange={languageChanged}
-      >
+    <Select
+      defaultValue={currentLanguage}
+      name="lang"
+      onValueChange={languageChanged}
+    >
+      <SelectTrigger className="w-full">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
         {locales.map((locale) => {
           const label = (languageNames.of(locale) ?? locale).toUpperCase();
 
-          return <option key={locale} value={locale} label={label} />;
+          return <SelectItem key={locale} value={locale} >{label}</SelectItem>
         })}
-      </select>
-    </>
+      </SelectContent>
+    </Select>
   );
 };
 
