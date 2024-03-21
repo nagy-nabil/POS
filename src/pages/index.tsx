@@ -9,7 +9,6 @@ import QrModal from "@/components/modal/qrModal";
 import { ModeToggle } from "@/components/modeToggle";
 import ProductDisplay from "@/components/productDisplay";
 import { type TypedQueryParams } from "@/types/query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
@@ -38,7 +37,7 @@ const Home: NextPageWithProps = (_props) => {
       <Head>
         <link rel="manifest" href="/app.webmanifest" />
       </Head>
-      <div className="flex h-screen w-screen flex-col overflow-x-hidden overflow-y-auto scroll-smooth gap-3">
+      <div className="flex h-screen w-screen flex-col overflowhidden scroll-smooth gap-3">
         <header className="flex justify-between h-fit  gap-2 w-full mt-3 px-1">
           <Nav />
           <DebouncedInput
@@ -54,7 +53,7 @@ const Home: NextPageWithProps = (_props) => {
                   } satisfies TypedQueryParams,
                 },
                 undefined,
-                { shallow: true }
+                { shallow: true },
               );
             }}
             placeholder={t("header.inputPlaceHolder")}
@@ -62,17 +61,20 @@ const Home: NextPageWithProps = (_props) => {
           />
           <ModeToggle />
         </header>
-        <main className="h-full w-full">
-          <CategoryDisplay />
-          <ProductDisplay displayType="keypad" />
+        <main className="flex flex-col gap-4 h-5/6 w-full overflow-hidden">
+          <div className="flex-initial">
+            <CategoryDisplay />
+          </div>
+          <div className="flex-auto h-[80%]">
+            <ProductDisplay displayType="keypad" />
+          </div>
         </main>
 
-        <footer className="fixed bottom-4 left-4 flex w-11/12 items-center justify-between gap-2">
+        <footer className="flex w-11/12 items-center justify-between m-auto  gap-2">
           <CartModal />
           <QrModal key="qrModal" />
         </footer>
       </div>
-      <ReactQueryDevtools initialIsOpen={false} />
     </>
   );
 };

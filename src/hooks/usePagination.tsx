@@ -1,11 +1,11 @@
 import { useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   AiOutlineDoubleLeft,
   AiOutlineDoubleRight,
   AiOutlineLeft,
   AiOutlineRight,
 } from "react-icons/ai";
-import { Button } from "@/components/ui/button";
 
 export type UsePaginationProps<T> = {
   data: T[];
@@ -31,7 +31,7 @@ export function usePagination<T>(props: UsePaginationProps<T>) {
     }
     if (props.length < 0)
       throw new Error(
-        "usePagination: number of items in page cannot be less than zero"
+        "usePagination: number of items in page cannot be less than zero",
       );
     const start = curPage * props.length;
     return props.data.slice(start, start + props.length);
@@ -74,7 +74,7 @@ export type PaginationUtisProps<T> = ReturnType<typeof usePagination<T>>;
 
 export function PaginationUtis<T>(props: PaginationUtisProps<T>) {
   return (
-    <div className="m-auto flex w-full items-center justify-center gap-2">
+    <div className="m-auto h-fit flex w-full items-center justify-center gap-2">
       <Button
         variant={"secondary"}
         size="icon"
