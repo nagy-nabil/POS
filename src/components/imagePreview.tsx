@@ -1,6 +1,7 @@
 import React from "react";
 import Image from "next/image";
-import { CldImage } from "next-cloudinary";
+
+import { CldOrImage } from "./cldOrImage";
 
 export type ImagePreviweProps = {
   /**
@@ -28,7 +29,7 @@ export default function ImagePreviwe(props: ImagePreviweProps) {
     );
   } else if (props.src) {
     return (
-      <CldImage
+      <CldOrImage
         src={props.src}
         width={500}
         height={500}

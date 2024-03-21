@@ -1,4 +1,3 @@
-import { CldImage } from 'next-cloudinary';
 import React, { useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
@@ -25,6 +24,7 @@ import { AiOutlineMinus } from "react-icons/ai";
 import { MdRemoveShoppingCart } from "react-icons/md";
 import { RiAddCircleLine, RiAddLine } from "react-icons/ri";
 
+import { CldOrImage } from "./cldOrImage";
 import ProductModal from "./modal/productModal";
 
 export type CartUtilsProps = {
@@ -120,7 +120,7 @@ export function CartUtils(props: CartUtilsProps) {
             }
             if (v > maxStock) {
               props.setError(
-                "order quantity cannot be greater than product stock"
+                "order quantity cannot be greater than product stock",
               );
               return;
             }
@@ -174,7 +174,7 @@ export const KeypadDisplay: React.FC<ProductProps> = (props) => {
   return (
     <div className={`flex h-fit flex-col gap-1 w-full`} key={props.id}>
       <div className="h-52 overflow-hidden relative">
-        <CldImage
+        <CldOrImage
           alt="item-card"
           src={props.image}
           className="h-auto w-full object-cover"
@@ -238,7 +238,7 @@ export const LibraryDisplay: React.FC<ProductProps> = (props) => {
     <div className="flex flex-col w-full h-full overflow-hidden">
       <div className="flex h-5/6 w-full gap-2" key={props.id}>
         <div className="h-full w-1/4 overflow-hidden relative ">
-          <CldImage
+          <CldOrImage
             alt="item-card"
             src={props.image}
             className="object-cover"
@@ -372,7 +372,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
             defaultChecked={props.displayType === "library"}
             onChange={(e) => {
               setDisplayType(
-                e.target.value as ProductDisplayProps["displayType"]
+                e.target.value as ProductDisplayProps["displayType"],
               );
             }}
           />
@@ -393,7 +393,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
             defaultChecked={props.displayType === "keypad"}
             onChange={(e) => {
               setDisplayType(
-                e.target.value as ProductDisplayProps["displayType"]
+                e.target.value as ProductDisplayProps["displayType"],
               );
             }}
           />
@@ -412,7 +412,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
         ) : (
           productsDataPage.values.map((product) => {
             const productFromCart = cart.data.products.find(
-              (i) => i.id === product.id
+              (i) => i.id === product.id,
             );
             const displayProps: ProductProps = {
               ...product,
