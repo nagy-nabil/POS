@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import type { GetStaticPropsContext } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import LanguageSwitcher from "@/components/langSelector";
 import { ModeToggle } from "@/components/modeToggle";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { loginSchema } from "@/types/entities";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,8 +17,6 @@ import { CgSpinner } from "react-icons/cg";
 import { type z } from "zod";
 
 import { type NextPageWithProps } from "./_app";
-import { Button } from "@/components/ui/button";
-import LanguageSwitcher from "@/components/langSelector";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   return {
@@ -33,7 +33,7 @@ type LoginT = z.infer<typeof loginSchema>;
 
 const SignIn: NextPageWithProps = () => {
   const router = useRouter();
-  const isPreview = process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview';
+  const isPreview = process.env.NEXT_PUBLIC_VERCEL_ENV === "preview";
   const { status } = useSession({
     required: false,
   });
@@ -84,15 +84,17 @@ const SignIn: NextPageWithProps = () => {
         <header className="w-full flex justify-between p-3">
           <ModeToggle />
           <div className="w-fit">
-          <LanguageSwitcher
-            onChange={(locale) => {
-              document.cookie = `NEXT_LOCALE=${locale}; max-age=31536000; path=/`;
-            }}
-          />
+            <LanguageSwitcher
+              onChange={(locale) => {
+                document.cookie = `NEXT_LOCALE=${locale}; max-age=31536000; path=/`;
+              }}
+            />
           </div>
         </header>
         <div className="flex h-full w-full flex-col items-center justify-center">
-          <h1 className="m-3 text-center text-6xl font-bold">Zagy {isPreview ? "Demo" : ""}</h1>
+          <h1 className="m-3 text-center text-6xl font-bold">
+            Zagy {isPreview ? "Demo" : ""}
+          </h1>
           <p className="mb-5 text-muted-foreground">
             Do your business <b>Right</b>
           </p>
@@ -127,11 +129,7 @@ const SignIn: NextPageWithProps = () => {
                 </span>
               )}
             </label>
-            <Button
-              disabled={isSubmitting}
-              type="submit"
-              value={"Sign In"}
-            >
+            <Button disabled={isSubmitting} type="submit" value={"Sign In"}>
               {isSubmitting ? (
                 <CgSpinner className="animate-spin text-2xl" />
               ) : (
@@ -151,13 +149,17 @@ const SignIn: NextPageWithProps = () => {
             </b>
           </p>
           <ReactQueryDevtools initialIsOpen={false} />
-          <p className="text-muted-foreground text-center">V 0.1.20</p>
-          {
-            isPreview ? (<>
-              <p className="text-muted-foreground text-center">username: admin</p>
-              <p className="text-muted-foreground text-center">password: admin</p>
-            </>) : null
-          }
+          <p className="text-muted-foreground text-center">V 0.1.21</p>
+          {isPreview ? (
+            <>
+              <p className="text-muted-foreground text-center">
+                username: admin
+              </p>
+              <p className="text-muted-foreground text-center">
+                password: admin
+              </p>
+            </>
+          ) : null}
         </div>
       </div>
     </>
