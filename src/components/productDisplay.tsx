@@ -1,8 +1,8 @@
-import { CldImage } from 'next-cloudinary';
 import React, { useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   CartItemTypes,
   useCarOfferDec,
@@ -25,6 +25,7 @@ import { AiOutlineMinus } from "react-icons/ai";
 import { MdRemoveShoppingCart } from "react-icons/md";
 import { RiAddCircleLine, RiAddLine } from "react-icons/ri";
 
+import { CldOrImage } from "./cldOrImage";
 import ProductModal from "./modal/productModal";
 
 export type CartUtilsProps = {
@@ -120,7 +121,7 @@ export function CartUtils(props: CartUtilsProps) {
             }
             if (v > maxStock) {
               props.setError(
-                "order quantity cannot be greater than product stock"
+                "order quantity cannot be greater than product stock",
               );
               return;
             }
@@ -174,7 +175,7 @@ export const KeypadDisplay: React.FC<ProductProps> = (props) => {
   return (
     <div className={`flex h-fit flex-col gap-1 w-full`} key={props.id}>
       <div className="h-52 overflow-hidden relative">
-        <CldImage
+        <CldOrImage
           alt="item-card"
           src={props.image}
           className="h-auto w-full object-cover"
@@ -238,7 +239,7 @@ export const LibraryDisplay: React.FC<ProductProps> = (props) => {
     <div className="flex flex-col w-full h-full overflow-hidden">
       <div className="flex h-5/6 w-full gap-2" key={props.id}>
         <div className="h-full w-1/4 overflow-hidden relative ">
-          <CldImage
+          <CldOrImage
             alt="item-card"
             src={props.image}
             className="object-cover"
@@ -319,9 +320,6 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
   const query = router.query as TypedQueryParams;
   const { t } = useTranslation();
   const cart = useCart();
-  const [displayType, setDisplayType] = useState<
-    ProductDisplayProps["displayType"]
-  >(props.displayType);
   const productsQuery = api.products.getMany.useQuery(undefined, {
     staleTime: Infinity,
     retry(_failureCount, error) {
@@ -360,76 +358,76 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
   }
 
   return (
-    <div className="flex flex-col h-full w-full">
-      <ul className="m-auto my-2 flex w-4/5 justify-between rounded-3xl bg-gray-200 p-1">
-        <li className="w-6/12">
-          <input
-            type="radio"
-            id="library"
-            name="displayPattern"
-            value="library"
-            className="peer hidden"
-            defaultChecked={props.displayType === "library"}
-            onChange={(e) => {
-              setDisplayType(
-                e.target.value as ProductDisplayProps["displayType"]
-              );
-            }}
-          />
-          <label
-            htmlFor="library"
-            className="flex w-full cursor-pointer justify-center rounded-3xl  p-2 text-gray-500 peer-checked:bg-white peer-checked:font-bold peer-checked:text-black peer-checked:shadow-lg"
-          >
-            {t("productDisplay.modes.Library")}
-          </label>
-        </li>
-        <li className="w-1/2">
-          <input
-            type="radio"
-            id="keypad"
-            name="displayPattern"
-            value="keypad"
-            className="peer hidden"
-            defaultChecked={props.displayType === "keypad"}
-            onChange={(e) => {
-              setDisplayType(
-                e.target.value as ProductDisplayProps["displayType"]
-              );
-            }}
-          />
-          <label
-            htmlFor="keypad"
-            className="flex w-full cursor-pointer justify-center rounded-3xl  p-2  text-gray-500 peer-checked:bg-white peer-checked:font-bold peer-checked:text-black peer-checked:shadow-lg"
+    <div className="flex flex-col gap-2 flex-auto  h-full w-full overflow-hidden">
+      <Tabs defaultValue={props.displayType} className="h-[90%] flex flex-col">
+        <TabsList className="w-full flex-initial">
+          <TabsTrigger
+            value={"keypad" satisfies ProductDisplayProps["displayType"]}
           >
             {t("productDisplay.modes.keypad.label")}
-          </label>
-        </li>
-      </ul>
+          </TabsTrigger>
+          <TabsTrigger
+            value={"library" satisfies ProductDisplayProps["displayType"]}
+          >
+            {t("productDisplay.modes.Library")}
+          </TabsTrigger>
+        </TabsList>
 
-      <div className="flex h-full flex-wrap justify-around overflow-y-auto overflow-x-hidden pb-16">
         {productsData === undefined ? (
           <LibraryDisplaySkeleton count={5} />
         ) : (
-          productsDataPage.values.map((product) => {
-            const productFromCart = cart.data.products.find(
-              (i) => i.id === product.id
-            );
-            const displayProps: ProductProps = {
-              ...product,
-              quantity: productFromCart?.quantity,
-              quantityFromOffers: productFromCart?.quantityFromOffers,
-            };
-            return displayType === "keypad" ? (
-              <div className="w-3/6 px-1" key={product.id}>
-                <KeypadDisplay key={product.id} {...displayProps} />
+          <>
+            <TabsContent
+              className="flex-auto overflow-auto"
+              value={"keypad" satisfies ProductDisplayProps["displayType"]}
+            >
+              <div className="h-full flex flex-wrap ">
+                {productsDataPage.values.map((product) => {
+                  const productFromCart = cart.data.products.find(
+                    (i) => i.id === product.id,
+                  );
+                  const displayProps: ProductProps = {
+                    ...product,
+                    quantity: productFromCart?.quantity,
+                    quantityFromOffers: productFromCart?.quantityFromOffers,
+                  };
+                  return (
+                    <div className="w-3/6 px-1" key={product.id}>
+                      <KeypadDisplay key={product.id} {...displayProps} />
+                    </div>
+                  );
+                })}
               </div>
-            ) : (
-              <div className="w-11/12 h-1/4 overflow-hidden" key={product.id}>
-                <LibraryDisplay key={product.id} {...displayProps} />
+            </TabsContent>
+            <TabsContent
+              className="overflow-y-auto flex-auto"
+              value={"library" satisfies ProductDisplayProps["displayType"]}
+            >
+              <div className="flex flex-wrap">
+                {productsDataPage.values.map((product) => {
+                  const productFromCart = cart.data.products.find(
+                    (i) => i.id === product.id,
+                  );
+                  const displayProps: ProductProps = {
+                    ...product,
+                    quantity: productFromCart?.quantity,
+                    quantityFromOffers: productFromCart?.quantityFromOffers,
+                  };
+                  return (
+                    <div
+                      className="w-11/12 h-1/4 overflow-hidden"
+                      key={product.id}
+                    >
+                      <LibraryDisplay key={product.id} {...displayProps} />
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })
+            </TabsContent>
+          </>
         )}
+      </Tabs>
+      <div className="h-fit">
         <PaginationUtis {...productsDataPage} />
       </div>
     </div>

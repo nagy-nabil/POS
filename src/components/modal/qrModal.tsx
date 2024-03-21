@@ -33,7 +33,7 @@ export default function QrModal() {
         });
       }
     },
-    [productsQuery.data, mutate]
+    [productsQuery.data, mutate],
   );
 
   if (productsQuery.isLoading) return <p>loading ...</p>;
@@ -45,12 +45,13 @@ export default function QrModal() {
     <CustomModal
       header="Read Product By QR"
       dialogRef={dialgoRef}
-      buttonAttrs={{ className: "" }}
+      buttonAttrs={{
+        className: "text-white bg-black dark:bg-muted rounded-full",
+        size: "icon",
+      }}
       dialogAttrs={{}}
       formAttrs={{}}
-      buttonChildren={
-        <BsQrCodeScan className="h-fit w-fit rounded-full bg-black p-2 text-3xl text-white" />
-      }
+      buttonChildren={<BsQrCodeScan size={20} />}
       modalChildren={
         <div className="flex flex-col items-center gap-4">
           <QrCode

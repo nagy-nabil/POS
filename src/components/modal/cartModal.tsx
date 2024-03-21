@@ -91,7 +91,7 @@ export function CartModal() {
       buttonAttrs={{
         disabled: cart.data.products.length + cart.data.offers.length === 0,
         className:
-          "flex h-fit w-11/12 justify-between rounded-3xl bg-black p-3 text-white",
+          "dark:bg-muted flex h-fit w-11/12 justify-between rounded-3xl bg-black p-3 text-white",
       }}
       dialogAttrs={{}}
       formAttrs={{}}
@@ -128,10 +128,10 @@ export function CartModal() {
               quantity: offerOnCart.quantity,
               products: offer.products.map((productOnOffer) => {
                 const productData = products.data.find(
-                  (product) => product.id === productOnOffer.productId
+                  (product) => product.id === productOnOffer.productId,
                 ) as Product;
                 const productOnCart = cart.data.products.find(
-                  (product) => product.id === productOnOffer.productId
+                  (product) => product.id === productOnOffer.productId,
                 ) ?? {
                   id: "",
                   quantity: 0,

@@ -1,4 +1,7 @@
 import React, { useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { productSchema } from "@/types/entities";
 import { api } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -39,7 +42,7 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
   const [errors, setErrors] = useState("");
   const [fileSelected, setFileSelected] = useState<File | undefined>(undefined);
   const [fileSelectedSas, setFileSelectedSas] = useState<string | undefined>(
-    undefined
+    undefined,
   );
   const utils = api.useContext();
 
@@ -91,7 +94,7 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
       utils.products.getMany.setData(undefined, (prev) =>
         prev
           ? [...prev.filter((test) => test.id !== variables.productId), data]
-          : [data]
+          : [data],
       );
       resetModalState();
       if (props.afterSuccess !== undefined) {
@@ -143,7 +146,7 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
           onError(err) {
             setErrors(err.message);
           },
-        }
+        },
       );
     } else {
       toBeRun();
@@ -158,22 +161,22 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
           : t("productModal.headerName.put")
       }
       dialogRef={dialogRef}
-      buttonAttrs={{ className: "" }}
+      buttonAttrs={{ variant: "ghost", size: "icon" }}
       dialogAttrs={{}}
       formAttrs={{
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onSubmit: handleSubmit(onSubmit, (err) => {
           console.log(
             "🪵 [productModal.tsx:44] ~ token ~ \x1b[0;32merr\x1b[0m = ",
-            err
+            err,
           );
         }),
       }}
       buttonChildren={
         props.operationType === "post" ? (
-          <RiAddLine className="h-fit w-fit p-3 text-3xl text-green-600" />
+          <RiAddLine className="text-green-600" size={24} />
         ) : (
-          <BiEdit className="h-fit w-fit p-3 text-3xl text-yellow-400" />
+          <BiEdit className="text-yellow-400" size={24} />
         )
       }
       modalChildren={
@@ -182,23 +185,23 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
           <label key="id" className="block">
             {t("productModal.props.id")}
             <div className="mb-3 flex gap-1">
-              <input
-                className="block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-                {...register("id")}
-              />
+              <Input {...register("id")} />
 
               {/* only show qr managment with id input */}
-              <button
+              <Button
                 disabled={
                   productInsert.isLoading ||
                   productUpdate.isLoading ||
                   imageMut.isLoading
                 }
                 type="button"
+                variant={"secondary"}
+                className="rounded-full border-1 border-border"
+                size={"icon"}
                 onClick={() => setIsQrOpen((prev) => !prev)}
               >
-                <BsQrCodeScan className="h-fit w-fit rounded-full border-2 border-gray-500 p-1 text-2xl text-gray-700" />
-              </button>
+                <BsQrCodeScan size={20} />
+              </Button>
             </div>
             {isQrOpen === true ? (
               <QrCode
@@ -259,10 +262,7 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
           <label key={"productimage"} className="block">
             {t("productModal.props.image")}
             <div className="mb-3 flex gap-1">
-              <input
-                className="block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-                {...register("image")}
-              />
+              <Input {...register("image")} />
               <UploadImage
                 key={"uploadProductImage"}
                 setFileSelected={setFileSelected}
@@ -295,9 +295,9 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
             )
               return null;
             return (
-              <label key={i} className="block">
+              <Label key={i} className="block">
                 {t(`productModal.props.${productKey}`)}
-                <input
+                <Input
                   type={
                     productKey === "sellPrice" ||
                     productKey === "stock" ||
@@ -312,7 +312,6 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
                       ? "0.01"
                       : undefined
                   }
-                  className="block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
                   {...register(productKey, {
                     valueAsNumber:
                       productKey === "sellPrice" ||
@@ -327,7 +326,7 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
                     {formErrors[productKey]?.message}
                   </span>
                 )}
-              </label>
+              </Label>
             );
           })}
 
@@ -363,7 +362,7 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
           </label>
 
           <p className="m-2 text-red-700">{errors}</p>
-          <button
+          <Button
             disabled={
               productInsert.isLoading ||
               categoryQuery.isLoading ||
@@ -385,7 +384,7 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
             ) : (
               t("productModal.action.put")
             )}
-          </button>
+          </Button>
         </article>
       }
     />

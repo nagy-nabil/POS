@@ -1,10 +1,11 @@
 import React from "react";
-import { api } from "@/utils/api";
-import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
 import { type TypedQueryParams } from "@/types/query";
-import { CldImage } from "next-cloudinary";
+import { api } from "@/utils/api";
 import { FilterX } from "lucide-react";
+import { useTranslation } from "next-i18next";
+
+import { CldOrImage } from "./cldOrImage";
 
 export type CategoryDisplayProps = {
   // setCategoryFilter: Dispatch<SetStateAction<string | null>>;
@@ -30,7 +31,7 @@ export function CategoryDisplaySkeleton(props: { count: number }) {
 }
 
 const CategoryDisplay: React.FC<CategoryDisplayProps> = (_props) => {
-  const router = useRouter()
+  const router = useRouter();
   const query = router.query as TypedQueryParams;
   const { t } = useTranslation();
   const categoryQuery = api.categories.getMany.useQuery(undefined, {
@@ -56,22 +57,25 @@ const CategoryDisplay: React.FC<CategoryDisplayProps> = (_props) => {
                 type="radio"
                 className="peer hidden"
                 name="categoryOptions"
-                checked={query.categoryFilter === undefined || query.categoryFilter === ""}
+                checked={
+                  query.categoryFilter === undefined ||
+                  query.categoryFilter === ""
+                }
                 onChange={() => {
-                  void router.push({ query: { ...query, categoryFilter: undefined } satisfies TypedQueryParams }, undefined, { shallow: true })
+                  void router.push(
+                    {
+                      query: {
+                        ...query,
+                        categoryFilter: undefined,
+                      } satisfies TypedQueryParams,
+                    },
+                    undefined,
+                    { shallow: true },
+                  );
                 }}
               />
-              {/* <CldImage */}
-              {/*   src="https://images.immediate.co.uk/production/volatile/sites/30/2020/02/Glass-and-bottle-of-milk-fe0997a.jpg?quality=90" */}
-              {/*   alt="no Filter" */}
-              {/*   width={80} */}
-              {/*   height={80} */}
-              {/*   priority={true} */}
-              {/* /> */}
-              <div 
-                className="w-20 h-20 flex items-center justify-center border-1 rounded-full border-green-500 peer-checked:border-4"
-              >
-<FilterX />
+              <div className="w-20 h-20 flex items-center justify-center border-1 rounded-full border-green-500 peer-checked:border-4">
+                <FilterX />
               </div>
               <p className="text-center text-lg font-semibold">
                 {t("categoryDisplay.default")}
@@ -96,10 +100,19 @@ const CategoryDisplay: React.FC<CategoryDisplayProps> = (_props) => {
                         className="peer hidden"
                         name="categoryOptions"
                         onChange={() => {
-                          void router.push({ query: { ...query, categoryFilter: category.id } satisfies TypedQueryParams }, undefined, { shallow: true })
+                          void router.push(
+                            {
+                              query: {
+                                ...query,
+                                categoryFilter: category.id,
+                              } satisfies TypedQueryParams,
+                            },
+                            undefined,
+                            { shallow: true },
+                          );
                         }}
                       />
-                      <CldImage
+                      <CldOrImage
                         className="border-1 h-auto w-full object-cover rounded-full border-green-500 peer-checked:border-4"
                         src={category.image}
                         alt="category image"

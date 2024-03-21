@@ -1,5 +1,7 @@
-import React from "react";
+import React, { type ComponentProps } from "react";
 import { RiCloseLine } from "react-icons/ri";
+
+import { Button } from "../ui/button";
 
 export type CustomModalProps = {
   header: string;
@@ -10,8 +12,7 @@ export type CustomModalProps = {
    */
   modalChildren: React.ReactNode;
   buttonChildren: React.ReactNode;
-  buttonAttrs: React.HTMLAttributes<HTMLButtonElement> &
-    React.ButtonHTMLAttributes<HTMLButtonElement>;
+  buttonAttrs: ComponentProps<typeof Button>;
   formAttrs: React.HTMLAttributes<HTMLFormElement> &
     React.FormHTMLAttributes<HTMLFormElement>;
   dialogAttrs: React.HTMLAttributes<HTMLDialogElement> &
@@ -37,9 +38,9 @@ export default function CustomModal(props: CustomModalProps) {
 
   return (
     <>
-      <button onClick={openModal} {...props.buttonAttrs}>
+      <Button {...props.buttonAttrs} onClick={openModal}>
         {props.buttonChildren}
-      </button>
+      </Button>
       <dialog
         onClick={(e) => {
           // close the modal when click outside the dialog content
@@ -50,15 +51,20 @@ export default function CustomModal(props: CustomModalProps) {
           }
         }}
         ref={props.dialogRef}
-        className="w-11/12 rounded-xl bg-gray-100 p-0 shadow-2xl md:w-2/5"
+        className="w-11/12 rounded-xl p-0 shadow-2xl md:w-2/5"
         {...props.dialogAttrs}
       >
         <form className="flex flex-col p-3 w-full h-full" {...props.formAttrs}>
           <header className="sticky mb-3 flex justify-between border-b-2">
             <h1 className="my-2 text-3xl">{props.header}</h1>
-            <button type="button" onClick={closeModal}>
+            <Button
+              type="button"
+              variant={"ghost"}
+              size={"icon"}
+              onClick={closeModal}
+            >
               <RiCloseLine className="text-4xl " />
-            </button>
+            </Button>
           </header>
           {props.modalChildren}
         </form>
