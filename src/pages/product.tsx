@@ -1,34 +1,20 @@
 import React, { useMemo } from "react";
 import { type GetStaticPropsContext } from "next";
-import IndeterminateCheckbox from "@/components/form/indeterminateCheckbox";
+import { Checkbox } from "@/components/ui/checkbox"
 import ProductModal from "@/components/modal/productModal";
-import TableBody from "@/components/table/body";
-import { fuzzyFilter } from "@/components/table/helpers";
-import TableUtils from "@/components/table/utils";
 import { api } from "@/utils/api";
 import { dateFormater } from "@/utils/date";
 import { type Product } from "@prisma/client";
-import { type RankingInfo } from "@tanstack/match-sorter-utils";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
+  type ColumnDef,
   createColumnHelper,
-  getCoreRowModel,
-  getFacetedMinMaxValues,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-  type ColumnFiltersState,
-  type FilterFn,
-  type SortingState,
 } from "@tanstack/react-table";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "react-i18next";
 
 import { type NextPageWithProps } from "./_app";
-
+import { DataTable } from "@/components/table/dataTable";
+import { DataTableColumnHeader } from "@/components/table/data-table-column-header";
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   return {
     props: {
@@ -39,111 +25,83 @@ export async function getStaticProps({ locale }: GetStaticPropsContext) {
   };
 }
 
-declare module "@tanstack/table-core" {
-  interface FilterFns {
-    fuzzy: FilterFn<unknown>;
-  }
-  interface FilterMeta {
-    itemRank: RankingInfo;
-  }
-}
 
 const columnHelper = createColumnHelper<Product>();
 
 function Table(props: { data: Product[] }) {
   const { t } = useTranslation();
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [rowSelection, setRowSelection] = React.useState({});
-  const columns = useMemo(
+  const columns: ColumnDef<Product>[] = useMemo(
     () => [
       columnHelper.display({
         id: "select",
         header: ({ table }) => (
-          <div className="relative m-auto">
-            <IndeterminateCheckbox
-              {...{
-                checked: table.getIsAllRowsSelected(),
-                indeterminate: table.getIsSomeRowsSelected(),
-                onChange: table.getToggleAllRowsSelectedHandler(),
-              }}
-            />
-          </div>
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && "indeterminate")
+            }
+            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+            aria-label="Select all"
+          />
         ),
         cell: ({ row }) => (
-          <div className="px-1">
-            <IndeterminateCheckbox
-              {...{
-                checked: row.getIsSelected(),
-                disabled: !row.getCanSelect(),
-                indeterminate: row.getIsSomeSelected(),
-                onChange: row.getToggleSelectedHandler(),
-              }}
-            />
-          </div>
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label="Select row"
+          />
         ),
+        enableSorting: false,
+        enableHiding: false,
       }),
       columnHelper.accessor("id", {
-        header: () => <span>{t("table.common.id")}</span>,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title={t("table.common.id")} />
+        ),
         cell: (info) => info.getValue(),
         enableSorting: false,
       }),
       columnHelper.accessor("name", {
-        header: () => <span>{t("table.common.name")}</span>,
+        header: ({ column }) => <DataTableColumnHeader column={column} title={t("table.common.name")} />,
         cell: (info) => info.getValue(),
         filterFn: "fuzzy",
       }),
       columnHelper.accessor("buyPrice", {
-        header: () => <span>{t("table.product.buyPrice")}</span>,
+        header: ({column}) => <DataTableColumnHeader column={column}  title={t("table.product.buyPrice")} />,
         cell: (info) => info.getValue(),
       }),
       columnHelper.accessor("sellPrice", {
-        header: () => <span>{t("table.product.sellPrice")}</span>,
+        header: ({column}) => <DataTableColumnHeader column={column}  title={t("table.product.sellPrice")}/>,
         cell: (info) => info.getValue(),
       }),
       columnHelper.accessor("stock", {
-        header: () => <span>{t("table.product.stock")}</span>,
+        header: ({column}) => <DataTableColumnHeader column={column}  title={t("table.product.stock")}/>,
         cell: (info) => info.getValue(),
       }),
       columnHelper.accessor("createdAt", {
-        header: () => <span>{t("table.common.createdAt")}</span>,
+        header: ({column}) => <DataTableColumnHeader column={column}  title={t("table.common.createdAt")}/>,
         cell: (info) => dateFormater.format(info.getValue()),
         enableColumnFilter: false,
       }),
+      columnHelper.display(
+        {
+          id: "actions",
+          cell: ({ row }) => {
+            const product = row.original
+            return (
+              <ProductModal
+                key={product.id + "updateProduct"}
+                operationType="put"
+                defaultValues={product}
+              />
+            )
+          }
+        }
+      )
     ],
     [t]
   );
 
-  const table = useReactTable({
-    data: props.data,
-    columnResizeMode: "onChange",
-    getCoreRowModel: getCoreRowModel(),
-    state: {
-      sorting,
-      columnFilters,
-      rowSelection,
-    },
-    filterFns: {
-      fuzzy: fuzzyFilter,
-    },
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    columns,
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnFiltersChange: setColumnFilters,
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
-    getFacetedMinMaxValues: getFacetedMinMaxValues(),
-    getPaginationRowModel: getPaginationRowModel(),
-
-    enableRowSelection: true,
-    onRowSelectionChange: setRowSelection,
-    defaultColumn: {
-      minSize: 150,
-    },
-  });
 
   if (typeof window === "undefined") return null;
 
@@ -152,46 +110,24 @@ function Table(props: { data: Product[] }) {
       {/* item utils*/}
       <div className="flex justify-start gap-3">
         <ProductModal defaultValues={{}} operationType="post" />
-        {Object.keys(rowSelection).length === 1 ? (
-          <ProductModal
-            key={"updateProduct"}
-            operationType="put"
-            defaultValues={props.data[+Object.keys(rowSelection)[0]]}
-            afterSuccess={() => {
-              table.setRowSelection({});
-            }}
-          />
-        ) : null}
       </div>
 
-      <div className="w-full overflow-x-auto">
-        <TableBody table={table} />
+      <div className="relative w-full overflow-auto">
+        <DataTable columns={columns} data={props.data} />
       </div>
-
-      {/* table utils */}
-      <TableUtils table={table} />
     </div>
   );
 }
 
 const ProductTable: NextPageWithProps = () => {
-  const productsQuery = api.products.getMany.useQuery(undefined, {
-    staleTime: Infinity,
-    retry(_failureCount, error) {
-      if (error.data?.code === "UNAUTHORIZED") {
-        return false;
-      }
-      return true;
-    },
-  });
+  const productsQuery = api.products.getMany.useQuery(undefined);
 
   return (
-    <>
-      <div className="w-full">
+    <div className="w-full">
+      <div className="hidden h-full flex-1 flex-col space-y-8 p-8 md:flex">
         {productsQuery.data && <Table data={productsQuery.data} />}
       </div>
-      <ReactQueryDevtools initialIsOpen={false} />
-    </>
+    </div>
   );
 };
 
