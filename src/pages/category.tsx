@@ -1,29 +1,13 @@
 import React, { useMemo } from "react";
 import { type GetStaticPropsContext } from "next";
-import IndeterminateCheckbox from "@/components/form/indeterminateCheckbox";
 import CategoryModal from "@/components/modal/categoryModal";
-import TableBody from "@/components/table/body";
-import { fuzzyFilter } from "@/components/table/helpers";
-import TableUtils from "@/components/table/utils";
+import { DataTableColumnHeader } from "@/components/table/data-table-column-header";
+import { DataTable } from "@/components/table/dataTable";
+import { Checkbox } from "@/components/ui/checkbox";
 import { api } from "@/utils/api";
 import { dateFormater } from "@/utils/date";
 import { type Category } from "@prisma/client";
-import { type RankingInfo } from "@tanstack/match-sorter-utils";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import {
-  createColumnHelper,
-  getCoreRowModel,
-  getFacetedMinMaxValues,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-  type ColumnFiltersState,
-  type FilterFn,
-  type SortingState,
-} from "@tanstack/react-table";
+import { type ColumnDef } from "@tanstack/react-table";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "react-i18next";
 
@@ -39,99 +23,82 @@ export async function getStaticProps({ locale }: GetStaticPropsContext) {
   };
 }
 
-declare module "@tanstack/table-core" {
-  interface FilterFns {
-    fuzzy: FilterFn<unknown>;
-  }
-  interface FilterMeta {
-    itemRank: RankingInfo;
-  }
-}
-
-const columnHelper = createColumnHelper<Category>();
+// const columnHelper = createColumnHelper<Category>();
 
 function Table(props: { data: Category[] }) {
   const { t } = useTranslation();
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [rowSelection, setRowSelection] = React.useState({});
-  const columns = useMemo(
+  const columns: ColumnDef<Category>[] = useMemo(
     () => [
-      columnHelper.display({
+      {
         id: "select",
         header: ({ table }) => (
-          <div className="relative m-auto">
-            <IndeterminateCheckbox
-              {...{
-                checked: table.getIsAllRowsSelected(),
-                indeterminate: table.getIsSomeRowsSelected(),
-                onChange: table.getToggleAllRowsSelectedHandler(),
-              }}
-            />
-          </div>
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && "indeterminate")
+            }
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+            aria-label="Select all"
+          />
         ),
         cell: ({ row }) => (
-          <div className="px-1">
-            <IndeterminateCheckbox
-              {...{
-                checked: row.getIsSelected(),
-                disabled: !row.getCanSelect(),
-                indeterminate: row.getIsSomeSelected(),
-                onChange: row.getToggleSelectedHandler(),
-              }}
-            />
-          </div>
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label="Select row"
+          />
         ),
-      }),
-      columnHelper.accessor("id", {
-        header: () => <span>{t("table.common.id")}</span>,
+        enableSorting: false,
+        enableHiding: false,
+      },
+      {
+        accessorKey: "id",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title={t("table.common.id")} />
+        ),
         cell: (info) => info.getValue(),
         enableSorting: false,
-      }),
-      columnHelper.accessor("name", {
-        header: () => <span>{t("table.common.name")}</span>,
+      },
+      {
+        accessorKey: "name",
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={t("table.common.name")}
+          />
+        ),
         cell: (info) => info.getValue(),
         filterFn: "fuzzy",
-      }),
-      columnHelper.accessor("createdAt", {
-        header: () => <span>{t("table.common.createdAt")}</span>,
-        cell: (info) => dateFormater.format(info.getValue()),
+      },
+      {
+        accessorKey: "createdAt",
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={t("table.common.createdAt")}
+          />
+        ),
+        cell: (info) => dateFormater.format(info.getValue() as Date),
         enableColumnFilter: false,
-      }),
+      },
+      {
+        id: "actions",
+        cell: ({ row }) => {
+          const category = row.original;
+          return (
+            <CategoryModal
+              key={category.id + "updateCategory"}
+              operationType="put"
+              defaultValues={category}
+            />
+          );
+        },
+      },
     ],
-    [t]
+    [t],
   );
-
-  const table = useReactTable({
-    data: props.data,
-    columnResizeMode: "onChange",
-    getCoreRowModel: getCoreRowModel(),
-    state: {
-      sorting,
-      columnFilters,
-      rowSelection,
-    },
-    filterFns: {
-      fuzzy: fuzzyFilter,
-    },
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    columns,
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnFiltersChange: setColumnFilters,
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
-    getFacetedMinMaxValues: getFacetedMinMaxValues(),
-    getPaginationRowModel: getPaginationRowModel(),
-
-    enableRowSelection: true,
-    onRowSelectionChange: setRowSelection,
-    defaultColumn: {
-      minSize: 150,
-    },
-  });
 
   if (typeof window === "undefined") return null;
 
@@ -145,24 +112,11 @@ function Table(props: { data: Category[] }) {
             defaultValues={{}}
             operationType="post"
           />
-          {Object.keys(rowSelection).length === 1 ? (
-            <CategoryModal
-              key={"updateCategory"}
-              operationType="put"
-              defaultValues={props.data[+Object.keys(rowSelection)[0]]}
-              afterSuccess={() => {
-                setRowSelection({});
-              }}
-            />
-          ) : null}
         </div>
 
-        <div className="w-full overflow-x-auto">
-          <TableBody table={table} />
+        <div className="relative w-full overflow-auto">
+          <DataTable columns={columns} data={props.data} />
         </div>
-
-        {/* table utils */}
-        <TableUtils table={table} />
       </div>
     </div>
   );
@@ -184,7 +138,6 @@ const CategoryPage: NextPageWithProps = (_props) => {
       <div className="w-full">
         {categoryQuery.data && <Table data={categoryQuery.data} />}
       </div>
-      <ReactQueryDevtools initialIsOpen={false} />
     </>
   );
 };

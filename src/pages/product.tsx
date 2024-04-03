@@ -1,20 +1,18 @@
 import React, { useMemo } from "react";
 import { type GetStaticPropsContext } from "next";
-import { Checkbox } from "@/components/ui/checkbox"
 import ProductModal from "@/components/modal/productModal";
+import { DataTableColumnHeader } from "@/components/table/data-table-column-header";
+import { DataTable } from "@/components/table/dataTable";
+import { Checkbox } from "@/components/ui/checkbox";
 import { api } from "@/utils/api";
 import { dateFormater } from "@/utils/date";
 import { type Product } from "@prisma/client";
-import {
-  type ColumnDef,
-  createColumnHelper,
-} from "@tanstack/react-table";
+import { type ColumnDef } from "@tanstack/react-table";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "react-i18next";
 
 import { type NextPageWithProps } from "./_app";
-import { DataTable } from "@/components/table/dataTable";
-import { DataTableColumnHeader } from "@/components/table/data-table-column-header";
+
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   return {
     props: {
@@ -25,14 +23,13 @@ export async function getStaticProps({ locale }: GetStaticPropsContext) {
   };
 }
 
-
-const columnHelper = createColumnHelper<Product>();
+// const columnHelper = createColumnHelper<Product>();
 
 function Table(props: { data: Product[] }) {
   const { t } = useTranslation();
   const columns: ColumnDef<Product>[] = useMemo(
     () => [
-      columnHelper.display({
+      {
         id: "select",
         header: ({ table }) => (
           <Checkbox
@@ -40,7 +37,9 @@ function Table(props: { data: Product[] }) {
               table.getIsAllPageRowsSelected() ||
               (table.getIsSomePageRowsSelected() && "indeterminate")
             }
-            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
             aria-label="Select all"
           />
         ),
@@ -53,55 +52,83 @@ function Table(props: { data: Product[] }) {
         ),
         enableSorting: false,
         enableHiding: false,
-      }),
-      columnHelper.accessor("id", {
+      },
+      {
+        accessorKey: "id",
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title={t("table.common.id")} />
         ),
         cell: (info) => info.getValue(),
         enableSorting: false,
-      }),
-      columnHelper.accessor("name", {
-        header: ({ column }) => <DataTableColumnHeader column={column} title={t("table.common.name")} />,
+      },
+      {
+        accessorKey: "name",
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={t("table.common.name")}
+          />
+        ),
         cell: (info) => info.getValue(),
         filterFn: "fuzzy",
-      }),
-      columnHelper.accessor("buyPrice", {
-        header: ({column}) => <DataTableColumnHeader column={column}  title={t("table.product.buyPrice")} />,
+      },
+      {
+        accessorKey: "buyPrice",
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={t("table.product.buyPrice")}
+          />
+        ),
         cell: (info) => info.getValue(),
-      }),
-      columnHelper.accessor("sellPrice", {
-        header: ({column}) => <DataTableColumnHeader column={column}  title={t("table.product.sellPrice")}/>,
+      },
+      {
+        accessorKey: "sellPrice",
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={t("table.product.sellPrice")}
+          />
+        ),
         cell: (info) => info.getValue(),
-      }),
-      columnHelper.accessor("stock", {
-        header: ({column}) => <DataTableColumnHeader column={column}  title={t("table.product.stock")}/>,
+      },
+      {
+        accessorKey: "stock",
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={t("table.product.stock")}
+          />
+        ),
         cell: (info) => info.getValue(),
-      }),
-      columnHelper.accessor("createdAt", {
-        header: ({column}) => <DataTableColumnHeader column={column}  title={t("table.common.createdAt")}/>,
-        cell: (info) => dateFormater.format(info.getValue()),
+      },
+      {
+        accessorKey: "createdAt",
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={t("table.common.createdAt")}
+          />
+        ),
+        cell: (info) => dateFormater.format(info.getValue() as Date),
         enableColumnFilter: false,
-      }),
-      columnHelper.display(
-        {
-          id: "actions",
-          cell: ({ row }) => {
-            const product = row.original
-            return (
-              <ProductModal
-                key={product.id + "updateProduct"}
-                operationType="put"
-                defaultValues={product}
-              />
-            )
-          }
-        }
-      )
+      },
+      {
+        id: "actions",
+        cell: ({ row }) => {
+          const product = row.original;
+          return (
+            <ProductModal
+              key={product.id + "updateProduct"}
+              operationType="put"
+              defaultValues={product}
+            />
+          );
+        },
+      },
     ],
-    [t]
+    [t],
   );
-
 
   if (typeof window === "undefined") return null;
 
