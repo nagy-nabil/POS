@@ -392,7 +392,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
                     quantityFromOffers: productFromCart?.quantityFromOffers,
                   };
                   return (
-                    <div className="w-3/6 px-1" key={product.id}>
+                    <div className="w-3/6 md:w-1/3 px-1" key={product.id}>
                       <KeypadDisplay key={product.id} {...displayProps} />
                     </div>
                   );

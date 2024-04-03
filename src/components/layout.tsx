@@ -208,7 +208,7 @@ function useI18nNavLinks() {
     [t],
   );
 }
-function DesktopNav() {
+export function DesktopNav() {
   const { route } = useRouter();
   const sidebarLinks = useI18nNavLinks();
   return (
@@ -312,7 +312,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       <Head>
         <link rel="manifest" href="/app.webmanifest" />
       </Head>
-      <div className="flex min-h-screen w-full flex-col scroll-smooth ">
+      <div className="flex min-h-screen overflow-hidden w-full flex-col scroll-smooth ">
         <DesktopNav />
         <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
           <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
