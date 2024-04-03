@@ -8,6 +8,7 @@ import z from "zod";
  */
 export function CldOrImage(props: ComponentProps<typeof CldImage>) {
   if (z.string().url().safeParse(props.src).success) {
+    // @ts-expect-error i don't use this quality option
     return <Image {...props} alt={props.alt} />;
   } else {
     return <CldImage {...props} />;
