@@ -3,7 +3,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import CategoryDisplay from "@/components/categoryDisplay";
 import DebouncedInput from "@/components/form/debouncedInput";
-import { Nav } from "@/components/layout";
+import { MobileNav } from "@/components/layout";
 import { CartModal } from "@/components/modal/cartModal";
 import QrModal from "@/components/modal/qrModal";
 import { ModeToggle } from "@/components/modeToggle";
@@ -39,7 +39,7 @@ const Home: NextPageWithProps = (_props) => {
       </Head>
       <div className="flex h-screen w-screen flex-col overflowhidden scroll-smooth gap-3">
         <header className="flex justify-between h-fit  gap-2 w-full mt-3 px-1">
-          <Nav />
+          <MobileNav />
           <DebouncedInput
             type="search"
             value={(router.query.productFilter as string | undefined) ?? ""}

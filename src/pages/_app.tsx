@@ -13,6 +13,7 @@ import "@/styles/globals.css";
 import Head from "next/head";
 import Layout from "@/components/layout";
 import { ThemeProvider } from "@/components/theme-provider";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@radix-ui/react-toast";
 import { Loader } from "lucide-react";
@@ -61,7 +62,11 @@ function Authed({ children }: AutedProps) {
 
   if (status === "loading") {
     // show load/unauth view
-    return <div className="flex items-center justify-center animate-spin h-screen w-screen"><Loader size={40}/></div>;
+    return (
+      <div className="flex items-center justify-center animate-spin h-screen w-screen">
+        <Loader size={40} />
+      </div>
+    );
   }
 
   return children;
@@ -121,8 +126,8 @@ const MyApp = ({ Component, pageProps }: CustomAppProps) => {
     Component.pageConfig && Component.pageConfig.layout
       ? Component.pageConfig.layout
       : Component.pageConfig && Component.pageConfig.defaultLayout
-      ? defaultLayout
-      : (page) => page;
+        ? defaultLayout
+        : (page) => page;
 
   return (
     <>
@@ -130,14 +135,16 @@ const MyApp = ({ Component, pageProps }: CustomAppProps) => {
         <title>Zagy | POS</title>
       </Head>
       <SessionProvider session={pageProps.session}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {Component.pageConfig && Component.pageConfig.authed ? (
-            <Authed>{getLayout(<Component {...pageProps} />)}</Authed>
-          ) : (
-            getLayout(<Component {...pageProps} />)
-          )}
-          <Toaster />
-        </ThemeProvider>
+        <TooltipProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            {Component.pageConfig && Component.pageConfig.authed ? (
+              <Authed>{getLayout(<Component {...pageProps} />)}</Authed>
+            ) : (
+              getLayout(<Component {...pageProps} />)
+            )}
+            <Toaster />
+          </ThemeProvider>
+        </TooltipProvider>
       </SessionProvider>
     </>
   );

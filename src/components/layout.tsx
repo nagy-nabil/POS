@@ -5,10 +5,18 @@ import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/utils/shadcn/shadcn";
 import { useQueryClient } from "@tanstack/react-query";
+import clsx from "clsx";
+import { Package2, PanelLeft } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useTranslation } from "next-i18next";
+import { type IconType } from "react-icons";
 import {
   AiOutlineHistory,
   AiOutlineSetting,
@@ -19,22 +27,22 @@ import { CiShoppingTag } from "react-icons/ci";
 import { GiTakeMyMoney } from "react-icons/gi";
 import { LuBarChart3 } from "react-icons/lu";
 import { MdMoneyOff, MdOutlineCategory } from "react-icons/md";
-import { RiLogoutBoxLine, RiMenu4Fill } from "react-icons/ri";
+import { RiLogoutBoxLine } from "react-icons/ri";
 
-import Accordion from "./accordion";
 import { ModeToggle } from "./modeToggle";
 
 export type PathItem = {
   label: string;
   href: string;
-  icon: React.ReactElement;
+  icon: {
+    Component: IconType;
+    key: string;
+  };
 };
 export type PathItemProps = {
   path: PathItem & { key: string };
 };
-export type PathsListProps = {
-  paths: (PathItem | PathItem[])[];
-};
+export type PathsListProps = { paths: PathItem[] };
 
 interface MobileLinkProps extends LinkProps {
   onOpenChange?: (open: boolean) => void;
@@ -69,8 +77,11 @@ export function MobileLink({
 export function PathItem(
   props: PathItemProps & {
     isActive: boolean;
+    /**
+     * control sheet
+     */
     setOpen?: (open: boolean) => void;
-  }
+  },
 ) {
   return (
     <MobileLink
@@ -79,46 +90,29 @@ export function PathItem(
                       ${props.isActive ? "bg-gray-500" : " "}`}
       onOpenChange={props.setOpen}
     >
-      {props.path.icon} {props.path.label}
+      <props.path.icon.Component
+        size={25}
+        className="w-fit h-fit text-primary-forground border  p-3 rounded-2xl"
+      />{" "}
+      {props.path.label}
     </MobileLink>
   );
 }
 
-/**
- * in nested use first path label/icon for accordion
- * if inner list is empty will throw
- * @param props
- * @returns
- */
 export function PathsList(
-  props: PathsListProps & { setOpen: (open: boolean) => void }
+  props: PathsListProps & {
+    /**
+     * control sheet
+     */
+    setOpen: (open: boolean) => void;
+  },
 ) {
   const { route } = useRouter();
 
   return (
     <>
       {props.paths.map((path, i) => {
-        return Array.isArray(path) ? (
-          <Accordion
-            key={`${i}acclisi`}
-            title={
-              <div
-                className={
-                  "text-2xl flex items-center gap-3 rounded-2xl  p-2 text-white"
-                }
-              >
-                {path[0].icon} {path[0].label}
-              </div>
-            }
-            content={
-              <PathsList
-                key={`${i}innleis`}
-                paths={path}
-                setOpen={props.setOpen}
-              />
-            }
-          />
-        ) : (
+        return (
           <PathItem
             key={`${i}litom`}
             isActive={route === path.href}
@@ -134,134 +128,135 @@ export function PathsList(
   );
 }
 
-const iconClasses =
-  "w-fit h-fit text-primary-forground border  p-3 rounded-2xl ";
-const iconSize = 25;
-export function Nav() {
+function useI18nNavLinks() {
+  const { t } = useTranslation();
+  return useMemo<PathsListProps["paths"]>(
+    () => [
+      {
+        label: t("sidebar.paths.sales"),
+        href: "/",
+        icon: {
+          Component: AiOutlineShoppingCart,
+          key: "sales",
+        },
+      },
+      {
+        label: t("sidebar.paths.products"),
+        href: "/product",
+        icon: {
+          Component: CiShoppingTag,
+          key: "product",
+        },
+      },
+      {
+        label: t("sidebar.paths.offers"),
+        href: "/offers",
+        icon: {
+          Component: BiSolidOffer,
+          key: "offers",
+        },
+      },
+      {
+        label: t("sidebar.paths.category"),
+        href: "/category",
+        icon: {
+          Component: MdOutlineCategory,
+          key: "category",
+        },
+      },
+      {
+        label: t("sidebar.paths.anal.index"),
+        href: "/analysis",
+        icon: {
+          Component: LuBarChart3,
+          key: "analysis",
+        },
+      },
+      {
+        label: t("sidebar.paths.anal.history"),
+        href: "/analysis/history",
+        icon: {
+          Component: AiOutlineHistory,
+          key: "analHis",
+        },
+      },
+      {
+        label: t("sidebar.paths.spendings.index"),
+        href: "/spending",
+        icon: {
+          Component: GiTakeMyMoney,
+          key: "spendings",
+        },
+      },
+      {
+        label: t("sidebar.paths.spendings.losses"),
+        href: "/spending/losses",
+        icon: {
+          Component: MdMoneyOff,
+          key: "spendings",
+        },
+      },
+      {
+        label: t("sidebar.paths.settings"),
+        href: "/setting",
+        icon: {
+          Component: AiOutlineSetting,
+          key: "setting",
+        },
+      },
+    ],
+    [t],
+  );
+}
+function DesktopNav() {
+  const { route } = useRouter();
+  const sidebarLinks = useI18nNavLinks();
+  return (
+    <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
+      <nav className="flex flex-col items-center gap-4 px-2 sm:py-4">
+        <Link
+          href="/"
+          className="group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base"
+        >
+          <Package2 className="h-4 w-4 transition-all group-hover:scale-110" />
+          <span className="sr-only">POS Inc</span>
+        </Link>
+        {sidebarLinks.map((link) => {
+          const isActive = route === link.href;
+          return (
+            <Tooltip key={link.href}>
+              <TooltipTrigger asChild>
+                <Link
+                  href={link.href}
+                  className={clsx(
+                    "flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8 ",
+                    { "bg-accent text-accent-foreground": isActive },
+                  )}
+                >
+                  <link.icon.Component className="h-5 w-5" />
+                  <span className="sr-only">{link.label}</span>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="right">{link.label}</TooltipContent>
+            </Tooltip>
+          );
+        })}
+      </nav>
+    </aside>
+  );
+}
+
+export function MobileNav() {
   const [open, setOpen] = React.useState(false);
 
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-
-  // used to describe sidebar items
-  const sidebarLinks = useMemo<PathsListProps>(
-    () => ({
-      paths: [
-        {
-          label: t("sidebar.paths.sales"),
-          href: "/",
-          icon: (
-            <AiOutlineShoppingCart
-              key="sales"
-              className={iconClasses}
-              size={iconSize}
-            />
-          ),
-        },
-        {
-          label: t("sidebar.paths.products"),
-          href: "/product",
-
-          icon: (
-            <CiShoppingTag
-              key="product"
-              className={iconClasses}
-              size={iconSize}
-            />
-          ),
-        },
-        {
-          label: t("sidebar.paths.offers"),
-          href: "/offers",
-
-          icon: (
-            <BiSolidOffer
-              key="offers"
-              className={iconClasses}
-              size={iconSize}
-            />
-          ),
-        },
-        {
-          label: t("sidebar.paths.category"),
-          href: "/category",
-          icon: (
-            <MdOutlineCategory
-              key="category"
-              className={iconClasses}
-              size={iconSize}
-            />
-          ),
-        },
-        [
-          {
-            label: t("sidebar.paths.anal.index"),
-            href: "/analysis",
-            icon: (
-              <LuBarChart3
-                key="analysis"
-                className={iconClasses}
-                size={iconSize}
-              />
-            ),
-          },
-          {
-            label: t("sidebar.paths.anal.history"),
-            href: "/analysis/history",
-            icon: (
-              <AiOutlineHistory
-                key="analHis"
-                className={iconClasses}
-                size={iconSize}
-              />
-            ),
-          },
-        ],
-        [
-          {
-            label: t("sidebar.paths.spendings.index"),
-            href: "/spending",
-            icon: (
-              <GiTakeMyMoney
-                key="spendings"
-                className={iconClasses}
-                size={iconSize}
-              />
-            ),
-          },
-          {
-            label: t("sidebar.paths.spendings.losses"),
-            href: "/spending/losses",
-            icon: (
-              <MdMoneyOff
-                key="spendings"
-                className={iconClasses}
-                size={iconSize}
-              />
-            ),
-          },
-        ],
-        {
-          label: t("sidebar.paths.settings"),
-          href: "/setting",
-          icon: (
-            <AiOutlineSetting
-              key="setting"
-              className={iconClasses}
-              size={iconSize}
-            />
-          ),
-        },
-      ],
-    }),
-    [t]
-  );
-
+  const sidebarLinks = useI18nNavLinks();
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon">
-          <RiMenu4Fill size={30} />
+        <Button size="icon" variant="outline" className="sm:hidden">
+          <PanelLeft className="h-5 w-5" />
           <span className="sr-only">Toggle Menu</span>
         </Button>
       </SheetTrigger>
@@ -281,9 +276,7 @@ export function Nav() {
         </h1>
 
         <ScrollArea className="my-4  h-[calc(100vh-8rem)] pb-1">
-          {/* <div className="h-fit flex flex-col space-y-3"> */}
-          <PathsList {...sidebarLinks} setOpen={setOpen} />
-          {/* </div> */}
+          <PathsList paths={sidebarLinks} setOpen={setOpen} />
           <Button
             type="button"
             variant="ghost"
@@ -293,7 +286,12 @@ export function Nav() {
               queryClient.clear();
             }}
           >
-            <RiLogoutBoxLine className={iconClasses} size={iconSize} />{" "}
+            <RiLogoutBoxLine
+              className={
+                "w-fit h-fit text-primary-forground border  p-3 rounded-2xl"
+              }
+              size={25}
+            />
             {t("sidebar.actions.logout")}
           </Button>
         </ScrollArea>
@@ -314,16 +312,19 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       <Head>
         <link rel="manifest" href="/app.webmanifest" />
       </Head>
-      <div className="flex h-screen w-screen flex-col overflow-x-hidden overflow-y-auto scroll-smooth gap-3 ">
-        <header className="flex justify-between h-fit items-center gap-2 w-full mt-3 px-1">
-          <Nav />
-          <h1 className="h-fit text-4xl line-clamp-4 py-3">
-            {/* @ts-expect-error i don't remember why do i need this but yeah */}
-            {t(`pages.${pathname}.header`)}
-          </h1>
-          <ModeToggle />
-        </header>
-        {children}
+      <div className="flex min-h-screen w-full flex-col scroll-smooth ">
+        <DesktopNav />
+        <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
+          <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+            <MobileNav />
+            <h1 className="h-fit text-4xl line-clamp-4 py-3">
+              {/* @ts-expect-error i don't remember why do i need this but yeah */}
+              {t(`pages.${pathname}.header`)}
+            </h1>
+            <ModeToggle />
+          </header>
+          <div className="w-full h-full">{children}</div>
+        </div>
       </div>
     </>
   );
