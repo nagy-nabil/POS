@@ -103,21 +103,8 @@ function Table(props: { data: Category[] }) {
   if (typeof window === "undefined") return null;
 
   return (
-    <div className="mt-3 flex flex-col">
-      <div className="w-screen">
-        {/* item utils*/}
-        <div className="flex justify-start gap-3">
-          <CategoryModal
-            key="createCategory"
-            defaultValues={{}}
-            operationType="post"
-          />
-        </div>
-
-        <div className="relative w-full overflow-auto">
-          <DataTable columns={columns} data={props.data} />
-        </div>
-      </div>
+    <div className="relative w-full h-full overflow-auto">
+      <DataTable columns={columns} data={props.data} />
     </div>
   );
 }
@@ -134,11 +121,18 @@ const CategoryPage: NextPageWithProps = (_props) => {
   });
 
   return (
-    <>
-      <div className="w-full">
+    <div className="w-full h-full overflow-hidden flex flex-col gap-4">
+      <div className="w-full flex justify-end">
+        <CategoryModal
+          key="createCategory"
+          defaultValues={{}}
+          operationType="post"
+        />
+      </div>
+      <div className="w-full ">
         {categoryQuery.data && <Table data={categoryQuery.data} />}
       </div>
-    </>
+    </div>
   );
 };
 

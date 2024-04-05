@@ -349,7 +349,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </h1>
             <ModeToggle />
           </header>
-          <div className="w-full h-full">{children}</div>
+          <div className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 grid-cols-1">{children}</div>
         </div>
       </div>
     </>

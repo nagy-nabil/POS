@@ -133,15 +133,8 @@ function Table(props: { data: Product[] }) {
   if (typeof window === "undefined") return null;
 
   return (
-    <div className="flex flex-col w-full ">
-      {/* item utils*/}
-      <div className="flex justify-start gap-3">
-        <ProductModal defaultValues={{}} operationType="post" />
-      </div>
-
-      <div className="relative w-full overflow-auto">
-        <DataTable columns={columns} data={props.data} />
-      </div>
+    <div className="relative w-full h-full overflow-auto">
+      <DataTable columns={columns} data={props.data} />
     </div>
   );
 }
@@ -150,8 +143,11 @@ const ProductTable: NextPageWithProps = () => {
   const productsQuery = api.products.getMany.useQuery(undefined);
 
   return (
-    <div className="w-full">
-      <div className="hidden h-full flex-1 flex-col space-y-8 p-8 md:flex">
+    <div className="w-full h-full overflow-hidden flex flex-col gap-4">
+      <div className="w-full flex justify-end">
+        <ProductModal defaultValues={{}} operationType="post" />
+      </div>
+      <div className="w-full ">
         {productsQuery.data && <Table data={productsQuery.data} />}
       </div>
     </div>

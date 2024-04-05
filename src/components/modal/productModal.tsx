@@ -161,7 +161,7 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
           : t("productModal.headerName.put")
       }
       dialogRef={dialogRef}
-      buttonAttrs={{ variant: "ghost", size: "icon" }}
+      buttonAttrs={{ variant: "secondary" }}
       dialogAttrs={{}}
       formAttrs={{
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -174,7 +174,7 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
       }}
       buttonChildren={
         props.operationType === "post" ? (
-          <RiAddLine className="text-green-600" size={24} />
+          <>Create Product<RiAddLine size={24} /></>
         ) : (
           <BiEdit className="text-yellow-400" size={24} />
         )
