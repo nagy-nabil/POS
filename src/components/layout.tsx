@@ -211,6 +211,9 @@ function useI18nNavLinks() {
 export function DesktopNav() {
   const { route } = useRouter();
   const sidebarLinks = useI18nNavLinks();
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+
   return (
     <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
       <nav className="flex flex-col items-center gap-4 px-2 sm:py-4">
@@ -241,6 +244,29 @@ export function DesktopNav() {
             </Tooltip>
           );
         })}
+
+        <Tooltip key={"logout"}>
+          <TooltipTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+              onClick={async () => {
+                await signOut({ redirect: false });
+                queryClient.clear();
+              }}
+            >
+              <RiLogoutBoxLine
+                className={
+                  "h-5 w-5 text-muted-foreground"
+                }
+              />
+            </Button>
+          </TooltipTrigger>
+
+          <TooltipContent side="right">{t("sidebar.actions.logout")}</TooltipContent>
+        </Tooltip>
       </nav>
     </aside>
   );
