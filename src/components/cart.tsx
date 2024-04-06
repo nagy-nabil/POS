@@ -20,7 +20,7 @@ export function CartView() {
   });
   const { t } = useTranslation();
   const [operationError, setOperationError] = useState("");
-  const utils = api.useContext();
+  const utils = api.useUtils();
 
   const orderMut = api.orders.insertOne.useMutation({
     onError(error) {

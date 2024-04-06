@@ -104,7 +104,7 @@ export default function OfferModal(props: OfferProps) {
   const [price, setPrice] = useState(0);
   const [quantityErr, setQuantityErr] = useState("");
   const [priceErr, setPriceErr] = useState("");
-  const utils = api.useContext();
+  const utils = api.useUtils();
 
   //FORM
   const {

@@ -36,7 +36,7 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
   const [fileSelectedSas, setFileSelectedSas] = useState<string | undefined>(
     undefined
   );
-  const utils = api.useContext();
+  const utils = api.useUtils();
 
   const {
     register,

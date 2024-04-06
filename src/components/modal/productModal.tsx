@@ -44,7 +44,7 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
   const [fileSelectedSas, setFileSelectedSas] = useState<string | undefined>(
     undefined,
   );
-  const utils = api.useContext();
+  const utils = api.useUtils();
 
   // form hook
   const {

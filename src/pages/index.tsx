@@ -41,8 +41,8 @@ const Home: NextPageWithProps = (_props) => {
 
       <div className="flex h-screen max-h-screen min-h-screen overflow-hidden w-full flex-col scroll-smooth ">
         <DesktopNav />
-        <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14 overflow-hidden">
-          <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+        <div className="flex flex-col gap-4 sm:py-4 sm:pl-14 overflow-hidden">
+          <header className="sticky top-0 z-30 flex justify-between h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
             <MobileNav />
             <DebouncedInput
               type="search"
@@ -66,8 +66,8 @@ const Home: NextPageWithProps = (_props) => {
             <ModeToggle />
           </header>
 
-          <div className="flex flex-col lg:flex-row gap-4 overflow-hidden">
-            <main className="flex flex-col gap-4 h-5/6 lg:h-full w-full lg:w-2/3 overflow-hidden">
+          <div className="flex flex-col lg:flex-row  overflow-hidden">
+            <main className="flex flex-col h-5/6 lg:h-full w-full lg:w-2/3 overflow-hidden">
               <div className="flex-initial">
                 <CategoryDisplay />
               </div>

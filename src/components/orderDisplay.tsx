@@ -95,7 +95,7 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
   const { t } = useTranslation();
   const toPrintRef = useRef<HTMLDivElement>(null);
   const [operationError, setOperationError] = useState("");
-  const utils = api.useContext();
+  const utils = api.useUtils();
 
   const handlePrint = useReactToPrint({
     content: () => toPrintRef.current,

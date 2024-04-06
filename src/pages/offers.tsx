@@ -139,7 +139,7 @@ function Table(props: { data: Offer[] }) {
     [t, offerDelete.isLoading, offerDelete.mutate],
   );
 
-  const utils = api.useContext();
+  const utils = api.useUtils();
 
   if (typeof window === "undefined") return null;
 
