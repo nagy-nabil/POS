@@ -1,40 +1,25 @@
 import React, { useMemo, useState } from "react";
 import type { GetStaticPropsContext } from "next";
-import IndeterminateCheckbox from "@/components/form/indeterminateCheckbox";
+import { FromToDate } from "@/components/form/fromToDate";
 import {
   ExpenseModal,
   // ExpensesStoreModal,
   // ExpenseTypeModal,
 } from "@/components/modal/expensesModal";
-import TableBody from "@/components/table/body";
-import { fuzzyFilter } from "@/components/table/helpers";
-import TableUtils from "@/components/table/utils";
+import { DataTableColumnHeader } from "@/components/table/data-table-column-header";
+import { DataTable } from "@/components/table/dataTable";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import type { ExpenseGetMany } from "@/server/api/routers/expenses";
 import { api } from "@/utils/api";
 import { dateFormater } from "@/utils/date";
-import { type RankingInfo } from "@tanstack/match-sorter-utils";
-import {
-  createColumnHelper,
-  getCoreRowModel,
-  getFacetedMinMaxValues,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-  type ColumnFiltersState,
-  type FilterFn,
-  type SortingState,
-} from "@tanstack/react-table";
+import { type ColumnDef } from "@tanstack/react-table";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "react-i18next";
-
-import { type NextPageWithProps } from "../_app";
-import { FromToDate } from "@/components/form/fromToDate";
-import { Button } from "@/components/ui/button";
 import { CgSpinner } from "react-icons/cg";
 import { FiDollarSign } from "react-icons/fi";
+
+import { type NextPageWithProps } from "../_app";
 
 export async function getStaticProps({ locale }: GetStaticPropsContext) {
   return {
@@ -49,18 +34,10 @@ export async function getStaticProps({ locale }: GetStaticPropsContext) {
   };
 }
 
-declare module "@tanstack/table-core" {
-  interface FilterFns {
-    fuzzy: FilterFn<unknown>;
-  }
-  interface FilterMeta {
-    itemRank: RankingInfo;
-  }
-}
-
 // const typesColumnHelper = createColumnHelper<ExpenseTypes>();
 // const storeColumnHelper = createColumnHelper<ExpenseStore>();
-const expenseColumnHelper = createColumnHelper<ExpenseGetMany['spendings'][number]>();
+// const expenseColumnHelper =
+// createColumnHelper<ExpenseGetMany["spendings"][number]>();
 
 // function TypesTable(props: { data: ExpenseTypes[] }) {
 //   const { t } = useTranslation();
@@ -295,96 +272,86 @@ const expenseColumnHelper = createColumnHelper<ExpenseGetMany['spendings'][numbe
 //     </div>
 //   );
 // }
-function ExpenseTable(props: { data: ExpenseGetMany['spendings'] }) {
+function ExpenseTable(props: { data: ExpenseGetMany["spendings"] }) {
   const { t } = useTranslation();
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [rowSelection, setRowSelection] = React.useState({});
 
-  const columns = useMemo(
+  const columns: ColumnDef<ExpenseGetMany["spendings"][number]>[] = useMemo(
     () => [
-      expenseColumnHelper.display({
+      {
         id: "select",
         header: ({ table }) => (
-          <div className="relative m-auto">
-            <IndeterminateCheckbox
-              {...{
-                checked: table.getIsAllRowsSelected(),
-                indeterminate: table.getIsSomeRowsSelected(),
-                onChange: table.getToggleAllRowsSelectedHandler(),
-              }}
-            />
-          </div>
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && "indeterminate")
+            }
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+            aria-label="Select all"
+          />
         ),
         cell: ({ row }) => (
-          <div className="px-1">
-            <IndeterminateCheckbox
-              {...{
-                checked: row.getIsSelected(),
-                disabled: !row.getCanSelect(),
-                indeterminate: row.getIsSomeSelected(),
-                onChange: row.getToggleSelectedHandler(),
-              }}
-            />
-          </div>
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label="Select row"
+          />
         ),
-      }),
-      // expenseColumnHelper.accessor("id", {
-      //   header: () => <span>{t("table.common.id")}</span>,
-      //   cell: (info) => info.getValue(),
-      //   enableSorting: false,
-      // }),
-      expenseColumnHelper.accessor("name", {
-        header: () => <span>{t("table.loss.name")}</span>,
+        enableSorting: false,
+        enableHiding: false,
+      },
+      {
+        accessorKey: "id",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title={t("table.common.id")} />
+        ),
+        cell: (info) => info.getValue(),
+        enableSorting: false,
+      },
+      {
+        accessorKey: "name",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title={t("table.loss.name")} />
+        ),
         cell: (info) => info.getValue(),
         filterFn: "fuzzy",
-      }),
-      expenseColumnHelper.accessor("description", {
-        header: () => <span>{t("table.loss.description")}</span>,
+      },
+      {
+        accessorKey: "description",
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={t("table.loss.description")}
+          />
+        ),
         cell: (info) => info.getValue(),
         filterFn: "fuzzy",
-      }),
-      expenseColumnHelper.accessor("amount", {
-        header: () => <span>{t("table.loss.additionalAmount")}</span>,
+      },
+      {
+        accessorKey: "amount",
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={t("table.loss.additionalAmount")}
+          />
+        ),
         cell: (info) => info.getValue(),
-      }),
-      expenseColumnHelper.accessor("createdAt", {
-        header: () => <span>{t("table.common.createdAt")}</span>,
-        cell: (info) => dateFormater.format(info.getValue()),
+      },
+      {
+        accessorKey: "createdAt",
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={t("table.common.createdAt")}
+          />
+        ),
+        cell: (info) => dateFormater.format(info.getValue() as Date),
         enableColumnFilter: false,
-      }),
+      },
     ],
-    [t]
+    [t],
   );
-
-  const table = useReactTable({
-    data: props.data,
-    columnResizeMode: "onChange",
-    getCoreRowModel: getCoreRowModel(),
-    state: {
-      sorting,
-      columnFilters,
-      rowSelection,
-    },
-    filterFns: {
-      fuzzy: fuzzyFilter,
-    },
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    columns,
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnFiltersChange: setColumnFilters,
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
-    getFacetedMinMaxValues: getFacetedMinMaxValues(),
-    getPaginationRowModel: getPaginationRowModel(),
-
-    enableRowSelection: true,
-    onRowSelectionChange: setRowSelection,
-    defaultColumn: {
-      minSize: 200,
-    },
-  });
 
   if (typeof window === "undefined") return null;
 
@@ -404,12 +371,9 @@ function ExpenseTable(props: { data: ExpenseGetMany['spendings'] }) {
           ) : null} */}
         </div>
 
-        <div className="w-full overflow-x-auto">
-          <TableBody table={table} />
+        <div className="relative w-full overflow-auto">
+          <DataTable columns={columns} data={props.data} />
         </div>
-
-        {/* table utils */}
-        <TableUtils table={table} />
       </div>
     </div>
   );
@@ -443,7 +407,6 @@ const Spending: NextPageWithProps = () => {
   // );
   //
 
-
   // always would be the time at midnight(start of a day)
   const [fromDate, setFromDate] = useState<Date>(() => {
     const localTimestamp = new Date();
@@ -456,10 +419,11 @@ const Spending: NextPageWithProps = () => {
     localTimestamp.setHours(23, 59, 59, 999);
     return localTimestamp;
   });
-  const expenseQuery = api.expenses.expenseGetMany.useQuery({
-    from: fromDate,
-    to: toDate,
-  },
+  const expenseQuery = api.expenses.expenseGetMany.useQuery(
+    {
+      from: fromDate,
+      to: toDate,
+    },
     {
       enabled: false,
       retry(_failureCount, error) {
@@ -468,17 +432,25 @@ const Spending: NextPageWithProps = () => {
         }
         return true;
       },
-    });
+    },
+  );
 
   return (
     <div className="w-screen">
       <div className="flex flex-col gap-3">
-        <FromToDate fromDate={fromDate} toDate={toDate} setFromDate={setFromDate} setToDate={setToDate} />
+        <FromToDate
+          fromDate={fromDate}
+          toDate={toDate}
+          setFromDate={setFromDate}
+          setToDate={setToDate}
+        />
         <Button
           type="button"
           variant={"default"}
           onClick={() => expenseQuery.refetch()}
-          disabled={expenseQuery.isLoading && expenseQuery.fetchStatus !== "idle"}
+          disabled={
+            expenseQuery.isLoading && expenseQuery.fetchStatus !== "idle"
+          }
           className="w-1/2 m-auto"
         >
           {expenseQuery.isLoading && expenseQuery.fetchStatus !== "idle" ? (
@@ -490,11 +462,26 @@ const Spending: NextPageWithProps = () => {
       </div>
       <ExpenseModal operationType="post" key={"expsfdjs"} />
       <div className="border flex flex-col text-2xl p-3 w-2/4 h-fit">
-        <span className="flex gap-3 justify-start items-center "><FiDollarSign className="p-1 rounded-sm border w-fit h-fit" size={20} />
-          {t("pages./spending.header")}</span>
-        <span className="font-bold">{expenseQuery.data?.totalAmount.toFixed(2) ?? 0}</span>
+        <span className="flex gap-3 justify-start items-center ">
+          <FiDollarSign
+            className="p-1 rounded-sm border w-fit h-fit"
+            size={20}
+          />
+          {t("pages./spending.header")}
+        </span>
+        <span className="font-bold">
+          {expenseQuery.data?.totalAmount.toFixed(2) ?? 0}
+        </span>
       </div>
-      {expenseQuery.fetchStatus === 'idle' && !expenseQuery.data ? t("pages./spending.placeholder") : expenseQuery.isError ? (<p>{expenseQuery.error.message}</p>) : expenseQuery.isLoading ? (<p>Loading...</p>) : <ExpenseTable data={expenseQuery.data.spendings} />}
+      {expenseQuery.fetchStatus === "idle" && !expenseQuery.data ? (
+        t("pages./spending.placeholder")
+      ) : expenseQuery.isError ? (
+        <p>{expenseQuery.error.message}</p>
+      ) : expenseQuery.isLoading ? (
+        <p>Loading...</p>
+      ) : (
+        <ExpenseTable data={expenseQuery.data.spendings} />
+      )}
     </div>
   );
 };

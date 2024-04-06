@@ -358,7 +358,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
   }
 
   return (
-    <div className="flex flex-col gap-2 flex-auto  h-full w-full overflow-hidden">
+    <div className="flex flex-col space-y-2  flex-auto  h-full w-full overflow-hidden">
       <Tabs defaultValue={props.displayType} className="h-[90%] flex flex-col">
         <TabsList className="w-full flex-initial">
           <TabsTrigger
@@ -392,7 +392,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
                     quantityFromOffers: productFromCart?.quantityFromOffers,
                   };
                   return (
-                    <div className="w-3/6 px-1" key={product.id}>
+                    <div className="w-3/6 md:w-1/3 px-1" key={product.id}>
                       <KeypadDisplay key={product.id} {...displayProps} />
                     </div>
                   );
@@ -427,7 +427,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = (props) => {
           </>
         )}
       </Tabs>
-      <div className="h-fit">
+      <div className="">
         <PaginationUtis {...productsDataPage} />
       </div>
     </div>

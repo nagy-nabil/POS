@@ -340,7 +340,7 @@ export function ExpenseModal(props: ExpenseProps) {
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const { t } = useTranslation();
   const [operationError, setOperationError] = useState("");
-  const utils = api.useContext();
+  const utils = api.useUtils();
 
   //FORM
   const form = useForm<ExpenseT>({

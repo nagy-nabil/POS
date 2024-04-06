@@ -14,16 +14,22 @@ import { api } from "@/utils/api";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-// import * as charts from "react-charts";
 import type { AxisOptions, Chart as ChartType } from "react-charts";
-import { FiDollarSign } from 'react-icons/fi'
-
 import { type NextPageWithProps } from "../_app";
 import { generateInputDateValue } from "@/utils/date";
-// import { Button } from "@/components/ui/button";
-// import { CgSpinner } from "react-icons/cg";
 import { GiProfit } from "react-icons/gi";
 import { Input } from '@/components/ui/input';
+
+
+import { DollarSign } from "lucide-react"
+
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+
 
 const Chart = dynamic(() => import("react-charts").then((mod) => mod.Chart), {
   ssr: false,
@@ -150,17 +156,27 @@ const Anal: NextPageWithProps = () => {
   return (
     <>
       <div className="flex h-full w-full flex-col overflow-hidden px-4">
-        <div className="w-full flex flex-wrap justify-between ">
-          <div className="border flex flex-col text-2xl p-3 w-2/4 h-fit">
-            <span className="flex gap-3 justify-start items-center "><FiDollarSign className="p-1 rounded-sm border w-fit h-fit" size={20} />
-              Revenue</span>
-            <span className="font-bold">{dashboardStat.data?.revenue?.toFixed(2) ?? 0}</span>
-          </div>
-          <div className="border flex flex-col text-2xl p-3 w-2/4 h-fit">
-            <span className="flex gap-3 justify-start items-center "><GiProfit className="p-1 rounded-sm border w-fit h-fit" size={20} />
-              Profit</span>
-            <span className="font-bold">{anal.data?.reduce((prev, cur) => prev + cur.profitDaily, 0).toFixed(2) ?? 0}</span>
-          </div>
+        <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">${dashboardStat.data?.revenue?.toFixed(2) ?? 0}</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Profit</CardTitle>
+              <GiProfit className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">${anal.data?.reduce((prev, cur) => prev + cur.profitDaily, 0).toFixed(2) ?? 0}</div>
+            </CardContent>
+          </Card>
         </div>
         <div className="mt-5 flex h-screen flex-col gap-4 overflow-y-auto">
           <div className="flex flex-col gap-3">
@@ -244,64 +260,64 @@ const Anal: NextPageWithProps = () => {
           ) : (
             "NOT ENOUGH DATA TO SHOW GRAPHS"
           )}
-        <div className="flex flex-col">
-          <h1>Show One Product History</h1>
-          {/*TODO: convert to select with search to easily find the product*/}
-          <Input value={proId} onChange={(event) => {
-            setProId(event.target.value);
-          }} placeholder="product Id" />
-          <div>
-            <p> product name: {productHistory.data?.name}</p>
-            <p> product stock: {productHistory.data?.stock}</p>
-            <p> product current buy price: {productHistory.data?.buyPrice}</p>
-            <p> product current sell price: {productHistory.data?.sellPrice}</p>
-            <h2>History</h2>
-            <Table>
-              <TableHeader >
-                <TableRow>
-                  <TableHead className="w-[100px]">order id
-                  </TableHead>
-                  <TableHead >
-                    time
-                  </TableHead>
-                  <TableHead>
-                    quantity
-                  </TableHead>
-                  <TableHead> buy price
-                  </TableHead>
-                  <TableHead>
-                    sell price
-                  </TableHead>
-                  <TableHead>
-                    total
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {productHistory.data?.orders.map((order) => {
-                  return (
-                    <TableRow
-                      key={order.order.id}
-                    >
-                      <TableHead
-                        scope="row"
+          <div className="flex flex-col">
+            <h1>Show One Product History</h1>
+            {/*TODO: convert to select with search to easily find the product*/}
+            <Input value={proId} onChange={(event) => {
+              setProId(event.target.value);
+            }} placeholder="product Id" />
+            <div>
+              <p> product name: {productHistory.data?.name}</p>
+              <p> product stock: {productHistory.data?.stock}</p>
+              <p> product current buy price: {productHistory.data?.buyPrice}</p>
+              <p> product current sell price: {productHistory.data?.sellPrice}</p>
+              <h2>History</h2>
+              <Table>
+                <TableHeader >
+                  <TableRow>
+                    <TableHead className="w-[100px]">order id
+                    </TableHead>
+                    <TableHead >
+                      time
+                    </TableHead>
+                    <TableHead>
+                      quantity
+                    </TableHead>
+                    <TableHead> buy price
+                    </TableHead>
+                    <TableHead>
+                      sell price
+                    </TableHead>
+                    <TableHead>
+                      total
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {productHistory.data?.orders.map((order) => {
+                    return (
+                      <TableRow
+                        key={order.order.id}
                       >
-                        {order.order.id}
-                      </TableHead>
-                      <TableCell >{order.order.createdAt.toLocaleString()}</TableCell>
-                      <TableCell>{order.quantity}</TableCell>
-                      <TableCell>
-                        {order.buyPriceAtSale} $
-                      </TableCell>
-                      <TableCell>{order.sellPriceAtSale} $</TableCell>
-                      <TableCell>{order.quantity * order.sellPriceAtSale} $</TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+                        <TableHead
+                          scope="row"
+                        >
+                          {order.order.id}
+                        </TableHead>
+                        <TableCell >{order.order.createdAt.toLocaleString()}</TableCell>
+                        <TableCell>{order.quantity}</TableCell>
+                        <TableCell>
+                          {order.buyPriceAtSale} $
+                        </TableCell>
+                        <TableCell>{order.sellPriceAtSale} $</TableCell>
+                        <TableCell>{order.quantity * order.sellPriceAtSale} $</TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
           </div>
-        </div>
 
         </div>
       </div>

@@ -14,7 +14,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { api } from "@/utils/api";
-import clsx from "clsx";
 import { useTranslation } from "next-i18next";
 import { AiOutlineDelete } from "react-icons/ai";
 import { CgSpinner } from "react-icons/cg";
@@ -25,7 +24,7 @@ import { useReactToPrint } from "react-to-print";
 import ConfirmModal from "./modal/confirm";
 import { type RouterOutput } from "@/server/api/root";
 
-export type OrderDisplayProps = RouterOutput["orders"]["getMany"]["orders"][number] & {refetch: any}; // eslint-disable-line
+export type OrderDisplayProps = RouterOutput["orders"]["getMany"]["orders"][number] & { refetch: any }; // eslint-disable-line
 
 const OrderPrint = React.forwardRef<HTMLDivElement, OrderDisplayProps>(
   function OrderPrint(props, ref) {
@@ -96,7 +95,7 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
   const { t } = useTranslation();
   const toPrintRef = useRef<HTMLDivElement>(null);
   const [operationError, setOperationError] = useState("");
-  const utils = api.useContext();
+  const utils = api.useUtils();
 
   const handlePrint = useReactToPrint({
     content: () => toPrintRef.current,
@@ -109,7 +108,7 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
     },
     async onSuccess(data) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      await  props.refetch();     // add the stock back to the products store
+      await props.refetch();     // add the stock back to the products store
       utils.products.getMany.setData(undefined, (prev) => {
         if (prev === undefined) return [];
         data.products.forEach((op) => {
@@ -128,8 +127,8 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
   return (
     <AccordionItem value={props.id}>
       <AccordionTrigger>
-        <div className="flex flex-col gap-2">
-          <p className="w-full overflow-hidden text-left text-xl font-bold text-orange-700">
+        <div className="flex flex-col items-center justify-center w-full gap-2">
+          <p className="w-full overflow-hidden  text-xl font-bold text-orange-700">
             # {props.id}
           </p>
           <span className="text-left">
@@ -143,30 +142,22 @@ const OrderDisplay: React.FC<OrderDisplayProps> = (props) => {
       </AccordionTrigger>
       <AccordionContent>
         <div className="flex flex-col">
-          <div
-            className={clsx({
-              " flex justify-center gap-2 ": true,
-            })}
-          >
+          <div className="flex justify-center gap-2">
             <Button
               type="button"
               variant="outline"
               size="icon"
               onClick={handlePrint}
             >
-              <HiOutlinePrinter size={30}/>
+              <HiOutlinePrinter size={30} />
             </Button>
 
             <ConfirmModal
-              buttonAttrs={{}}
+              buttonAttrs={{variant: "outline", size: 'icon'}}
               bodyMessage="Are you sure you want to delete this order, you cannot undo?"
               header="Delete Order"
               onOk={() => {
-                console.log("will delete");
                 orderDelete.mutate(props.id);
-              }}
-              onCancel={() => {
-                console.log("cancel");
               }}
               buttonChildren={
                 orderDelete.isLoading ? (

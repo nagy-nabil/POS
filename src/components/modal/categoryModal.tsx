@@ -36,7 +36,7 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
   const [fileSelectedSas, setFileSelectedSas] = useState<string | undefined>(
     undefined
   );
-  const utils = api.useContext();
+  const utils = api.useUtils();
 
   const {
     register,
@@ -144,7 +144,7 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
           : t("categoryModal.headerName.put")
       }
       dialogRef={dialogRef}
-      buttonAttrs={{ className: "mt-2" }}
+      buttonAttrs={{ variant: "secondary" }}
       dialogAttrs={{}}
       formAttrs={{
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -157,7 +157,7 @@ const CategoryModal: React.FC<CategoryModalProps> = (props) => {
       }}
       buttonChildren={
         props.operationType === "post" ? (
-          <RiAddLine className="h-fit w-fit p-3 text-3xl text-green-600" />
+          <>Create Category<RiAddLine size={24} /></>
         ) : (
           <BiEdit className="h-fit w-fit p-3 text-3xl text-yellow-400" />
         )
