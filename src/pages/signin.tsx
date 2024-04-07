@@ -149,7 +149,7 @@ const SignIn: NextPageWithProps = () => {
             </b>
           </p>
           <ReactQueryDevtools initialIsOpen={false} />
-          <p className="text-muted-foreground text-center">V 0.1.22</p>
+          <p className="text-muted-foreground text-center">V 0.1.23</p>
           {isPreview ? (
             <>
               <p className="text-muted-foreground text-center">
