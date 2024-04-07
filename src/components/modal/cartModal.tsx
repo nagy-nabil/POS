@@ -67,7 +67,7 @@ export function CartModal() {
       }}
       dialogAttrs={{}}
       formAttrs={{}}
-      modalChildren={<CartView />}
+      modalChildren={<CartView onSuccess={() => dialgoRef.current?.close()}/>}
     />
   );
 }

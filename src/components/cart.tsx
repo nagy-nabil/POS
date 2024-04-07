@@ -9,7 +9,7 @@ import { OfferItem, type OfferItemProps } from "./offerDisplay";
 import { LibraryDisplay } from "./productDisplay";
 import { Button } from "./ui/button";
 
-export function CartView() {
+export function CartView({onSuccess}: {onSuccess?: () => void;}) {
   const cart = useCart();
   const cartClear = useCartClear();
   const products = api.products.getMany.useQuery(undefined, {
@@ -40,6 +40,9 @@ export function CartView() {
           ? [...productsTemp, ...prev.filter((test) => !lookUp.has(test.id))]
           : [];
       });
+      if(onSuccess){
+        onSuccess();
+      }
     },
   });
 
