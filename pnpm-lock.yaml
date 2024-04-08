@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@azure/storage-blob':
-    specifier: ^12.15.0
-    version: 12.15.0
+    specifier: ^12.17.0
+    version: 12.17.0
   '@hookform/resolvers':
     specifier: ^3.3.4
     version: 3.3.4(react-hook-form@7.51.2)
@@ -331,8 +331,8 @@ packages:
       tslib: 2.6.2
     dev: false
 
-  /@azure/storage-blob@12.15.0:
-    resolution: {integrity: sha512-e7JBKLOFi0QVJqqLzrjx1eL3je3/Ug2IQj24cTM9b85CsnnFjLGeGjJVIjbGGZaytewiCEG7r3lRwQX7fKj0/w==}
+  /@azure/storage-blob@12.17.0:
+    resolution: {integrity: sha512-sM4vpsCpcCApagRW5UIjQNlNylo02my2opgp0Emi8x888hZUvJ3dN69Oq20cEGXkMUWnoCrBaB0zyS3yeB87sQ==}
     engines: {node: '>=14.0.0'}
     dependencies:
       '@azure/abort-controller': 1.1.0
@@ -342,7 +342,7 @@ packages:
       '@azure/core-tracing': 1.0.0-preview.13
       '@azure/logger': 1.0.4
       events: 3.3.0
-      tslib: 2.5.0
+      tslib: 2.6.2
     transitivePeerDependencies:
       - encoding
     dev: false
@@ -5803,10 +5803,6 @@ packages:
       minimist: 1.2.8
       strip-bom: 3.0.0
     dev: true
-
-  /tslib@2.5.0:
-    resolution: {integrity: sha512-336iVw3rtn2BUK7ORdIAHTyxHGRIHVReokCR3XjbckJMK7ms8FysBfhLR8IXnAgy7T0PTPNBWKiH514FOW/WSg==}
-    dev: false
 
   /tslib@2.6.2:
     resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
