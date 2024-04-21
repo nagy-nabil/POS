@@ -9,7 +9,7 @@ import { OfferItem, type OfferItemProps } from "./offerDisplay";
 import { LibraryDisplay } from "./productDisplay";
 import { Button } from "./ui/button";
 
-export function CartView({onSuccess}: {onSuccess?: () => void;}) {
+export function CartView({ onSuccess }: { onSuccess?: () => void }) {
   const cart = useCart();
   const cartClear = useCartClear();
   const products = api.products.getMany.useQuery(undefined, {
@@ -23,26 +23,34 @@ export function CartView({onSuccess}: {onSuccess?: () => void;}) {
   const utils = api.useUtils();
 
   const orderMut = api.orders.insertOne.useMutation({
-    onError(error) {
-      setOperationError(error.message);
-    },
-    onSuccess: (data) => {
+    onMutate: async (data) => {
+      // Cancel any outgoing refetches
+      // (so they don't overwrite our optimistic update)
+      await utils.orders.getMany.cancel();
+      // Optimistically update to the new value
       cartClear.mutate();
       // update products store
       utils.products.getMany.setData(undefined, (prev) => {
-        const productsTemp: Product[] = [];
-        const lookUp = new Set<string>();
-        data.products.forEach((item) => {
-          productsTemp.push(item.Product);
-          lookUp.add(item.Product.id);
+        const productsMap: Record<string, number> = {};
+        data.products.forEach((product) => {
+          productsMap[product.id] = product.quantity;
         });
-        return prev
-          ? [...productsTemp, ...prev.filter((test) => !lookUp.has(test.id))]
-          : [];
+        prev!.forEach((product) => {
+          if (product.id in productsMap) {
+            product.stock -= productsMap[product.id];
+          }
+        });
+        return [...prev!];
       });
-      if(onSuccess){
+      if (onSuccess) {
         onSuccess();
       }
+      return;
+    },
+    async onError(error) {
+      await utils.products.invalidate();
+      await utils.offers.invalidate();
+      setOperationError(error.message);
     },
   });
 
