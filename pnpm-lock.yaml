@@ -62,6 +62,9 @@ dependencies:
   '@tanstack/react-query':
     specifier: ^4.36.1
     version: 4.36.1(react-dom@18.2.0)(react@18.2.0)
+  '@tanstack/react-query-persist-client':
+    specifier: ^4.36.1
+    version: 4.36.1(@tanstack/react-query@4.36.1)
   '@tanstack/react-table':
     specifier: ^8.15.3
     version: 8.15.3(react-dom@18.2.0)(react@18.2.0)
@@ -98,6 +101,9 @@ dependencies:
   i18next:
     specifier: ^23.10.1
     version: 23.10.1
+  idb-keyval:
+    specifier: ^6.2.1
+    version: 6.2.1
   jsonwebtoken:
     specifier: ^9.0.2
     version: 9.0.2
@@ -1995,6 +2001,12 @@ packages:
   /@tanstack/query-core@4.36.1:
     resolution: {integrity: sha512-DJSilV5+ytBP1FbFcEJovv4rnnm/CokuVvrBEtW/Va9DvuJ3HksbXUJEpI0aV1KtuL4ZoO9AVE6PyNLzF7tLeA==}
 
+  /@tanstack/query-persist-client-core@4.36.1:
+    resolution: {integrity: sha512-eocgCeI7D7TRv1IUUBMfVwOI0wdSmMkBIbkKhqEdTrnUHUQEeOaYac8oeZk2cumAWJdycu6P/wB+WqGynTnzXg==}
+    dependencies:
+      '@tanstack/query-core': 4.36.1
+    dev: false
+
   /@tanstack/react-query-devtools@4.36.1(@tanstack/react-query@4.36.1)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-WYku83CKP3OevnYSG8Y/QO9g0rT75v1om5IvcWUwiUZJ4LanYGLVCZ8TdFG5jfsq4Ej/lu2wwDAULEUnRIMBSw==}
     peerDependencies:
@@ -2009,6 +2021,15 @@ packages:
       superjson: 1.13.3
       use-sync-external-store: 1.2.0(react@18.2.0)
     dev: true
+
+  /@tanstack/react-query-persist-client@4.36.1(@tanstack/react-query@4.36.1):
+    resolution: {integrity: sha512-32I5b9aAu4NCiXZ7Te/KEQLfHbYeTNriVPrKYcvEThnZ9tlW01vLcSoxpUIsMYRsembvJUUAkzYBAiZHLOd6pQ==}
+    peerDependencies:
+      '@tanstack/react-query': ^4.36.1
+    dependencies:
+      '@tanstack/query-persist-client-core': 4.36.1
+      '@tanstack/react-query': 4.36.1(react-dom@18.2.0)(react@18.2.0)
+    dev: false
 
   /@tanstack/react-query@4.36.1(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-y7ySVHFyyQblPl3J3eQBWpXZkliroki3ARnBKsdJchlgt7yJLRDUcf4B8soufgiYt3pEQIkBWBx1N9/ZPIeUWw==}
@@ -4006,6 +4027,10 @@ packages:
     resolution: {integrity: sha512-NDiIzFbcs3O9PXpfhkjyf7WdqFn5Vq6mhzhtkXzj51aOcNuPNcTwuYNuXCpHsanZGHlHKL35G7huoFeVic1hng==}
     dependencies:
       '@babel/runtime': 7.24.1
+    dev: false
+
+  /idb-keyval@6.2.1:
+    resolution: {integrity: sha512-8Sb3veuYCyrZL+VBt9LJfZjLUPWVvqn8tG28VqYNFCo43KHcKuq+b4EiXGeuaLAQWL2YmyDgMp2aSpH9JHsEQg==}
     dev: false
 
   /ignore@5.3.1:

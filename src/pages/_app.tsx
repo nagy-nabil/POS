@@ -1,3 +1,8 @@
+import { createIDBPersister } from '@/utils/IDBPersister';
+import { useQueryClient } from '@tanstack/react-query'
+import {
+  persistQueryClient,
+} from '@tanstack/react-query-persist-client'
 import { useEffect, type ReactElement } from "react";
 import type { NextPage } from "next";
 import type { AppProps } from "next/app";
@@ -17,6 +22,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@radix-ui/react-toast";
 import { Loader } from "lucide-react";
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 export type LayoutT = (page: ReactElement) => ReactElement;
 
@@ -102,7 +108,20 @@ async function installSW(onUpdate: () => void) {
   }
 }
 
+const usePersistQueryClient = () => {
+  const queryClient = useQueryClient()
+  useEffect(() => {
+    const persister = createIDBPersister();
+    void persistQueryClient({
+      queryClient,
+      persister,
+      maxAge: 60 * 60 * 24,
+    });
+  }, [])
+}
+
 const MyApp = ({ Component, pageProps }: CustomAppProps) => {
+  usePersistQueryClient();
   const { toast } = useToast();
   const router = useRouter();
   useEffect(() => {
@@ -146,8 +165,11 @@ const MyApp = ({ Component, pageProps }: CustomAppProps) => {
           </ThemeProvider>
         </TooltipProvider>
       </SessionProvider>
+      <ReactQueryDevtools />
     </>
   );
 };
+
+
 
 export default api.withTRPC(appWithTranslation(MyApp));
