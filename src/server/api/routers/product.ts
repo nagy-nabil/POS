@@ -36,11 +36,11 @@ export const productsRouter = createTRPCRouter({
     .input(
       z.object({
         /**
-         * id to be updated
+         * id to be updated(old id)
          */
-        productId: z.string().nonempty(),
+        productId: z.string(),
         product: productSchema.extend({ id: z.string() }),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       return await ctx.prisma.product.update({

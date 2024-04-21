@@ -23,8 +23,6 @@ export async function getStaticProps({ locale }: GetStaticPropsContext) {
   };
 }
 
-// const columnHelper = createColumnHelper<Product>();
-
 function Table(props: { data: Product[] }) {
   const { t } = useTranslation();
   const columns: ColumnDef<Product>[] = useMemo(

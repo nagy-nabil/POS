@@ -7,6 +7,8 @@ import { api } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
 import { Html5QrcodeScannerState, type Html5QrcodeScanner } from "html5-qrcode";
+import { uniqueId } from "lodash";
+import { useSession } from "next-auth/react";
 import { useTranslation } from "next-i18next";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { BiEdit } from "react-icons/bi";
@@ -32,6 +34,7 @@ export type ProductModalProps = {
 };
 
 const ProductModal: React.FC<ProductModalProps> = (props) => {
+  const { data: session } = useSession();
   const { t } = useTranslation();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const scannerRef = useRef<Html5QrcodeScanner | undefined>(undefined);
@@ -68,41 +71,95 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
   }
 
   // react-query
+  // TODO: replace with cloudinary
   const imageMut = useUploadAzure();
   const categoryQuery = api.categories.getMany.useQuery(undefined, {
     staleTime: Infinity,
   });
   const productInsert = api.products.insertOne.useMutation({
-    onSuccess: (data) => {
+    onMutate: async (newPorduct) => {
+      // Cancel any outgoing refetches
+      // (so they don't overwrite our optimistic update)
+      await utils.products.getMany.cancel();
+      // Snapshot the previous value
+      const previousProducts = utils.products.getMany.getData();
+      // Optimistically update to the new value
       utils.products.getMany.setData(undefined, (prev) => [
         ...(prev ?? []),
-        data,
+        {
+          ...newPorduct,
+          id: newPorduct.id ?? uniqueId(),
+          createdAt: new Date(),
+          createdById: session!.user.id,
+        },
       ]);
+      // Return a context object with the snapshotted value
+      return { previousProducts };
+    },
+    onSuccess: () => {
       resetModalState();
       if (props.afterSuccess !== undefined) {
         props.afterSuccess();
       }
     },
-    onError(err) {
+    // If the mutation fails,
+    // use the context returned from onMutate to roll back
+    onError(err, newTodo, context) {
+      utils.products.getMany.setData(
+        undefined,
+        context?.previousProducts ?? [],
+      );
       setErrors(err.message);
+    },
+    // Always refetch after error or success:
+    onSettled: async () => {
+      await utils.products.getMany.invalidate();
     },
   });
 
   const productUpdate = api.products.updateOne.useMutation({
-    onSuccess: (data, variables) => {
+    onMutate: async (newPorduct) => {
+      // Cancel any outgoing refetches
+      // (so they don't overwrite our optimistic update)
+      await utils.products.getMany.cancel();
+      // Snapshot the previous value
+      const previousProducts = utils.products.getMany.getData();
+      // Optimistically update to the new value
+
       // remove the one with the id of the input and insert the returned from the mutation
-      utils.products.getMany.setData(undefined, (prev) =>
-        prev
-          ? [...prev.filter((test) => test.id !== variables.productId), data]
-          : [data],
-      );
+      utils.products.getMany.setData(undefined, (prev) => {
+        const oldProduct = prev!.find(
+          (test) => test.id === newPorduct.productId,
+        )!;
+        return [
+          ...prev!.filter((test) => test.id !== newPorduct.productId),
+          {
+            ...newPorduct.product,
+            createdAt: oldProduct.createdAt,
+            createdById: oldProduct.createdById,
+            id: newPorduct.product.id,
+          },
+        ];
+      });
+      // Return a context object with the snapshotted value
+      return { previousProducts };
+    },
+    onSuccess: () => {
       resetModalState();
       if (props.afterSuccess !== undefined) {
         props.afterSuccess();
       }
     },
-    onError(err) {
+    onError(err, _, context) {
+      utils.products.getMany.setData(
+        undefined,
+        context?.previousProducts ?? [],
+      );
       setErrors(err.message);
+    },
+    // Always refetch after error or success:
+    onSettled: async () => {
+      await utils.products.getMany.invalidate();
     },
   });
 
@@ -174,7 +231,10 @@ const ProductModal: React.FC<ProductModalProps> = (props) => {
       }}
       buttonChildren={
         props.operationType === "post" ? (
-          <>Create Product<RiAddLine size={24} /></>
+          <>
+            Create Product
+            <RiAddLine size={24} />
+          </>
         ) : (
           <BiEdit className="text-yellow-400" size={24} />
         )
