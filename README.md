@@ -1,4 +1,4 @@
-# Zagy
+# Zagy POS
 
 point of sale.(check the demo in [demo](https://pos-git-demo-zagy.vercel.app/en/signin))
 
@@ -26,3 +26,4 @@ point of sale.(check the demo in [demo](https://pos-git-demo-zagy.vercel.app/en/
 - [ ] Admin can create staff with custom permissions
 - [ ] Expenses/loses managment
 - [ ] offers
+- [ ] local-first
