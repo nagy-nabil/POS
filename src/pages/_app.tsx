@@ -1,14 +1,12 @@
-import { createIDBPersister } from '@/utils/IDBPersister';
-import { useQueryClient } from '@tanstack/react-query'
-import {
-  persistQueryClient,
-} from '@tanstack/react-query-persist-client'
 import { useEffect, type ReactElement } from "react";
 import type { NextPage } from "next";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
 import { Toaster } from "@/components/ui/toaster";
 import { api } from "@/utils/api";
+import { createIDBPersister } from "@/utils/IDBPersister";
+import { useQueryClient } from "@tanstack/react-query";
+import { persistQueryClient } from "@tanstack/react-query-persist-client";
 import { type Session } from "next-auth";
 import { SessionProvider, useSession } from "next-auth/react";
 import { appWithTranslation } from "next-i18next";
@@ -20,9 +18,10 @@ import Layout from "@/components/layout";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useToast } from "@/components/ui/use-toast";
+import { useOfflineIndicator } from "@/hooks/useOfflineIndicator";
 import { ToastAction } from "@radix-ui/react-toast";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Loader } from "lucide-react";
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 export type LayoutT = (page: ReactElement) => ReactElement;
 
@@ -109,7 +108,7 @@ async function installSW(onUpdate: () => void) {
 }
 
 const usePersistQueryClient = () => {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   useEffect(() => {
     const persister = createIDBPersister();
     void persistQueryClient({
@@ -117,10 +116,11 @@ const usePersistQueryClient = () => {
       persister,
       maxAge: 60 * 60 * 24,
     });
-  }, [])
-}
+  }, []);
+};
 
 const MyApp = ({ Component, pageProps }: CustomAppProps) => {
+  useOfflineIndicator();
   usePersistQueryClient();
   const { toast } = useToast();
   const router = useRouter();
@@ -169,7 +169,5 @@ const MyApp = ({ Component, pageProps }: CustomAppProps) => {
     </>
   );
 };
-
-
 
 export default api.withTRPC(appWithTranslation(MyApp));
