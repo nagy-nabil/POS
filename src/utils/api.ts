@@ -5,6 +5,7 @@
  * We also create a few inference helpers for input and output types.
  */
 import { type AppRouter } from "@/server/api/root";
+import { MutationCache } from "@tanstack/react-query";
 import { httpBatchLink, loggerLink } from "@trpc/client";
 import { createTRPCNext } from "@trpc/next";
 import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
@@ -27,14 +28,23 @@ export const api = createTRPCNext<AppRouter>({
        */
       transformer: superjson,
       queryClientConfig: {
+        mutationCache: new MutationCache({
+          onSuccess: (data) => {
+            console.log("onSuces", data);
+          },
+          onError: (error) => {
+            console.log("onError", error);
+          },
+        }),
         defaultOptions: {
           queries: {
+            staleTime: Infinity,
+            cacheTime: Infinity,
             networkMode:
               process.env.NODE_ENV === "development" ? "always" : "online",
           },
           mutations: {
-            networkMode:
-              process.env.NODE_ENV === "development" ? "always" : "online",
+            networkMode: "online",
           },
         },
       },
@@ -67,6 +77,7 @@ export const api = createTRPCNext<AppRouter>({
    * @see https://trpc.io/docs/nextjs#ssr-boolean-default-false
    */
   ssr: false,
+  // reactQueryContext: PersistQueryClientProvider,
 });
 
 /**

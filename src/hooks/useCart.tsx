@@ -50,6 +50,8 @@ function useCartProductInc() {
   const queryClient = useQueryClient();
 
   return useMutation<void, Error, CartProductIncVar>({
+    networkMode: "always",
+    mutationKey: ["incProduct"],
     // eslint-disable-next-line @typescript-eslint/require-await
     async mutationFn(variables) {
       queryClient.setQueryData<CartT>(CART_KEY, (prev) => {
@@ -117,6 +119,8 @@ function useCarOffertInc() {
   const productInc = useCartProductInc();
 
   return useMutation<void, Error, CartOfferIncVar>({
+    networkMode: "always",
+    mutationKey: ["incOffer"],
     // eslint-disable-next-line @typescript-eslint/require-await
     async mutationFn(variables) {
       queryClient.setQueryData<CartT>(CART_KEY, (prev) => {
@@ -128,7 +132,7 @@ function useCarOffertInc() {
             id: product.id,
             fromOffer: true,
             quantity: product.quantity,
-          })
+          }),
         );
 
         if (!prev) {
@@ -171,6 +175,8 @@ function useCarProductDec() {
   const queryClient = useQueryClient();
 
   return useMutation<void, Error, CartProductIncVar>({
+    networkMode: "always",
+    mutationKey: ["decProduct"],
     // eslint-disable-next-line @typescript-eslint/require-await
     async mutationFn(variables) {
       queryClient.setQueryData<CartT>(CART_KEY, (prev) => {
@@ -219,6 +225,8 @@ function useCarOfferDec() {
   const productDec = useCarProductDec();
 
   return useMutation<void, Error, CartOfferIncVar>({
+    networkMode: "always",
+    mutationKey: ["decOffer"],
     // eslint-disable-next-line @typescript-eslint/require-await
     async mutationFn(variables) {
       queryClient.setQueryData<CartT>(CART_KEY, (prev) => {
@@ -242,7 +250,7 @@ function useCarOfferDec() {
             id: product.id,
             fromOffer: true,
             quantity: product.quantity * quantity,
-          })
+          }),
         );
 
         const item: CartT["offers"][number] = {
@@ -269,6 +277,8 @@ function useCartRemoveProduct() {
   const productDec = useCarProductDec();
 
   return useMutation<void, Error, { id: CartItem["id"] }>({
+    networkMode: "always",
+    mutationKey: ["rmProduct"],
     // eslint-disable-next-line @typescript-eslint/require-await
     async mutationFn(variables) {
       const { id } = variables;
@@ -293,6 +303,8 @@ function useCartRemoveOffer() {
 
   return useMutation<void, Error, { id: CartItem["id"]; products: CartItem[] }>(
     {
+      networkMode: "always",
+      mutationKey: ["rmOffer"],
       // eslint-disable-next-line @typescript-eslint/require-await
       async mutationFn(variables) {
         const { id, products } = variables;
@@ -308,7 +320,7 @@ function useCartRemoveOffer() {
           products,
         });
       },
-    }
+    },
   );
 }
 
@@ -319,6 +331,8 @@ function useCartClear() {
   const queryClient = useQueryClient();
 
   return useMutation<void, Error, void>({
+    networkMode: "always",
+    mutationKey: ["clearCart"],
     // eslint-disable-next-line @typescript-eslint/require-await
     async mutationFn() {
       queryClient.setQueryData<CartT>(CART_KEY, () => {
@@ -332,18 +346,16 @@ function useCartClear() {
 }
 
 /**
-  * set product quantity on the cart
-  *
-  * cannot set offer quantity (for now)
-  */
+ * set product quantity on the cart
+ *
+ * cannot set offer quantity (for now)
+ */
 function useCartProductSet() {
   const queryClient = useQueryClient();
 
-  return useMutation<
-    void,
-    Error,
-    { id: CartItem["id"]; quantity: number }
-  >({
+  return useMutation<void, Error, { id: CartItem["id"]; quantity: number }>({
+    networkMode: "always",
+    mutationKey: ["setProduct"],
     // eslint-disable-next-line @typescript-eslint/require-await
     async mutationFn(variables) {
       if (variables.quantity < 0) {
@@ -356,8 +368,8 @@ function useCartProductSet() {
           const item: CartT["products"][number] = {
             id,
             quantity,
-            quantityFromOffers: 0
-          }
+            quantityFromOffers: 0,
+          };
 
           return {
             offers: [],
@@ -365,18 +377,18 @@ function useCartProductSet() {
           };
         }
 
-        const oldItem = prev.products.find(product => product.id === id);
-          return {
-            ...prev,
-            products: [
-              ...prev.products.filter((i) => i.id !== id),
-              {
-                id,
-                quantity,
-                quantityFromOffers: oldItem?.quantityFromOffers ?? 0
-              },
-            ],
-          };
+        const oldItem = prev.products.find((product) => product.id === id);
+        return {
+          ...prev,
+          products: [
+            ...prev.products.filter((i) => i.id !== id),
+            {
+              id,
+              quantity,
+              quantityFromOffers: oldItem?.quantityFromOffers ?? 0,
+            },
+          ],
+        };
       });
     },
   });

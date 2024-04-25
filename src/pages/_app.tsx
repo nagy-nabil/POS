@@ -1,12 +1,15 @@
-import { useEffect, type ReactElement } from "react";
+import { useEffect, useRef, useState, type ReactElement } from "react";
 import type { NextPage } from "next";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
 import { Toaster } from "@/components/ui/toaster";
 import { api } from "@/utils/api";
 import { createIDBPersister } from "@/utils/IDBPersister";
-import { useQueryClient } from "@tanstack/react-query";
-import { persistQueryClient } from "@tanstack/react-query-persist-client";
+import { IsRestoringProvider, useQueryClient } from "@tanstack/react-query";
+import {
+  persistQueryClientRestore,
+  persistQueryClientSubscribe,
+} from "@tanstack/react-query-persist-client";
 import { type Session } from "next-auth";
 import { SessionProvider, useSession } from "next-auth/react";
 import { appWithTranslation } from "next-i18next";
@@ -19,8 +22,10 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useToast } from "@/components/ui/use-toast";
 import { useOfflineIndicator } from "@/hooks/useOfflineIndicator";
+import type { RouterInput } from "@/server/api/root";
 import { ToastAction } from "@radix-ui/react-toast";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { getQueryKey } from "@trpc/react-query";
 import { Loader } from "lucide-react";
 
 export type LayoutT = (page: ReactElement) => ReactElement;
@@ -107,21 +112,57 @@ async function installSW(onUpdate: () => void) {
   }
 }
 
+const persister = createIDBPersister();
 const usePersistQueryClient = () => {
   const queryClient = useQueryClient();
+  const utils = api.useUtils();
+
+  const [isRestoring, setIsRestoring] = useState(true);
+  const didRestore = useRef(false);
+
   useEffect(() => {
-    const persister = createIDBPersister();
-    void persistQueryClient({
-      queryClient,
-      persister,
-      maxAge: 60 * 60 * 24,
+    queryClient.setMutationDefaults(getQueryKey(api.orders.insertOne), {
+      mutationFn: async (vars: RouterInput["orders"]["insertOne"]) => {
+        // to avoid clashes with our optimistic update when an offline mutation continues
+        await queryClient.cancelQueries({ queryKey: ["orders"] });
+        await queryClient.cancelQueries({ queryKey: ["products"] });
+        const res = await utils.client.orders.insertOne.mutate(vars);
+        return res;
+      },
     });
-  }, []);
+    if (!didRestore.current) {
+      didRestore.current = true;
+      setIsRestoring(true);
+      persistQueryClientRestore({
+        persister,
+        queryClient,
+      })
+        .then(async () => {
+          try {
+            await queryClient.resumePausedMutations();
+            await queryClient.invalidateQueries();
+          } finally {
+            setIsRestoring(false);
+          }
+        })
+        .catch((e) => {
+          console.log("🪵 [_app.tsx:135] ~ token ~ \x1b[0;32me\x1b[0m = ", e);
+        });
+    }
+    return isRestoring
+      ? undefined
+      : persistQueryClientSubscribe({
+          persister,
+          queryClient,
+        });
+  }, [queryClient, isRestoring, utils.client.orders.insertOne]);
+
+  return isRestoring;
 };
 
 const MyApp = ({ Component, pageProps }: CustomAppProps) => {
   useOfflineIndicator();
-  usePersistQueryClient();
+  const isRestoring = usePersistQueryClient();
   const { toast } = useToast();
   const router = useRouter();
   useEffect(() => {
@@ -149,7 +190,7 @@ const MyApp = ({ Component, pageProps }: CustomAppProps) => {
         : (page) => page;
 
   return (
-    <>
+    <IsRestoringProvider value={isRestoring}>
       <Head>
         <title>Zagy | POS</title>
       </Head>
@@ -166,7 +207,7 @@ const MyApp = ({ Component, pageProps }: CustomAppProps) => {
         </TooltipProvider>
       </SessionProvider>
       <ReactQueryDevtools />
-    </>
+    </IsRestoringProvider>
   );
 };
 

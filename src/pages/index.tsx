@@ -32,7 +32,6 @@ const Home: NextPageWithProps = (_props) => {
   const router = useRouter();
   const query = router.query as TypedQueryParams;
   const { t } = useTranslation();
-
   return (
     <>
       <Head>

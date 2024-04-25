@@ -53,7 +53,6 @@ export function CartView({ onSuccess }: { onSuccess?: () => void }) {
       setOperationError(error.message);
     },
   });
-
   if (
     products.isLoading ||
     products.isError ||
@@ -145,14 +144,16 @@ export function CartView({ onSuccess }: { onSuccess?: () => void }) {
         </span>
 
         <Button
-          disabled={orderMut.isLoading || itemsLen === 0}
+          disabled={
+            (orderMut.isLoading && !orderMut.isPaused) || itemsLen === 0
+          }
           variant={"default"}
           className="w-full"
           size={"lg"}
           type="button"
           onClick={() => orderMut.mutate(cart.data)}
         >
-          {orderMut.isLoading ? (
+          {orderMut.isLoading && !orderMut.isPaused ? (
             <CgSpinner className="animate-spin text-2xl" />
           ) : (
             t("crate.footer.button")
