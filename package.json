@@ -1,6 +1,6 @@
 {
   "name": "pos",
-  "version": "0.1.21",
+  "version": "0.1.24",
   "private": true,
   "packageManager": "pnpm@8.14.1",
   "scripts": {
