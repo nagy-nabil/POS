@@ -135,8 +135,8 @@ dependencies:
     specifier: 18.2.0
     version: 18.2.0
   react-charts:
-    specifier: 3.0.0-beta.55
-    version: 3.0.0-beta.55(react-dom@18.2.0)(react@18.2.0)
+    specifier: 3.0.0-beta.57
+    version: 3.0.0-beta.57(react-dom@18.2.0)(react@18.2.0)
   react-dom:
     specifier: 18.2.0
     version: 18.2.0(react@18.2.0)
@@ -5125,13 +5125,13 @@ packages:
   /queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
-  /react-charts@3.0.0-beta.55(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-PuPGoK/3B4SgmnANqh1+biuJAN/iYAvLO/juLKJ2dtF0+Wzfa0KarGbgAij2o8P83bAn9bZnu46RCevNvYwOjQ==}
+  /react-charts@3.0.0-beta.57(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-vqas7IQhsnDGcMxreGaWXvSIL3poEMoUBNltJrslz/+m0pI3QejBCszL1QrLNYQfOWXrbZADfedi/a+yWOQ7Hw==}
     peerDependencies:
       react: '>=16'
       react-dom: '>=16'
     dependencies:
-      '@babel/runtime': 7.22.5
+      '@babel/runtime': 7.24.1
       '@types/d3-array': 3.0.5
       '@types/d3-scale': 4.0.3
       '@types/d3-shape': 3.1.1
