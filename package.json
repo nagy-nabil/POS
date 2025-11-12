@@ -45,7 +45,7 @@
     "@trpc/server": "^10.45.2",
     "bcrypt": "^5.1.1",
     "class-variance-authority": "^0.7.0",
-    "cloudinary": "^2.1.0",
+    "cloudinary": "^2.7.0",
     "clsx": "^2.1.0",
     "html5-qrcode": "^2.3.8",
     "i18next": "^23.10.1",
