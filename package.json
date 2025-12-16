@@ -42,7 +42,7 @@
     "@trpc/client": "^10.38.5",
     "@trpc/next": "^10.45.2",
     "@trpc/react-query": "^10.45.2",
-    "@trpc/server": "^10.45.2",
+    "@trpc/server": "^10.45.3",
     "bcrypt": "^5.1.1",
     "class-variance-authority": "^0.7.0",
     "cloudinary": "^2.1.0",
